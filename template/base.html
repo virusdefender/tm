@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ STATIC_URL }}favicon.ico"/>
+    <title>
+        {% block title %}天目未来{% endblock %}
+    </title>
+    <script src="http://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
+    <script src="{{ STATIC_URL }}js/avalon.min.js"></script>
+    <script src="{{ STATIC_URL }}js/amazeui.min.js"></script>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/amazeui.css">
+    {% block cssblock %}
+    {% endblock %}
+    {% block javascriptblock %}
+    {% endblock %}
+</head>
+<body>
+{% block body %}
+{% endblock %}
+<footer data-am-widget="footer" class="am-footer am-footer-default">
+
+    <div class="am-footer-miscs ">
+
+        <p>CopyRight©2015 天目未来</p>
+
+        <p><a href="http://www.miibeian.gov.cn/">鲁ICP备14015286号</a></p>
+    </div>
+</footer>
+
+</body>
+</html>
