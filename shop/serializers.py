@@ -16,7 +16,7 @@ class ShopSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    child_category = serializers.SerializerMethodField()
+    child_category = serializers.SerializerMethodField("get_child_category")
 
     class Meta:
         model = Category
