@@ -59,12 +59,13 @@
                   var module = $.AMUI[m];
                   module && module.init && module.init();
                 });
+                $.AMUI.progress.done();
 
             }
         });
 
 
-        $.AMUI.progress.done();
+
 
     });
 </script>
