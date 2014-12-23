@@ -23,15 +23,11 @@
             dataType: "json",
             async: false,
             success: function (json) {
-                console.log(json);
                 for (var item in json) {
-                    console.log(item);
                     var menu = {subMenu: [], "subCols": "4"};
-                    console.log(json[item].name);
                     menu.title = json[item].name;
                     menu.link = "##";
                     for (var sub in json[item]["child_category"]) {
-                        console.log(sub);
                         menu.subMenu.push({title: json[item]["child_category"][sub].name, "link": "111"})
                     }
                     content.push(menu);
@@ -65,5 +61,5 @@
         })
     });
 </script>
-
+{% include 'foot.html' %}
 {% endblock %}
