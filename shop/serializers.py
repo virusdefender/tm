@@ -15,11 +15,11 @@ class ShopSerializer(serializers.ModelSerializer):
                   "personalized_recommendation"]
 
 
-class CategorySerializer(serializers.ModelSerializer):
+class CategorySerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField(max_length=30)
+    is_index = serializers.BooleanField()
     child_category = serializers.SerializerMethodField("_get_child_category")
-
-    class Meta:
-        model = Category
 
     def _get_child_category(self, obj):
         return CategorySerializer(obj.child_category.all(), many=True).data
