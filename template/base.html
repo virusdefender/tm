@@ -13,6 +13,11 @@
     <script src="{{ STATIC_URL }}js/avalon.min.js"></script>
     <script src="{{ STATIC_URL }}js/amazeui.min.js"></script>
     <link rel="stylesheet" href="{{ STATIC_URL }}css/amazeui.css">
+    <style>
+        .am-gotop-fixed {
+            bottom: 60px;
+        }
+    </style>
     {% block cssblock %}
     {% endblock %}
     {% block javascriptblock %}
@@ -21,6 +26,7 @@
 <body>
 {% block body %}
 {% endblock %}
+{% include 'goto_top.html' %}
 <footer data-am-widget="footer" class="am-footer am-footer-default">
 
     <div class="am-footer-miscs ">
