@@ -13,8 +13,22 @@
 {% verbatim %}
 
 <script>
+    function update_product_list(category_id){
+        if(category_id == "init"){
+            alert("init");
+        }
+        else{
+            $.AMUI.progress.start();
+            alert("update" + category_id);
+            $.AMUI.progress.done();
+        }
+    }
+
     $(function () {
         $.AMUI.progress.start();
+        window.onhashchange = function(){
+            update_product_list(window.location.hash.substring(1));
+        };
         $.ajax({
             url: "/category/?shop=1",
             method: "get",
@@ -27,11 +41,11 @@
 
                     for (var sub in json[item]["child_category"]) {
                         menu.subMenu.push({title: json[item]["child_category"][sub].name,
-                            "link": "/product/?category=" + json[item]["child_category"][sub].id})
+                            "link": "#" + json[item]["child_category"][sub].id})
                     }
 
                     if(!menu.subMenu.length){
-                        menu.link = "/product/?category=" + json[item].id
+                        menu.link = "#" + json[item].id
                     }
                     else {
                         menu.link = "#";
@@ -55,12 +69,13 @@
                         html = template(data.category_data);
 
                 $('#category').html(html);
+                update_product_list("init");
+
                 $.each(['slider', 'menu', 'gallery', 'footer', 'navbar'], function(i, m) {
                   var module = $.AMUI[m];
                   module && module.init && module.init();
                 });
                 $.AMUI.progress.done();
-
             }
         });
 
