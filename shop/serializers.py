@@ -16,10 +16,10 @@ class ShopSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    child_category = serializers.SerializerMethodField("get_child_category")
+    child_category = serializers.SerializerMethodField("_get_child_category")
 
     class Meta:
         model = Category
 
-    def get_child_category(self, obj):
+    def _get_child_category(self, obj):
         return CategorySerializer(obj.child_category.all(), many=True).data
