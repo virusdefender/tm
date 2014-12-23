@@ -26,6 +26,14 @@ class UserLoginView(APIView):
         return Response(data={"status": "error", "content": u"用户名或密码错误"})
 
 
+class UserRegisterView(APIView):
+    def get(self, request):
+        return render(request, "account/register.html")
+
+    def post(self, request):
+        return Response(data={"status": "error", "content": u"注册失败"})
+
+
 def get_user_rank(user):
     if not user.is_authenticated():
         return {"rank": 0, "score": -1, "name": u"不是会员", "discount": 1}

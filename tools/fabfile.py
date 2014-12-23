@@ -12,6 +12,6 @@ def deploy():
         print green("将在远程仓库下载代码")
         run("git pull origin master")
         # del pyc
-        run('find /mnt/source/tm/ -name "*.pyc" | xargs rm -rf')
+        # run('find /mnt/source/tm/ -name "*.pyc" | xargs rm -rf')
 
         print green("代码部署成功！！！")
