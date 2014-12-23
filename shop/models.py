@@ -110,7 +110,7 @@ class Product(models.Model):
     remark = models.CharField(max_length=50, blank=True, help_text=u"备注，打印订单的时候会显示在商品名称最后面")
     # 现在在首页上 标题下面的 可能还会修改
     simple_introduction_top = models.CharField(max_length=200, default='<span style="color:red">￥元/袋</span>', help_text=u"显示在商品名称下面的简介")
-    simple_introduction_foot = models.CharField(max_length=200, blank=True, help_text=u"显示在上面那个简介下面的简介，暂时没显示")
+    # simple_introduction_foot = models.CharField(max_length=200, blank=True, help_text=u"显示在上面那个简介下面的简介，暂时没显示")
     price = models.DecimalField(max_digits=10, decimal_places=3, help_text=u"售价")
     # 原价 用来计算利润用的
     origin_price = models.DecimalField(max_digits=10, decimal_places=3, null=True, help_text=u"进价，用来计算利润用的")
@@ -132,7 +132,7 @@ class Product(models.Model):
     # 如果为True 说明为虚拟商品，分类用的，不能购买
     is_virtual = models.BooleanField(default=False, help_text=u"如果为True 说明为虚拟商品，分类用的，不能购买")
     # 如果这是不同口味的，就指向父商品
-    parent_product = models.ForeignKey("self", blank=True, null=True, help_text=u"如果这是不同口味的，就指向父商品")
+    parent_product = models.ForeignKey("self", related_name="child_product", blank=True, null=True, help_text=u"如果这是不同口味的，就指向父商品")
     # 口味的名字
     attr = models.CharField(max_length=20, blank=True, null=True, help_text=u"口味，颜色等属性")
     user_group = models.ManyToManyField(UserGroup, blank=True, null=True, help_text=u"只有属于这个分组里面的才能购买")

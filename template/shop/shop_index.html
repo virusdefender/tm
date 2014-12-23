@@ -9,4 +9,61 @@
 
 {% block body %}
 
+<script type="text/x-handlebars-template" id="main">
+    {% verbatim %}
+    {{>menu category_data}}
+    {% endverbatim %}
+</script>
+<script>
+    $(function () {
+        var content = [];
+        $.ajax({
+            url: "/category/?shop=1",
+            method: "get",
+            dataType: "json",
+            async: false,
+            success: function (json) {
+                console.log(json);
+                for (var item in json) {
+                    console.log(item);
+                    var menu = {subMenu: [], "subCols": "4"};
+                    console.log(json[item].name);
+                    menu.title = json[item].name;
+                    menu.link = "##";
+                    for (var sub in json[item]["child_category"]) {
+                        console.log(sub);
+                        menu.subMenu.push({title: json[item]["child_category"][sub].name, "link": "111"})
+                    }
+                    content.push(menu);
+                }
+                console.log("ajax success");
+            }
+        });
+
+        //console.log(content);
+        var $tpl = $('#main'),
+                tpl = $tpl.text(),
+                template = Handlebars.compile(tpl),
+
+                data = {
+                    category_data: {
+                        "theme": "default",
+                        "subCols": "2",
+                        "options": {
+                            "cols": 4, // 一级菜单列数 [1-12]
+                            "offCanvasFlip": false
+                        },
+                        // 菜单数据
+                        "content": content
+                    }
+                },
+                html = template(data);
+        $tpl.before(html);
+        $.each(['menu'], function (i, m) {
+            var module = $.AMUI[m];
+            module && module.init && module.init();
+        })
+    });
+</script>
+
 {% endblock %}

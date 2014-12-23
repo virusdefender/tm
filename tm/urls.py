@@ -2,7 +2,7 @@ from django.conf.urls import patterns, include, url
 
 from django.contrib import admin
 from account.views import UserLoginView, UserRegisterView
-from shop.views import CategoryView
+from shop.views import CategoryView, ProductView
 
 admin.autodiscover()
 
@@ -19,4 +19,5 @@ urlpatterns = patterns('',
 
                        url(r"^shop/", include("shop.urls")),
                        url(r"^category/$", CategoryView.as_view()),
+                       url(r"^product/$", ProductView.as_view()),
 )
