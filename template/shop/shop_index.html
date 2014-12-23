@@ -9,15 +9,43 @@
 
 {% block body %}
 <div id="category"></div>
-<div id="product"></div>
+<div id="product">
+    <div data-am-widget="list_news" class="am-list-news am-list-news-default">
+        <!--列表标题-->
+
+        <div class="am-list-news-bd">
+            <ul class="am-list">
+                <!--缩略图在标题下方居左-->
+                <li class="am-g am-list-item-desced am-list-item-thumbed am-list-item-thumb-bottom-left">
+
+
+                    <div class="am-u-sm-4 am-list-thumb">
+                        <a href="http://www.douban.com/online/11614662/">
+                            <img src="https://tmimage.b0.upaiyun.com/14173400666.%E6%98%9F%E7%90%83%E6%9D%AF%20%E5%B0%8F.png">
+                        </a>
+                    </div>
+                    <div class=" am-u-sm-8  am-list-main">
+                        <h3 class="am-list-item-hd">
+                        商品***
+                        </h3>
+                        <div class="am-list-item-text">
+                            囧人囧事囧照，人在囧途，越囧越萌。标记《带你出发，陪我回家》http://book.douban.com/subject/25711202/为“想读”“在读”或“读过”，有机会获得此书本活动进行3个月，每月送出三本书。会有不定期bonus！
+                        </div>
+                    </div>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</div>
 {% verbatim %}
 
 <script>
-    function update_product_list(category_id){
-        if(category_id == "init"){
+    function update_product_list(category_id) {
+        if (category_id == "init") {
             alert("init");
         }
-        else{
+        else {
             $.AMUI.progress.start();
             alert("update" + category_id);
             $.AMUI.progress.done();
@@ -26,7 +54,7 @@
 
     $(function () {
         $.AMUI.progress.start();
-        window.onhashchange = function(){
+        window.onhashchange = function () {
             update_product_list(window.location.hash.substring(1));
         };
         $.ajax({
@@ -40,11 +68,13 @@
                     menu.title = json[item].name;
 
                     for (var sub in json[item]["child_category"]) {
-                        menu.subMenu.push({title: json[item]["child_category"][sub].name,
-                            "link": "#" + json[item]["child_category"][sub].id})
+                        menu.subMenu.push({
+                            title: json[item]["child_category"][sub].name,
+                            "link": "#" + json[item]["child_category"][sub].id
+                        })
                     }
 
-                    if(!menu.subMenu.length){
+                    if (!menu.subMenu.length) {
                         menu.link = "#" + json[item].id
                     }
                     else {
@@ -71,15 +101,13 @@
                 $('#category').html(html);
                 update_product_list("init");
 
-                $.each(['slider', 'menu', 'gallery', 'footer', 'navbar'], function(i, m) {
-                  var module = $.AMUI[m];
-                  module && module.init && module.init();
+                $.each(['slider', 'menu', 'gallery', 'footer', 'navbar'], function (i, m) {
+                    var module = $.AMUI[m];
+                    module && module.init && module.init();
                 });
                 $.AMUI.progress.done();
             }
         });
-
-
 
 
     });
