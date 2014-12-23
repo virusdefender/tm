@@ -5,7 +5,6 @@ import datetime
 from django.db import models
 
 from DjangoUeditor.models import UEditorField
-from account.models import User
 
 
 class Shop(models.Model):
@@ -14,16 +13,17 @@ class Shop(models.Model):
     delivery_time = models.CharField(max_length=200, help_text=u"送货时间，请严格遵循标准，例子: 10:05-13:00;15:00-19:00")
     contact_information = models.CharField(max_length=200, help_text=u"联系信息，会在订单页面显示，可以为html")
     # 首单起运价格
-    first_order_min_money = models.FloatField(default=0, help_text=u"首单起运价格")
+    first_order_min_money = models.DecimalField(max_digits=10, decimal_places=2, help_text=u"首单起运价格")
     # 正常起运限制价格
-    ordinary_min_money = models.FloatField(default=0, help_text=u"正常起运价格")
+    ordinary_min_money = models.DecimalField(max_digits=10, decimal_places=3, help_text=u"正常起运价格")
     delivery_area = models.CharField(max_length=200, blank=True, help_text=u"配送区域")
     create_time = models.DateTimeField(auto_now_add=True)
     delivery_prepare_time = models.IntegerField(default=0, help_text=u"配送准备时间，系统提前这个时间结束下个时间段的预定，单位分钟")
     # 超级管理员 可以管理下面的admin
-    shop_super_admin = models.ForeignKey(User, related_name="super_admin", help_text=u"超级管理员")
+    # shop_super_admin = models.ForeignKey("account.User", related_name="super_admin", help_text=u"超级管理员")
     # 普通管理员
-    admin = models.ManyToManyField(User, blank=True, null=True, related_name="shop_admin", help_text=u"普通管理员，暂时没用到")
+    # admin = models.ManyToManyField("account.User", blank=True, null=True,
+    # related_name="shop_admin", help_text=u"普通管理员，暂时没用到")
     announcement = models.TextField(blank=True, null=True, help_text=u"全局公告")
     personalized_recommendation = models.BooleanField(default=True, help_text=u"是否开启个性化推荐")
     status = models.BooleanField(default=True, help_text=u"如果设置为false，代表关闭商店")
@@ -33,14 +33,6 @@ class Shop(models.Model):
 
     def __unicode__(self):
         return "%s" % self.name
-
-    def set_super_admin(self, user):
-        self.shop_super_admin = user
-        self.save()
-
-    def add_admin(self, user):
-        self.admin.add(user)
-        self.save()
 
     def get_delivery_time(self):
         hour = datetime.datetime.now().hour
@@ -76,10 +68,9 @@ class Category(models.Model):
     """商品分类"""
     shop = models.ForeignKey(Shop, help_text=u"这个分类属于哪个商店")
     name = models.CharField(max_length=50, db_index=True, help_text=u"分类的名字")
-    sort_type = models.CharField(max_length=20, choices=SORT_TYPE_CHOICES, help_text=u"排序方式")
     is_index = models.BooleanField(default=False, help_text=u"如果为true，打开商店首页显示的将是这个分类")
     sort_index = models.IntegerField(default=0, help_text=u"商店首页顶部分类名称排序")
-    parent_category = models.ForeignKey("self", blank=True, null=True, help_text=u"指向父级分类")
+    parent_category = models.ForeignKey("self", related_name="child_category", blank=True, null=True, help_text=u"指向父级分类")
 
     class Meta:
         db_table = "category"
@@ -99,6 +90,16 @@ class Icon(models.Model):
         return self.name
 
 
+class UserGroup(models.Model):
+    shop = models.ForeignKey(Shop)
+    name = models.CharField(max_length=20)
+    description = models.CharField(max_length=100, blank=True, null=True)
+    create_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "user_group"
+
+
 class Product(models.Model):
     """一个商品的表"""
     shop = models.ForeignKey(Shop, help_text=u"这个商品是哪个商店的")
@@ -110,16 +111,16 @@ class Product(models.Model):
     # 现在在首页上 标题下面的 可能还会修改
     simple_introduction_top = models.CharField(max_length=200, default='<span style="color:red">￥元/袋</span>', help_text=u"显示在商品名称下面的简介")
     simple_introduction_foot = models.CharField(max_length=200, blank=True, help_text=u"显示在上面那个简介下面的简介，暂时没显示")
-    price = models.FloatField(help_text=u"售价")
+    price = models.DecimalField(max_digits=10, decimal_places=3, help_text=u"售价")
     # 原价 用来计算利润用的
-    origin_price = models.FloatField(null=True, help_text=u"进价，用来计算利润用的")
+    origin_price = models.DecimalField(max_digits=10, decimal_places=3, null=True, help_text=u"进价，用来计算利润用的")
     # 单位 比如斤/5个 等等
     unit = models.CharField(max_length=50, help_text=u"单位")
     # 最多购买数量 -1表示无限制 ;0表示这个物品只能展示 不能购买 ;>0的正常限制
     max_num = models.IntegerField(default=-1, help_text=u"最多购买数量 -1表示无限制 ;0表示这个物品只能展示 不能购买 >0的正常限制")
     # 首页小图
     preview_pic = models.CharField(max_length=200, help_text=u"图片小图")
-    total_num = models.IntegerField(default=10000, help_text=u"库存数量，暂时没计算")
+    total_num = models.IntegerField(default=10000, help_text=u"库存数量")
     bought_num = models.IntegerField(default=0, help_text=u"该商品已经售出数量")
     create_time = models.DateTimeField(auto_now_add=True)
     last_modify_time = models.DateTimeField(auto_now=True)
@@ -134,6 +135,7 @@ class Product(models.Model):
     parent_product = models.ForeignKey("self", blank=True, null=True, help_text=u"如果这是不同口味的，就指向父商品")
     # 口味的名字
     attr = models.CharField(max_length=20, blank=True, null=True, help_text=u"口味，颜色等属性")
+    user_group = models.ManyToManyField(UserGroup, blank=True, null=True, help_text=u"只有属于这个分组里面的才能购买")
 
     class Meta:
         db_table = "product"
@@ -164,7 +166,7 @@ class Product(models.Model):
 
 
 class Order(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey("account.User")
     shop = models.ForeignKey(Shop)
     name = models.CharField(max_length=50)
     phone = models.CharField(max_length=15, blank=True)
@@ -175,7 +177,7 @@ class Order(models.Model):
     # status 可能有下面几种 等待处理 0 已经发货  1 订单完成 2 订单取消 3
     status = models.IntegerField(default=0)
     source = models.CharField(max_length=20, default="web")
-    total_money = models.FloatField(default=0)
+    total_money = models.DecimalField(max_digits=10, decimal_places=3, default=0)
     is_first = models.BooleanField(default=False)
 
     class Meta:
@@ -221,8 +223,8 @@ class OrderProduct(models.Model):
     name = models.CharField(max_length=50)
     remark = models.CharField(max_length=100, blank=True)
     preview_pic = models.CharField(max_length=200)
-    price = models.FloatField()
-    origin_price = models.FloatField()
+    price = models.DecimalField(max_digits=10, decimal_places=3)
+    origin_price = models.DecimalField(max_digits=10, decimal_places=3)
     unit = models.CharField(max_length=20)
     number = models.IntegerField()
 
@@ -234,11 +236,11 @@ class OrderProduct(models.Model):
 
     @property
     def total_money(self):
-        return round(self.price * self.number, 2)
+        pass
 
     @property
     def profit(self):
-        return round((self.price - self.origin_price) * self.number, 2)
+        pass
 
 
 class OrderLog(models.Model):
