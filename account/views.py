@@ -1,21 +1,12 @@
 # coding=utf-8
-import json
-import requests
-
-import random
-import time
-from django.db.models import Sum
-from django.db.models import Q
 from django.shortcuts import render
-from django.http import HttpResponse, Http404
-from django.contrib.auth.decorators import login_required
 from django.contrib import auth
-from django.views.generic import View
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
+
 from account.models import User, LoginLog, PasswordRecoveryLog
-from shop.models import Order
+from .serializers import UserLoginSerializer, UserRegisterSerializer
 
 
 class UserLoginView(APIView):
@@ -23,7 +14,31 @@ class UserLoginView(APIView):
         return render(request, "account/login.html")
 
     def post(self, request):
-        return Response(data={"status": "error", "content": u"用户名或密码错误"})
+        serializer = UserLoginSerializer(data=request.DATA)
+        if serializer.is_valid():
+            data = serializer.data
+
+            user = auth.authenticate(username=data["username"], password=data["password"])
+
+            if user is not None:
+                if user.is_active:
+                    LoginLog.objects.create(user=user, status="success", user_agent=request.META["HTTP_USER_AGENT"])
+                    auth.logout(request)
+                    auth.login(request, user)
+                    return Response(data={"status": "success"})
+                else:
+                    LoginLog.objects.create(user=user, status="in_active", user_agent=request.META["HTTP_USER_AGENT"])
+                    return Response(data={"status": "error", "content": u"用户状态异常，请重置密码"})
+            else:
+                try:
+                    user = User.objects.get(username=data["username"])
+                    LoginLog.objects.create(user=user, status="failed", user_agent=request.META["HTTP_USER_AGENT"])
+                    # TODO 检测密码暴力破解
+                except User.DoesNotExist:
+                    pass
+                return Response(data={"status": "error", "content": u"用户名或密码错误"})
+        else:
+            return Response(data={"status": "error", "content": u"用户名或密码错误"})
 
 
 class UserRegisterView(APIView):
@@ -31,6 +46,20 @@ class UserRegisterView(APIView):
         return render(request, "account/register.html")
 
     def post(self, request):
+        serializer = UserRegisterSerializer(data=request.DATA)
+        if serializer.is_valid():
+            data = serializer.data
+            try:
+                User.objects.get(username=data["username"])
+                return Response(data={"status": "error", "content": u"用户名已经存在"})
+            except User.DoesNotExist:
+                pass
+            if len(data["password"]) < 6:
+                return Response(data={"status": "error", "content": u"密码太短"})
+            user = User.objects.create(username=data["username"])
+            user.set_password(data["password"])
+            user.save()
+            return Response(data={"status": "success"})
         return Response(data={"status": "error", "content": u"注册失败"})
 
 

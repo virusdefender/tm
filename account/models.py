@@ -9,14 +9,20 @@ class User(AbstractUser):
     sex = models.CharField(max_length=3, blank=True, null=True)
     default_shop_id = models.IntegerField(blank=True, null=True)
 
+    class Meta:
+        db_table = "user"
+
 
 class PasswordRecoveryLog(models.Model):
     """发送密码恢复短信的记录
     """
     user = models.ForeignKey(User)
     send_time = models.DateTimeField(auto_now_add=True)
-    code = models.CharField()
+    code = models.CharField(max_length=10)
     status = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = "password_recovery_log"
 
 
 class LoginLog(models.Model):
@@ -26,4 +32,7 @@ class LoginLog(models.Model):
     time = models.DateTimeField(auto_now_add=True)
     user_agent = models.TextField(blank=True, null=True)
     # status=True表示密码正确 False表示密码错误
-    status = models.BooleanField()
+    status = models.CharField(max_length=30)
+
+    class Meta:
+        db_table = "login_log"

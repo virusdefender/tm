@@ -36,6 +36,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'account',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -85,4 +86,6 @@ TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'template'), )
 
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"), )
 
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 365 * 10
 
+AUTH_USER_MODEL = 'account.User'

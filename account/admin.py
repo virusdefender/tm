@@ -1,6 +1,6 @@
-#coding=utf-8
+# coding=utf-8
 from django.contrib import admin
-from .models import User, Security
+from .models import User, LoginLog, PasswordRecoveryLog
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -13,4 +13,3 @@ class SecurityAdmin(admin.ModelAdmin):
 
 
 admin.site.register(User, UserAdmin)
-admin.site.register(Security, SecurityAdmin)

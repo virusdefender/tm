@@ -28,6 +28,9 @@ class Shop(models.Model):
     personalized_recommendation = models.BooleanField(default=True, help_text=u"是否开启个性化推荐")
     status = models.BooleanField(default=True, help_text=u"如果设置为false，代表关闭商店")
 
+    class Meta:
+        db_table = "shop"
+
     def __unicode__(self):
         return "%s" % self.name
 
@@ -78,6 +81,9 @@ class Category(models.Model):
     sort_index = models.IntegerField(default=0, help_text=u"商店首页顶部分类名称排序")
     parent_category = models.ForeignKey("self", blank=True, null=True, help_text=u"指向父级分类")
 
+    class Meta:
+        db_table = "category"
+
     def __unicode__(self):
         return "%s %s" % (self.name, self.shop.name)
 
@@ -85,6 +91,9 @@ class Category(models.Model):
 class Icon(models.Model):
     name = models.CharField(max_length=20)
     code = models.CharField(max_length=200)
+
+    class Meta:
+        db_table = "icon"
 
     def __unicode__(self):
         return self.name
@@ -126,6 +135,9 @@ class Product(models.Model):
     # 口味的名字
     attr = models.CharField(max_length=20, blank=True, null=True, help_text=u"口味，颜色等属性")
 
+    class Meta:
+        db_table = "product"
+
     def __unicode__(self):
         return "%s %s %s %s" % (self.name, self.shop.name, self.price, self.is_virtual)
 
@@ -165,6 +177,9 @@ class Order(models.Model):
     source = models.CharField(max_length=20, default="web")
     total_money = models.FloatField(default=0)
     is_first = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = "order"
 
     def add_order_product(self, product_id, number):
         product = Product.objects.get(pk=product_id)
@@ -211,6 +226,9 @@ class OrderProduct(models.Model):
     unit = models.CharField(max_length=20)
     number = models.IntegerField()
 
+    class Meta:
+        db_table = "order_product"
+
     def __unicode__(self):
         return "%s %s %s" % (self.name, self.price, self.origin_price)
 
@@ -227,6 +245,9 @@ class OrderLog(models.Model):
     order = models.ForeignKey(Order)
     content = models.CharField(max_length=200)
     create_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "order_log"
 
     def __unicode__(self):
         return "%s" % self.content
