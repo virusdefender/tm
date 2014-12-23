@@ -70,7 +70,7 @@ class Category(models.Model):
     name = models.CharField(max_length=50, db_index=True, help_text=u"分类的名字")
     is_index = models.BooleanField(default=False, help_text=u"如果为true，打开商店首页显示的将是这个分类")
     sort_index = models.IntegerField(default=0, help_text=u"商店首页顶部分类名称排序")
-    parent_category = models.ForeignKey("self", related_name="child_category", blank=True, null=True, help_text=u"指向父级分类")
+    parent_category = models.ForeignKey("self", blank=True, null=True, help_text=u"指向父级分类")
 
     class Meta:
         db_table = "category"
