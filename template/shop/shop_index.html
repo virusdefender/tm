@@ -44,19 +44,22 @@
 
     $(function () {
         $.AMUI.progress.start();
+
+
+        var vm;
+
         // 当点击分类的时候修改hash 触发update ajax刷新产品页面
         function update_product_list(category_id) {
             if (category_id == "init") {
-                alert("init success");
+                console.log("init success");
             }
             else {
                 $.AMUI.progress.start();
-                alert("update" + category_id);
+                //alert("update" + category_id);
+                vm.product_list = [1, 2, 3, 4, 5, 6, 7];
                 $.AMUI.progress.done();
             }
         }
-
-        var vm;
 
         //初始化avalon
         avalon.ready(function () {
@@ -134,7 +137,7 @@
             dateType: "json",
             success: function(json){
                 vm.product_list = [1, 2, 3];
-                alert("init product list success");
+                console.log("init product list success");
             }
         });
 
