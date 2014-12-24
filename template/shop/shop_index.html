@@ -50,12 +50,14 @@
 
         // 当点击分类的时候修改hash 触发update ajax刷新产品页面
         function update_product_list(category_id) {
+            console.log("ajax product success");
             if (category_id == "init") {
                 console.log("init success");
             }
             else {
                 $.AMUI.progress.start();
                 //alert("update" + category_id);
+
                 vm.product_list = [1, 2, 3, 4, 5, 6, 7];
                 $.AMUI.progress.done();
             }
@@ -104,7 +106,7 @@
                     category_content.push(menu);
                 }
                 console.log(category_content);
-                console.log("ajax success");
+                console.log("ajax category success");
                 var template = Handlebars.compile('{{>menu}}'),
                         data = {
                             category_data: {
