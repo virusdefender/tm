@@ -15,22 +15,23 @@
         <p class="am-align-left" ms-click="show_product_detail(el)">
             <img src="https://tmimage.b0.upaiyun.com/14173400666.%E6%98%9F%E7%90%83%E6%9D%AF%20%E5%B0%8F.png" alt=""/>
         </p>
-
         <div style="height: 70px;">
-            <p style="margin-bottom: 0;">商品标题</p>
-            <span style="color:red">￥1.5元/份</span><br>
+            <p style="margin-bottom: 0;">{el.name}</p>
+            <span ms-html="el.simple_introduction_top"></span><br>
 
             <div class="am-btn-group am-btn-group-xs am-fr">
-                <button type="button" class="am-btn am-btn-primary">
+                <button type="button" class="am-btn am-btn-primary" ms-click="del_from_cart(el)">
                     <span class="am-icon-minus"></span>
                 </button>
-                <button type="button" class="am-btn am-btn-primary">0</button>
+                <button type="button" class="am-btn am-btn-primary">
+                    { el.cart_num }
+                </button>
                 <button type="button" class="am-btn am-btn-primary" ms-click="add_to_cart(el)">
                     <span class="am-icon-plus"></span>
                 </button>
             </div>
             <span class="am-fr" style="margin-right: 10px;">
-                <span class="am-badge am-badge-secondary">已售 302</span>
+                <span class="am-badge am-badge-secondary">已售 {el.bought_num}</span>
             </span>
         </div>
         <hr>
@@ -38,15 +39,14 @@
 
 </div>
 
-<div class="am-modal am-modal-no-btn" tabindex="-1" id="product_detail">
-  <div class="am-modal-dialog">
-    <div class="am-modal-hd">&nbsp;
-      <a href="javascript: void(0)" class="am-close am-close-spin" data-am-modal-close>&times;</a>
+<div class="am-modal am-modal-no-btn" tabindex="-1" id="modal">
+    <div class="am-modal-dialog">
+        <div class="am-modal-hd">&nbsp;
+            <a href="javascript: void(0)" class="am-close am-close-spin" data-am-modal-close>&times;</a>
+        </div>
+        <div class="am-modal-bd" id="modal_content">
+        </div>
     </div>
-    <div class="am-modal-bd">
-      <img src="http://tmimage.b0.upaiyun.com/141733908617.%E5%94%87%E5%8A%A8%E7%89%9B%E5%A5%B6.png">
-    </div>
-  </div>
 </div>
 <script>
 
@@ -54,22 +54,46 @@
     $(function () {
         $.AMUI.progress.start();
 
-
         var vm;
 
         // 当点击分类的时候修改hash 触发update ajax刷新产品页面
         function update_product_list(category_id) {
             if (category_id == "init" || category_id == "") {
-                console.log("init product list success");
-                vm.product_list = [1, 2, 3];
+                $.ajax({
+                    url: "/product/?category=2",
+                    method: "get",
+                    dataType: "json",
+                    success: function (json) {
+                        vm.product_list = json;
+                    }
+                });
             }
             else {
                 $.AMUI.progress.start();
                 //alert("update" + category_id);
                 console.log("change product list success");
-                vm.product_list = [1, 2, 3, 4, 5, 6, 7];
-                $.AMUI.progress.done();
+                $.ajax({
+                    url: "/product/?category=" + category_id.toString(),
+                    method: "get",
+                    dataType: "json",
+                    success: function (json) {
+                        vm.product_list = json;
+                        $.AMUI.progress.done();
+                    }
+                });
             }
+        }
+
+        function shake_cart() {
+            $("#shopping_cart_icon").attr("class", "am-icon-shopping-cart am-animation-shake");
+            setTimeout(function () {
+                $("#shopping_cart_icon").attr("class", "am-icon-shopping-cart");
+            }, 300);
+        }
+
+        function show_modal(content){
+            $("#modal_content").html(content);
+            $("#modal").modal();
         }
 
         //初始化avalon
@@ -80,17 +104,28 @@
             vm = avalon.define({
                 $id: "product_list",
                 product_list: [],
-                cart_class: "1111",
-                show_product_detail: function (product_id) {
-                    console.log("click" + product_id.toString());
-                    $('#product_detail').modal();
+                show_product_detail: function (product) {
+                    show_modal(product.introduction);
                 },
-                add_to_cart: function (product_id) {
-                    console.log("add to cart", product_id.toString());
-                    $("#shopping_cart_icon").attr("class", "am-icon-shopping-cart am-animation-shake");
-                    setTimeout(function(){
-                        $("#shopping_cart_icon").attr("class", "am-icon-shopping-cart");
-                    },1000);
+                add_to_cart: function (product) {
+
+                    if (product.max_num == -1 || product.cart_num < product.max_num) {
+                        product.cart_num += 1;
+                        shake_cart();
+                    }
+                    else if (product.max_num == 0) {
+                        show_modal('<div class="am-alert am-alert-danger" data-am-alert>该商品暂时不能购买</div>');
+                    }
+                    else {
+                        show_modal('<div class="am-alert am-alert-danger" data-am-alert>该商品最多只能购买' +
+                        product.max_num.toString() + "件 </div>");
+                    }
+                },
+                del_from_cart: function (product) {
+                    shake_cart();
+                    if (product.cart_num >= 1) {
+                        product.cart_num -= 1;
+                    }
                 }
             });
             avalon.scan();

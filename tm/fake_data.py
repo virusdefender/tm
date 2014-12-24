@@ -38,21 +38,21 @@ def create_fake_data():
     c9 = Category.objects.create(shop=s1, name=u"测试", sort_index=-3, parent_category=c1)
     c10 = Category.objects.create(shop=s1, name=u"测试", sort_index=-3, parent_category=c1)
 
-    p1 = Product.objects.create(shop=s1, category=c1, name="test", remark="11", price=1.23,
+    p1 = Product.objects.create(shop=s1, category=c2, name="唇动牛奶味蛋糕", remark="11", price=1.23,
                                 origin_price=1.02, unit=u"个", max_num=3,
                                 preview_pic="https://tmimage.b0.upaiyun.com/1417489338%E6%97%BA%E6%9"
                                             "7%BA%E4%BB%99%E8%B4%9D%E5%B0%8F.jpg",
                                 total_num=100, bought_num=10,
                                 introduction="1234",
                                 min_score=0, sort_index=1)
-    p1 = Product.objects.create(shop=s1, category=c1, name="test1", remark="112", price=1.23,
+    p1 = Product.objects.create(shop=s1, category=c2, name="唇动牛奶味蛋糕", remark="112", price=1.23,
                                 origin_price=1.02, unit=u"个", max_num=3,
                                 preview_pic="https://tmimage.b0.upaiyun.com/1417489338%E6%97%BA%E6%9"
                                             "7%BA%E4%BB%99%E8%B4%9D%E5%B0%8F.jpg",
                                 total_num=100, bought_num=10, is_virtual=True,
                                 introduction="1234",
                                 min_score=0, sort_index=1)
-    p2 = Product.objects.create(shop=s1, category=c1, name="test1", remark="112", price=1.23,
+    p2 = Product.objects.create(shop=s1, category=c2, name="唇动牛奶味蛋糕", remark="112", price=1.23,
                                 origin_price=1.02, unit=u"个", max_num=3,
                                 preview_pic="https://tmimage.b0.upaiyun.com/1417489338%E6%97%BA%E6%9"
                                             "7%BA%E4%BB%99%E8%B4%9D%E5%B0%8F.jpg",

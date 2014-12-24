@@ -4441,8 +4441,11 @@ a.am-close:hover {
 ============================================================================= */
 @font-face {
   font-family: 'FontAwesome';
-  src: url('//dn-staticfile.qbox.me/font-awesome/4.2.0/fonts/fontawesome-webfont.eot?v=4.2.0');
-  src: url('//dn-staticfile.qbox.me/font-awesome/4.2.0/fonts/fontawesome-webfont.eot?#iefix&v=4.2.0') format('embedded-opentype'), url('//dn-staticfile.qbox.me/font-awesome/4.2.0/fonts/fontawesome-webfont.woff?v=4.2.0') format('woff'), url('//dn-staticfile.qbox.me/font-awesome/4.2.0/fonts/fontawesome-webfont.ttf?v=4.2.0') format('truetype'), url('//dn-staticfile.qbox.me/font-awesome/4.2.0/fonts/fontawesome-webfont.svg?v=4.2.0#fontawesomeregular') format('svg');
+  src: url('/static/fonts/fontawesome-webfont.eot?v=4.2.0');
+  src: url('/static/fonts/fontawesome-webfont.eot?#iefix&v=4.2.0') format('embedded-opentype'),
+  url('/static/fonts/fontawesome-webfont.woff?v=4.2.0') format('woff'),
+  url('/static/fonts/fontawesome-webfont.ttf?v=4.2.0') format('truetype'),
+  url('/static/fonts/fontawesome-webfont.svg?v=4.2.0#fontawesomeregular') format('svg');
   font-weight: normal;
   font-style: normal;
 }

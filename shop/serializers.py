@@ -12,7 +12,8 @@ class ShopSerializer(serializers.ModelSerializer):
                   "first_order_min_money",
                   "ordinary_min_money",
                   "announcement",
-                  "personalized_recommendation", "status"]
+                  "personalized_recommendation",
+                  "status"]
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -27,9 +28,13 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     child_product = serializers.SerializerMethodField("_get_child_product")
+    cart_num = serializers.SerializerMethodField("_get_product_cart_num")
 
     class Meta:
         model = Product
 
     def _get_child_product(self, obj):
         return ProductSerializer(obj.child_product.all().order_by("sort_index"), many=True).data
+
+    def _get_product_cart_num(self, obj):
+        return 0
