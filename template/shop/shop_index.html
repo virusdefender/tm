@@ -12,7 +12,7 @@
 <div id="category" class="am-g"></div>
 <div id="product" ms-controller="product_list" ms-repeat="product_list" style="padding-left: 5px;padding-right: 5px">
     <div class="am-cf">
-        <p class="am-align-left">
+        <p class="am-align-left" ms-click="show_product_detail">
             <img src="https://tmimage.b0.upaiyun.com/14173400666.%E6%98%9F%E7%90%83%E6%9D%AF%20%E5%B0%8F.png" alt=""/>
         </p>
 
@@ -38,7 +38,17 @@
 
 </div>
 
-
+<div class="am-modal am-modal-no-btn" tabindex="-1" id="product_detail">
+  <div class="am-modal-dialog">
+    <div class="am-modal-hd">Modal 标题
+      <a href="javascript: void(0)" class="am-close am-close-spin" data-am-modal-close>&times;</a>
+    </div>
+    <div class="am-modal-bd">
+      Modal 内容。Modal 内容。Modal 内容。Modal 内容。Modal 内容。Modal 内容。Modal 内容。Modal 内容。Modal 内容。Modal 内容。
+        Modal 内容。Modal 内容。Modal 内容。Modal 内容。Modal 内容。Modal 内容。
+    </div>
+  </div>
+</div>
 <script>
 
 
@@ -50,14 +60,14 @@
 
         // 当点击分类的时候修改hash 触发update ajax刷新产品页面
         function update_product_list(category_id) {
-            console.log("ajax product success");
-            if (category_id == "init") {
-                console.log("init success");
+            if (category_id == "init" || category_id == "") {
+                console.log("init product list success");
+                vm.product_list = [1, 2, 3];
             }
             else {
                 $.AMUI.progress.start();
                 //alert("update" + category_id);
-
+                console.log("change product list success");
                 vm.product_list = [1, 2, 3, 4, 5, 6, 7];
                 $.AMUI.progress.done();
             }
@@ -70,12 +80,16 @@
             });
             vm = avalon.define({
                 $id: "product_list",
-                product_list: []
+                product_list: [],
+                show_product_detail: function () {
+                    $('#product_detail').modal();
+                }
             });
             avalon.scan();
         });
 
         window.onhashchange = function () {
+            console.log(window.location.hash.substring(1));
             update_product_list(window.location.hash.substring(1));
         };
         //加载分类列表
@@ -129,17 +143,6 @@
                     module && module.init && module.init();
                 });
                 $.AMUI.progress.done();
-            }
-        });
-
-        //加载产品列表
-        $.ajax({
-            url: "/category/?shop=1",
-            method: "get",
-            dateType: "json",
-            success: function(json){
-                vm.product_list = [1, 2, 3];
-                console.log("init product list success");
             }
         });
 
