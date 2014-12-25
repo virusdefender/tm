@@ -9,192 +9,212 @@
 
 {% block body %}
 {% verbatim %}
-<div id="category" class="am-g"></div>
-<div id="product" ms-controller="product_list" ms-repeat="product_list" style="padding-left: 5px;padding-right: 5px">
-    <div class="am-cf">
-        <p class="am-align-left" ms-click="show_product_detail(el)">
-            <img src="https://tmimage.b0.upaiyun.com/14173400666.%E6%98%9F%E7%90%83%E6%9D%AF%20%E5%B0%8F.png" alt=""/>
-        </p>
-        <div style="height: 70px;">
-            <p style="margin-bottom: 0;">{el.name}</p>
-            <span ms-html="el.simple_introduction_top"></span><br>
+<div ms-controller="index">
+    <div id="category" class="am-g">
+        <nav data-am-widget="menu" class="am-menu  am-menu-default">
+            <a href="javascript: void(0)" class="am-menu-toggle">
+                <i class="am-menu-toggle-icon am-icon-bars"></i>
+            </a>
 
-            <div class="am-btn-group am-btn-group-xs am-fr">
-                <button type="button" class="am-btn am-btn-primary" ms-click="del_from_cart(el)">
-                    <span class="am-icon-minus"></span>
-                </button>
-                <button type="button" class="am-btn am-btn-primary">
-                    { el.cart_num }
-                </button>
-                <button type="button" class="am-btn am-btn-primary" ms-click="add_to_cart(el)">
-                    <span class="am-icon-plus"></span>
-                </button>
-            </div>
+            <ul class="am-menu-nav am-avg-sm-5">
+                <li ms-class="am-parent:el.child_category.length" ms-repeat="category_list">
+                    <a ms-href="#{el.id}">{el.name}</a>
+                    <ul class="am-menu-sub am-collapse am-avg-sm-4">
+                        <li class="" ms-repeat-item="el.child_category">
+                            <a ms-href="#{item.id}">{item.name}</a>
+                        </li>
+                    </ul>
+                </li>
+
+            </ul>
+
+        </nav>
+    </div>
+    <div id="product" ms-repeat="product_list"
+         style="padding-left: 5px;padding-right: 5px">
+        <div class="am-cf">
+            <p class="am-align-left" ms-click="show_product_detail(el)">
+                <img src="https://tmimage.b0.upaiyun.com/14173400666.%E6%98%9F%E7%90%83%E6%9D%AF%20%E5%B0%8F.png"
+                     alt=""/>
+            </p>
+
+            <div style="height: 70px;">
+                <p style="margin-bottom: 0;">{el.name}</p>
+                <span ms-html="el.simple_introduction_top"></span><br>
+
+                <div class="am-btn-group am-btn-group-xs am-fr">
+                    <button type="button" class="am-btn am-btn-primary" ms-click="del_from_cart(el)">
+                        <span class="am-icon-minus"></span>
+                    </button>
+                    <button type="button" class="am-btn am-btn-primary">
+                        { el.cart_num }
+                    </button>
+                    <button type="button" class="am-btn am-btn-primary" ms-click="add_to_cart(el)">
+                        <span class="am-icon-plus"></span>
+                    </button>
+                </div>
             <span class="am-fr" style="margin-right: 10px;">
                 <span class="am-badge am-badge-secondary">已售 {el.bought_num}</span>
             </span>
+            </div>
+            <hr>
         </div>
-        <hr>
+
     </div>
 
-</div>
+    <div class="am-modal am-modal-no-btn" tabindex="-1" id="modal">
+        <div class="am-modal-dialog">
+            <div class="am-modal-hd">&nbsp;
+                <a href="javascript: void(0)" class="am-close am-close-spin" data-am-modal-close>&times;</a>
+            </div>
+            <div class="am-modal-bd" id="modal_content" ms-html="modal_content">
 
-<div class="am-modal am-modal-no-btn" tabindex="-1" id="modal">
-    <div class="am-modal-dialog">
-        <div class="am-modal-hd">&nbsp;
-            <a href="javascript: void(0)" class="am-close am-close-spin" data-am-modal-close>&times;</a>
-        </div>
-        <div class="am-modal-bd" id="modal_content">
+            </div>
         </div>
     </div>
-</div>
-<script>
+    <script>
 
-
-    $(function () {
-        $.AMUI.progress.start();
-
-        var vm;
-
-        // 当点击分类的时候修改hash 触发update ajax刷新产品页面
-        function update_product_list(category_id) {
-            if (category_id == "init" || category_id == "") {
-                $.ajax({
-                    url: "/product/?category=2",
-                    method: "get",
-                    dataType: "json",
-                    success: function (json) {
-                        vm.product_list = json;
-                    }
-                });
-            }
-            else {
-                $.AMUI.progress.start();
-                //alert("update" + category_id);
-                console.log("change product list success");
-                $.ajax({
-                    url: "/product/?category=" + category_id.toString(),
-                    method: "get",
-                    dataType: "json",
-                    success: function (json) {
-                        vm.product_list = json;
-                        $.AMUI.progress.done();
-                    }
-                });
-            }
-        }
-
-        function shake_cart() {
-            $("#shopping_cart_icon").attr("class", "am-icon-shopping-cart am-animation-shake");
-            setTimeout(function () {
-                $("#shopping_cart_icon").attr("class", "am-icon-shopping-cart");
-            }, 300);
-        }
-
-        function show_modal(content){
-            $("#modal_content").html(content);
-            $("#modal").modal();
-        }
-
-        //初始化avalon
-        avalon.ready(function () {
-            avalon.config({
-                interpolate: ["{", "}"]
-            });
-            vm = avalon.define({
-                $id: "product_list",
-                product_list: [],
-                show_product_detail: function (product) {
-                    show_modal(product.introduction);
-                },
-                add_to_cart: function (product) {
-
-                    if (product.max_num == -1 || product.cart_num < product.max_num) {
-                        product.cart_num += 1;
-                        shake_cart();
-                    }
-                    else if (product.max_num == 0) {
-                        show_modal('<div class="am-alert am-alert-danger" data-am-alert>该商品暂时不能购买</div>');
-                    }
-                    else {
-                        show_modal('<div class="am-alert am-alert-danger" data-am-alert>该商品最多只能购买' +
-                        product.max_num.toString() + "件 </div>");
-                    }
-                },
-                del_from_cart: function (product) {
-                    shake_cart();
-                    if (product.cart_num >= 1) {
-                        product.cart_num -= 1;
-                    }
+        $(function () {
+            $.AMUI.progress.start();
+            var vm;
+            function get_cart_num(product_list) {
+                var list = [];
+                for (var i in product_list) {
+                    list.push(product_list[i].id)
                 }
-            });
-            avalon.scan();
-        });
-
-        window.onhashchange = function () {
-            console.log(window.location.hash.substring(1));
-            update_product_list(window.location.hash.substring(1));
-        };
-        //加载分类列表
-        $.ajax({
-            url: "/category/?shop=1",
-            method: "get",
-            dataType: "json",
-            success: function (json) {
-                //绘制产品列表
-                var category_content = [];
-                for (var item in json) {
-                    var menu = {subMenu: [], "subCols": "4"};
-                    menu.title = json[item].name;
-
-                    for (var sub in json[item]["child_category"]) {
-                        menu.subMenu.push({
-                            title: json[item]["child_category"][sub].name,
-                            "link": "#" + json[item]["child_category"][sub].id
-                        })
+                $.ajax({
+                    url: "/shopping_cart/?_dc=" + new Date().getTime().toString() + "&product_list=" + JSON.stringify(list),
+                    method: "get",
+                    success: function (json) {
+                        console.log(json);
+                        for (var i in json) {
+                            vm.product_list[i]["cart_num"] = json[i];
+                        }
                     }
+                })
+            }
 
-                    if (!menu.subMenu.length) {
-                        menu.link = "#" + json[item].id
-                    }
-                    else {
-                        menu.link = "#";
-                    }
-                    category_content.push(menu);
+            // 当点击分类的时候修改hash 触发update ajax刷新产品页面
+            function update_product_list(category_id) {
+                if (category_id == "init" || category_id == "") {
+                    $.ajax({
+                        url: "/product/?category=2",
+                        method: "get",
+                        dataType: "json",
+                        success: function (json) {
+                            vm.product_list = json;
+                            get_cart_num(json);
+                        }
+                    });
                 }
-                console.log(category_content);
-                console.log("ajax category success");
-                var template = Handlebars.compile('{{>menu}}'),
-                        data = {
-                            category_data: {
-                                "theme": "default",
-                                "options": {
-                                    "cols": 5, // 一级菜单列数 [1-12]
-                                    "offCanvasFlip": false
+                else {
+                    $.AMUI.progress.start();
+                    //alert("update" + category_id);
+                    console.log("change product list success");
+                    $.ajax({
+                        url: "/product/?category=" + category_id.toString(),
+                        method: "get",
+                        dataType: "json",
+                        success: function (json) {
+                            vm.product_list = json;
+                            get_cart_num(json);
+                            $.AMUI.progress.done();
+                        }
+                    });
+                }
+            }
+
+            function shake_cart() {
+                $("#shopping_cart_icon").attr("class", "am-icon-shopping-cart am-animation-shake");
+                setTimeout(function () {
+                    $("#shopping_cart_icon").attr("class", "am-icon-shopping-cart");
+                }, 300);
+            }
+
+            function show_modal(content) {
+                vm.modal_content = content;
+                $("#modal").modal();
+            }
+
+            //初始化avalon
+            avalon.ready(function () {
+                avalon.config({
+                    interpolate: ["{", "}"]
+                });
+                vm = avalon.define({
+                    $id: "index",
+                    product_list: [],
+                    modal_content: "",
+                    category_list: [],
+                    show_product_detail: function (product) {
+                        show_modal(product.introduction);
+                    },
+                    add_to_cart: function (product) {
+                        if (product.max_num == -1 || product.cart_num < product.max_num) {
+                            product.cart_num += 1;
+                            $.ajax({
+                                beforeSend: function (xhr) {
+                                    xhr.setRequestHeader("X-CSRFToken", csrf_token());
                                 },
-                                // 菜单数据
-                                "content": category_content
-                            }
-                        },
-                        html = template(data.category_data);
-
-                $('#category').html(html);
-                update_product_list("init");
-
-                $.each(['menu'], function (i, m) {
-                    var module = $.AMUI[m];
-                    module && module.init && module.init();
+                                url: "/shopping_cart/",
+                                method: "post",
+                                dataType: "json",
+                                data: {"product_id": product.id, operation: 1}
+                            });
+                            shake_cart();
+                        }
+                        else if (product.max_num == 0) {
+                            show_modal('<div class="am-alert am-alert-danger" data-am-alert>该商品暂时不能购买</div>');
+                        }
+                        else {
+                            show_modal('<div class="am-alert am-alert-danger" data-am-alert>该商品最多只能购买' +
+                            product.max_num.toString() + "件 </div>");
+                        }
+                    },
+                    del_from_cart: function (product) {
+                        shake_cart();
+                        if (product.cart_num >= 1) {
+                            product.cart_num -= 1;
+                            $.ajax({
+                                beforeSend: function (xhr) {
+                                    xhr.setRequestHeader("X-CSRFToken", csrf_token());
+                                },
+                                url: "/shopping_cart/",
+                                method: "post",
+                                dataType: "json",
+                                data: {"product_id": product.id, operation: -1}
+                            });
+                        }
+                    }
                 });
-                $.AMUI.progress.done();
-            }
+                avalon.scan();
+            });
+
+            window.onhashchange = function () {
+                console.log(window.location.hash.substring(1));
+                update_product_list(window.location.hash.substring(1));
+            };
+
+            //加载分类列表
+            $.ajax({
+                url: "/category/?shop=1",
+                method: "get",
+                dataType: "json",
+                success: function (json) {
+                    vm.category_list = json;
+                    update_product_list("init");
+                    $.each(['menu'], function (i, m) {
+                        var module = $.AMUI[m];
+                        module && module.init && module.init();
+                    });
+                    $.AMUI.progress.done();
+                }
+            });
+            $.AMUI.progress.done();
+
         });
-
-        $.AMUI.progress.done();
-
-    });
-
-
-</script>
+    </script>
+</div>
 {% endverbatim %}
 {% include 'foot.html' %}
 

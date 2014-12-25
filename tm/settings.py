@@ -94,3 +94,8 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"), )
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 365 * 10
 
 AUTH_USER_MODEL = 'account.User'
+
+# redis config
+SESSION_ENGINE = 'redis_sessions.session'
+
+SESSION_REDIS_DB = 0

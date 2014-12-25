@@ -38,3 +38,8 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def _get_product_cart_num(self, obj):
         return 0
+
+
+class ProductCartOperationSerializer(serializers.Serializer):
+    product_id = serializers.IntegerField()
+    operation = serializers.IntegerField()
