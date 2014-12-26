@@ -1,6 +1,5 @@
 # coding=utf-8
 import json
-from django.template.response import TemplateResponse
 from django.shortcuts import render
 
 from rest_framework.views import APIView
