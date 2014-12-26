@@ -15,13 +15,12 @@
             <a href="javascript: void(0)" class="am-menu-toggle">
                 <i class="am-menu-toggle-icon am-icon-bars"></i>
             </a>
-
             <ul class="am-menu-nav am-avg-sm-5">
                 <li ms-class="am-parent:el.child_category.length" ms-repeat="category_list">
-                    <a ms-href="#{el.id}">{el.name}</a>
+                    <a ms-href="#{{el.id}}">{{el.name}}</a>
                     <ul class="am-menu-sub am-collapse am-avg-sm-4">
                         <li class="" ms-repeat-item="el.child_category">
-                            <a ms-href="#{item.id}">{item.name}</a>
+                            <a ms-href="#{{item.id}}">{{item.name}}</a>
                         </li>
                     </ul>
                 </li>
@@ -30,6 +29,7 @@
 
         </nav>
     </div>
+    <div></div>
     <div id="product" ms-repeat="product_list"
          style="padding-left: 5px;padding-right: 5px">
         <div class="am-cf">
@@ -39,7 +39,7 @@
             </p>
 
             <div style="height: 70px;">
-                <p style="margin-bottom: 0;">{el.name}</p>
+                <p style="margin-bottom: 0;">{{el.name}}</p>
                 <span ms-html="el.simple_introduction_top"></span><br>
 
                 <div class="am-btn-group am-btn-group-xs am-fr">
@@ -47,14 +47,14 @@
                         <span class="am-icon-minus"></span>
                     </button>
                     <button type="button" class="am-btn am-btn-primary">
-                        { el.cart_num }
+                        {{ el.cart_num }}
                     </button>
                     <button type="button" class="am-btn am-btn-primary" ms-click="add_to_cart(el)">
                         <span class="am-icon-plus"></span>
                     </button>
                 </div>
             <span class="am-fr" style="margin-right: 10px;">
-                <span class="am-badge am-badge-secondary">已售 {el.bought_num}</span>
+                <span class="am-badge am-badge-secondary">已售 {{el.bought_num}}</span>
             </span>
             </div>
             <hr>
@@ -73,146 +73,134 @@
         </div>
     </div>
     <script>
-
-        $(function () {
-            $.AMUI.progress.start();
-            var vm;
-            function get_cart_num(product_list) {
-                var list = [];
-                for (var i in product_list) {
-                    list.push(product_list[i].id)
-                }
-                $.ajax({
-                    url: "/shopping_cart/?_dc=" + new Date().getTime().toString() + "&product_list=" + JSON.stringify(list),
-                    method: "get",
-                    success: function (json) {
-                        console.log(json);
-                        for (var i in json) {
-                            vm.product_list[i]["cart_num"] = json[i];
-                        }
-                    }
-                })
-            }
-
-            // 当点击分类的时候修改hash 触发update ajax刷新产品页面
-            function update_product_list(category_id) {
-                if (category_id == "init" || category_id == "") {
+        $.AMUI.progress.start();
+        var vm = avalon.define({
+            $id: "index",
+            product_list: [],
+            modal_content: "",
+            category_list: [],
+            show_product_detail: function (product) {
+                show_modal(product.introduction);
+            },
+            add_to_cart: function (product) {
+                if (product.max_num == -1 || product.cart_num < product.max_num) {
+                    product.cart_num += 1;
                     $.ajax({
-                        url: "/product/?category=2",
-                        method: "get",
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader("X-CSRFToken", csrf_token());
+                        },
+                        url: "/shopping_cart/",
+                        method: "post",
                         dataType: "json",
+                        data: {"product_id": product.id, operation: 1},
                         success: function (json) {
-                            vm.product_list = json;
-                            get_cart_num(json);
+                            if (json.status != "success") {
+                                show_modal('<div class="am-alert am-alert-danger" data-am-alert>' + json.content + '</div>');
+                                product.cart_num -= 1;
+                            }
                         }
                     });
+                    shake_cart();
+                }
+                else if (product.max_num == 0) {
+                    show_modal('<div class="am-alert am-alert-danger" data-am-alert>该商品暂时不能购买</div>');
                 }
                 else {
-                    $.AMUI.progress.start();
-                    //alert("update" + category_id);
-                    console.log("change product list success");
+                    show_modal('<div class="am-alert am-alert-danger" data-am-alert>该商品最多只能购买' +
+                    product.max_num.toString() + "件 </div>");
+                }
+            },
+            del_from_cart: function (product) {
+                shake_cart();
+                if (product.cart_num >= 1) {
+                    product.cart_num -= 1;
                     $.ajax({
-                        url: "/product/?category=" + category_id.toString(),
-                        method: "get",
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader("X-CSRFToken", csrf_token());
+                        },
+                        url: "/shopping_cart/",
+                        method: "post",
                         dataType: "json",
-                        success: function (json) {
-                            vm.product_list = json;
-                            get_cart_num(json);
-                            $.AMUI.progress.done();
-                        }
+                        data: {"product_id": product.id, operation: -1}
                     });
                 }
             }
+        });
 
-            function shake_cart() {
-                $("#shopping_cart_icon").attr("class", "am-icon-shopping-cart am-animation-shake");
-                setTimeout(function () {
-                    $("#shopping_cart_icon").attr("class", "am-icon-shopping-cart");
-                }, 300);
+        function get_cart_num(product_list) {
+            var list = [];
+            for (var i in product_list) {
+                list.push(product_list[i].id)
             }
+            $.ajax({
+                url: "/shopping_cart/?operation=get_cart_num&_dc=" + new Date().getTime().toString() + "&product_list=" + JSON.stringify(list),
+                method: "get",
+                success: function (json) {
+                    console.log(json);
+                    for (var i in json) {
+                        vm.product_list[i]["cart_num"] = json[i];
+                    }
+                }
+            })
+        }
 
-            function show_modal(content) {
-                vm.modal_content = content;
-                $("#modal").modal();
-            }
-
-            //初始化avalon
-            avalon.ready(function () {
-                avalon.config({
-                    interpolate: ["{", "}"]
-                });
-                vm = avalon.define({
-                    $id: "index",
-                    product_list: [],
-                    modal_content: "",
-                    category_list: [],
-                    show_product_detail: function (product) {
-                        show_modal(product.introduction);
-                    },
-                    add_to_cart: function (product) {
-                        if (product.max_num == -1 || product.cart_num < product.max_num) {
-                            product.cart_num += 1;
-                            $.ajax({
-                                beforeSend: function (xhr) {
-                                    xhr.setRequestHeader("X-CSRFToken", csrf_token());
-                                },
-                                url: "/shopping_cart/",
-                                method: "post",
-                                dataType: "json",
-                                data: {"product_id": product.id, operation: 1}
-                            });
-                            shake_cart();
-                        }
-                        else if (product.max_num == 0) {
-                            show_modal('<div class="am-alert am-alert-danger" data-am-alert>该商品暂时不能购买</div>');
-                        }
-                        else {
-                            show_modal('<div class="am-alert am-alert-danger" data-am-alert>该商品最多只能购买' +
-                            product.max_num.toString() + "件 </div>");
-                        }
-                    },
-                    del_from_cart: function (product) {
-                        shake_cart();
-                        if (product.cart_num >= 1) {
-                            product.cart_num -= 1;
-                            $.ajax({
-                                beforeSend: function (xhr) {
-                                    xhr.setRequestHeader("X-CSRFToken", csrf_token());
-                                },
-                                url: "/shopping_cart/",
-                                method: "post",
-                                dataType: "json",
-                                data: {"product_id": product.id, operation: -1}
-                            });
-                        }
+        // 当点击分类的时候修改hash 触发update ajax刷新产品页面
+        function update_product_list(category_id) {
+            if (category_id == "init" || category_id == "") {
+                $.ajax({
+                    url: "/product/?category=2",
+                    method: "get",
+                    dataType: "json",
+                    success: function (json) {
+                        vm.product_list = json;
+                        get_cart_num(json);
                     }
                 });
-                avalon.scan();
-            });
+            }
+            else {
+                $.AMUI.progress.start();
+                //alert("update" + category_id);
+                console.log("change product list success");
+                $.ajax({
+                    url: "/product/?category=" + category_id.toString(),
+                    method: "get",
+                    dataType: "json",
+                    success: function (json) {
+                        vm.product_list = json;
+                        get_cart_num(json);
+                        $.AMUI.progress.done();
+                    }
+                });
+            }
+        }
 
-            window.onhashchange = function () {
-                console.log(window.location.hash.substring(1));
-                update_product_list(window.location.hash.substring(1));
-            };
 
-            //加载分类列表
-            $.ajax({
-                url: "/category/?shop=1",
-                method: "get",
-                dataType: "json",
-                success: function (json) {
-                    vm.category_list = json;
-                    update_product_list("init");
-                    $.each(['menu'], function (i, m) {
-                        var module = $.AMUI[m];
-                        module && module.init && module.init();
-                    });
-                    $.AMUI.progress.done();
-                }
-            });
-            $.AMUI.progress.done();
+        function show_modal(content) {
+            vm.modal_content = content;
+            $("#modal").modal();
+        }
 
+        window.onhashchange = function () {
+            console.log(window.location.hash.substring(1));
+            update_product_list(window.location.hash.substring(1));
+        };
+
+        //加载分类列表
+        $.ajax({
+            url: "/category/?shop=1",
+            method: "get",
+            dataType: "json",
+            success: function (json) {
+                vm.category_list = json;
+                update_product_list("init");
+                $.each(['menu'], function (i, m) {
+                    var module = $.AMUI[m];
+                    module && module.init && module.init();
+                });
+                $.AMUI.progress.done();
+            }
         });
+        $.AMUI.progress.done();
     </script>
 </div>
 {% endverbatim %}

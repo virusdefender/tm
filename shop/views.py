@@ -7,7 +7,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from .models import Shop, Product, Category
-from .serializers import ShopSerializer, CategorySerializer, ProductSerializer, ProductCartOperationSerializer
+from .serializers import (ShopSerializer, CategorySerializer, ProductSerializer,
+                          ProductCartOperationSerializer, ShoppingCartProductSerializer)
 from .shopping_cart import ShoppingCart
 
 
@@ -21,7 +22,7 @@ class ShopView(APIView):
         if data_format:
             return Response(data=ShopSerializer(shop).data)
         else:
-            return TemplateResponse(request, "shop/shop_index.html")
+            return render(request, "shop/shop_index.html")
 
 
 class CategoryView(APIView):
@@ -40,15 +41,24 @@ class ProductView(APIView):
 
 class ShoppingCartView(APIView):
     def get(self, request):
-        product_list = request.GET.get("product_list", '[]')
-        num_list = []
-        try:
-            l = json.loads(product_list)
-        except Exception:
-            return Response(data=num_list)
-        s = ShoppingCart(request)
+        operation = request.GET.get("operation", "get_cart_page")
 
-        return Response(data=s.get_product_cart_num(l))
+        if operation == "get_cart_num":
+            product_list = request.GET.get("product_list", [])
+            num_list = []
+            try:
+                l = json.loads(product_list)
+            except Exception:
+                return Response(data=num_list)
+            s = ShoppingCart(request)
+            return Response(data=s.get_product_cart_num(l))
+
+        elif operation == "get_cart_page":
+            return render(request, "shop/shopping_cart.html")
+
+        elif operation == "get_cart_data":
+            s = ShoppingCart(request)
+            return Response(data=ShoppingCartProductSerializer(s.shopping_cart_data, many=True).data)
 
     def post(self, request):
         serializer = ProductCartOperationSerializer(data=request.DATA)

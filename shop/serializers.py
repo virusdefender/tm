@@ -32,12 +32,23 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
+        exclude = ["_cart_num"]
 
     def _get_child_product(self, obj):
         return ProductSerializer(obj.child_product.all().order_by("sort_index"), many=True).data
 
     def _get_product_cart_num(self, obj):
         return 0
+
+
+class ShoppingCartProductSerializer(serializers.ModelSerializer):
+    cart_num = serializers.SerializerMethodField("_get_product_cart_num")
+
+    class Meta:
+        model = Product
+
+    def _get_product_cart_num(self, obj):
+        return obj._cart_num
 
 
 class ProductCartOperationSerializer(serializers.Serializer):

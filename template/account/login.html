@@ -63,6 +63,9 @@
                 }
                 else {
                     $.ajax({
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader("X-CSRFToken", csrf_token());
+                        },
                         data: {username: vm.username, password: vm.password},
                         url: "/login/",
                         method: "post",

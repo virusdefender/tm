@@ -8,3 +8,10 @@ function csrf_token() {
     }
     return "";
 }
+
+function shake_cart() {
+    $("#shopping_cart_icon").attr("class", "am-icon-shopping-cart am-animation-shake");
+    setTimeout(function () {
+        $("#shopping_cart_icon").attr("class", "am-icon-shopping-cart");
+    }, 300);
+}
