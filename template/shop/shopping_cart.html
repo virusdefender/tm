@@ -16,8 +16,8 @@
 {% verbatim %}
 <header data-am-widget="header" class="am-header am-header-default">
     <div class="am-header-left am-header-nav">
-        <a href="/shop/1/" class="">
-            <i class="am-header-icon am-icon-home"></i>
+        <a href="/shop/1/">
+            <i class="am-header-icon am-icon-arrow-left"></i>主页
         </a>
     </div>
     <h1 class="am-header-title">
@@ -30,8 +30,9 @@
         </a>
     </div>
 </header>
+<br>
 <div ms-controller="shopping_cart">
-    <div id="product" ms-repeat="product_list" style="padding-left: 5px;padding-right: 5px">
+    <div ms-repeat="product_list" style="padding-left: 5px;padding-right: 5px">
         <div class="am-cf">
 
             <p class="am-align-left">
@@ -41,10 +42,7 @@
 
             <div style="height: 70px;">
                 <p style="margin-bottom: 0;">{{el.name}}</p>
-                <span ms-html="el.cart_num"></span>×
-                <span ms-html="el.price"></span>元 /
-                <span ms-html="el.unit"></span>
-                <span ms-html="get_total_price(el)"></span>元
+                <span ms-html="el.cart_num"></span>×<span ms-html="el.price"></span>元/<span ms-html="el.unit"></span>=<span ms-html="get_item_total_price(el)"></span>元
                 <br>
 
                 <div class="am-btn-group am-btn-group-xs am-fr">
@@ -61,7 +59,12 @@
             </div>
             <hr>
         </div>
-        <div class="am-modal am-modal-no-btn" tabindex="-1" id="modal">
+    </div>
+    <div data-am-widget="titlebar" class="am-titlebar am-titlebar-default">
+        <h2 class="am-titlebar-title">猜你还喜欢</h2>
+
+    </div>
+    <div class="am-modal am-modal-no-btn" tabindex="-1" id="modal">
         <div class="am-modal-dialog">
             <div class="am-modal-hd">&nbsp;
                 <a href="javascript: void(0)" class="am-close am-close-spin" data-am-modal-close>&times;</a>
@@ -72,28 +75,22 @@
         </div>
     </div>
 
-    </div>
-
     <script>
         function show_modal(content) {
             vm.modal_content = content;
             $("#modal").modal();
         }
+
         var vm = avalon.define({
             $id: "shopping_cart",
             product_list: [],
             modal_content: "",
-
-            get_total_price: function (product) {
-                return product.price * product.cart_num;
+            total_price: 0,
+            get_item_total_price: function (product) {
+                return (product.price * 100) * product.cart_num / 100;
             },
-            add_to_cart: function(product){
-                //console.log(product.cart_num);
-                if(product.cart_num == 0){
-                    $('#' + product.id.toString()).iCheck('check');
-                }
+            add_to_cart: function (product) {
                 if (product.max_num == -1 || product.cart_num < product.max_num) {
-                    product.cart_num += 1;
                     $.ajax({
                         beforeSend: function (xhr) {
                             xhr.setRequestHeader("X-CSRFToken", csrf_token());
@@ -105,12 +102,19 @@
                         success: function (json) {
                             if (json.status != "success") {
                                 show_modal('<div class="am-alert am-alert-danger" data-am-alert>' + json.content + '</div>');
-                                product.cart_num -= 1;
                             }
-                            else{
-                                if(product.cart_num == 1){
+                            else {
+                                product.cart_num += 1;
+
+                                if($("#" + product.id.toString()).parent().attr("class").indexOf("checked") >= 0) {
+                                    console.log("+1");
+                                    vm.total_price = (vm.total_price * 100 + product.price * 100) / 100;
+                                }
+                                else{
+                                    //vm.total_price = (vm.total_price * 100 + product.price * 100 * product.cart_num) / 100;
                                     $('#' + product.id.toString()).iCheck('check');
                                 }
+
                             }
                         }
                     });
@@ -127,6 +131,14 @@
             del_from_cart: function (product) {
                 if (product.cart_num >= 1) {
                     product.cart_num -= 1;
+                    if($("#" + product.id.toString()).parent().attr("class").indexOf("checked") >= 0) {
+                        vm.total_price = (vm.total_price * 100 - product.price * 100) / 100;
+                    }
+                    else{
+                        $('#' + product.id.toString()).iCheck('check');
+                    }
+                    shake_cart();
+
                     $.ajax({
                         beforeSend: function (xhr) {
                             xhr.setRequestHeader("X-CSRFToken", csrf_token());
@@ -136,9 +148,9 @@
                         dataType: "json",
                         data: {"product_id": product.id, operation: -1}
                     });
-                    if(product.cart_num == 0){
-                        $('#' + product.id.toString()).iCheck('uncheck');
-                    }
+                    //if (product.cart_num == 0) {
+                    //    $('#' + product.id.toString()).iCheck('uncheck');
+                    //}
                 }
             }
         });
@@ -149,14 +161,50 @@
             dataType: "json",
             success: function (json) {
                 vm.product_list = json;
+                for(var i in json){
+                    vm.total_price = (vm.total_price * 100 + json[i].price * 100 * json[i].cart_num) / 100;
+                }
                 $('input').iCheck({
                     checkboxClass: 'icheckbox_square-blue'
+                });
+                $('input').on('ifUnchecked', function(event){
+                  var product_id = $(this)[0].id;
+                    for(var i in vm.product_list){
+                        if(vm.product_list[i].id == product_id){
+                            vm.total_price = (vm.total_price * 100 - vm.product_list[i].price * 100 * vm.product_list[i].cart_num) / 100;
+                            break;
+                        }
+                    }
+                });
+                $('input').on('ifChecked', function(event){
+                  var product_id = $(this)[0].id;
+                    for(var i in vm.product_list){
+                        if(vm.product_list[i].id == product_id){
+                            vm.total_price = (vm.total_price * 100 + vm.product_list[i].price * 100 * vm.product_list[i].cart_num) / 100;
+                            break;
+                        }
+                    }
                 });
             }
         });
     </script>
+    <div data-am-widget="navbar" class="am-navbar am-cf am-navbar-default">
+        <ul class="am-navbar-nav am-cf">
+            <li>
+                <a href="#">
+                    合计:<span ms-text="total_price"></span>元
+                </a>
+            </li>
+            <li>
+                <a href="https://github.com/allmobilize/amazeui/issues">
+                    <span class="am-icon-location-arrow"></span>
+                    <span class="am-navbar-label">提交</span>
+                </a>
+            </li>
+        </ul>
+    </div>
 </div>
 {% endverbatim %}
-{% include 'foot.html' %}
+
 
 {% endblock %}

@@ -23,7 +23,7 @@ class ShoppingCart(object):
             if item["product_id"] == product_id:
                 item["num"] -= num
                 if item["num"] == 0:
-                    self.shopping_cart = [item for item in self.shopping_cart if item["product_id"] != item["product_id"]]
+                    self.shopping_cart = [item for item in self.shopping_cart if item["product_id"] != product_id]
                 break
         return self.shopping_cart
 

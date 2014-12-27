@@ -64,8 +64,10 @@ class ShoppingCartView(APIView):
         if serializer.is_valid():
             s = ShoppingCart(request)
             data = serializer.data
+            print request.session["shopping_cart"]
             if data["operation"] > 0:
                 self.request.session["shopping_cart"] = s.add_to_cart(data["product_id"])
             else:
                 self.request.session["shopping_cart"] = s.del_from_cart(data["product_id"])
+            print request.session["shopping_cart"]
         return Response(data={"status": "success"})
