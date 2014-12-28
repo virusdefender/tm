@@ -118,6 +118,8 @@
             product_list: [],
             modal_content: "",
             category_list: [],
+            shop_info: {},
+            user_info: {"status": "not_login"},
             show_product_detail: function (product) {
                 show_modal(product.introduction);
             },
@@ -126,8 +128,33 @@
             },
 
             add_to_cart: function (product) {
-                console.log(product);
                 if (product.max_num == -1 || product.cart_num < product.max_num) {
+                    if(product.min_score > 0){
+                        if (vm.user_info.status == "not_login"){
+                            show_modal('<div class="am-alert am-alert-info" data-am-alert>' +
+                            "本商品需要至少" + product.min_score.toString() +
+                            "积分才能购买，您还没有登陆</div>");
+                            return;
+                        }
+                        if(vm.user_info.score < product.min_score){
+                            show_modal('<div class="am-alert am-alert-info" data-am-alert>'+ "本商品需要至少" +
+                            product.min_score.toString() +
+                            "积分才能购买，您的积分是" +
+                            vm.user_info.score + "</div>");
+                            return;
+                        }
+                    }
+
+                    if(product.user_group.length){
+                        if(vm.user_info.status == "not_login"){
+                            show_modal("本商品只有会员才能购买，请先登陆");
+                            return;
+                        }
+                        if (product.user_group.indexOf(vm.user_info.user_group) < 0){
+                            show_modal("本商品只有会员才能购买");
+                            return;
+                        }
+                    }
                     product.cart_num += 1;
                     $.ajax({
                         beforeSend: function (xhr) {
@@ -136,13 +163,7 @@
                         url: "/shopping_cart/",
                         method: "post",
                         dataType: "json",
-                        data: {"product_id": product.id, operation: 1},
-                        success: function (json) {
-                            if (json.status != "success") {
-                                show_modal('<div class="am-alert am-alert-danger" data-am-alert>' + json.content + '</div>');
-                                product.cart_num -= 1;
-                            }
-                        }
+                        data: {"product_id": product.id, operation: 1}
                     });
                     shake_cart();
                 }
@@ -150,7 +171,7 @@
                     show_modal('<div class="am-alert am-alert-danger" data-am-alert>该商品暂时不能购买</div>');
                 }
                 else {
-                    show_modal('<div class="am-alert am-alert-danger" data-am-alert>该商品最多只能购买' +
+                    show_modal('<div class="am-alert am-alert-info" data-am-alert>该商品最多只能购买' +
                     product.max_num.toString() + "件 </div>");
                 }
             },

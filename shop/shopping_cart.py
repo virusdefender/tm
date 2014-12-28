@@ -10,7 +10,6 @@ class ShoppingCart(object):
         self.shop = 1
 
     def add_to_cart(self, product_id, num=1):
-        # todo check
         for item in self.shopping_cart:
             if item["product_id"] == product_id:
                 item["num"] += num

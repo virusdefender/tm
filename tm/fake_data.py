@@ -71,6 +71,16 @@ def create_fake_data():
                                 introduction="<img src='http://tmimage.b0.upaiyun.com/141733908617."
                                              "%E5%94%87%E5%8A%A8%E7%89%9B%E5%A5%B6.png'>",
                                 min_score=0, sort_index=1)
+    p4 = Product.objects.create(shop=s1, category=c2, name=u"唇动牛奶味蛋糕5", remark="112", price=1.2,
+                                origin_price=1.02, unit=u"个", max_num=3, attr="味道1",
+                                preview_pic="https://tmimage.b0.upaiyun.com/1417489338%E6%97%BA%E6%9"
+                                            "7%BA%E4%BB%99%E8%B4%9D%E5%B0%8F.jpg",
+                                total_num=100, bought_num=10, parent_product=p1,
+                                introduction="<img src='http://tmimage.b0.upaiyun.com/141733908617."
+                                             "%E5%94%87%E5%8A%A8%E7%89%9B%E5%A5%B6.png'>",
+                                min_score=10, sort_index=1)
+
+    p4.user_group.add(group)
 
 
 create_fake_data()

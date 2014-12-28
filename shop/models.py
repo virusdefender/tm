@@ -111,9 +111,9 @@ class Product(models.Model):
     # 现在在首页上 标题下面的 可能还会修改
     simple_introduction_top = models.CharField(max_length=200, default='<span style="color:red">￥元/袋</span>', help_text=u"显示在商品名称下面的简介")
     # simple_introduction_foot = models.CharField(max_length=200, blank=True, help_text=u"显示在上面那个简介下面的简介，暂时没显示")
-    price = models.DecimalField(max_digits=10, decimal_places=3, help_text=u"售价")
+    price = models.DecimalField(max_digits=10, decimal_places=2, help_text=u"售价")
     # 原价 用来计算利润用的
-    origin_price = models.DecimalField(max_digits=10, decimal_places=3, null=True, help_text=u"进价，用来计算利润用的")
+    origin_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, help_text=u"进价，用来计算利润用的")
     # 单位 比如斤/5个 等等
     unit = models.CharField(max_length=50, help_text=u"单位")
     # 最多购买数量 -1表示无限制 ;0表示这个物品只能展示 不能购买 ;>0的正常限制
