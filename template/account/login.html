@@ -72,7 +72,7 @@
                         success: function(data){
 
                             if (data.status == "success"){
-                                alert("success");
+                                window.location.href = document.referrer;
                             }
                             else{
                                 vm.alert_content = data.content;

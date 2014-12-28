@@ -131,9 +131,9 @@
                 if (product.max_num == -1 || product.cart_num < product.max_num) {
                     if(product.min_score > 0){
                         if (vm.user_info.status == "not_login"){
-                            show_modal('<div class="am-alert am-alert-info" data-am-alert>' +
+                            show_modal('<a href="/login/"><div class="am-alert am-alert-info" data-am-alert>' +
                             "本商品需要至少" + product.min_score.toString() +
-                            "积分才能购买，您还没有登陆</div>");
+                            "积分才能购买，您还没有登录，点击登录</div></a>");
                             return;
                         }
                         if(vm.user_info.score < product.min_score){
@@ -147,11 +147,11 @@
 
                     if(product.user_group.length){
                         if(vm.user_info.status == "not_login"){
-                            show_modal("本商品只有会员才能购买，请先登陆");
+                            show_modal('<a href="/login/"><div class="am-alert am-alert-info" data-am-alert>本商品只有会员才能购买，您还没有登录，点击登录</div></a>');
                             return;
                         }
                         if (product.user_group.indexOf(vm.user_info.user_group) < 0){
-                            show_modal("本商品只有会员才能购买");
+                            show_modal('<div class="am-alert am-alert-info" data-am-alert>本商品只有会员才能购买，您还不是会员</div>');
                             return;
                         }
                     }
