@@ -28,17 +28,18 @@ class ShoppingCart(object):
         return self.shopping_cart
 
     def get_product_cart_num(self, product_list):
-        response_list = []
-        flag = 0
+        response = {}
         for item in product_list:
+            flag = 0
             for i in self.shopping_cart:
                 if i["product_id"] == item:
-                    response_list.append(i["num"])
+                    response[item] = i["num"]
                     flag = 1
                     break
             if not flag:
-                response_list.append(0)
-        return response_list
+                response[item] = 0
+        print response
+        return response
 
     @property
     def shopping_cart_data(self):
