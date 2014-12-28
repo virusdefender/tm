@@ -57,6 +57,7 @@ docs/_build/
 
 #db file
 db.db
+db.sqlite3
 
 #vim cache
 *swp
