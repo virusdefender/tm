@@ -71,26 +71,26 @@
                 <div class="am-list-news-bd">
                     <ul class="am-list">
 
-                            <li class="am-g am-list-item-dated child-product-item" ms-repeat-item="el.child_product">
+                        <li class="am-g am-list-item-dated child-product-item" ms-repeat-item="el.child_product">
 
 
-                                <div class="am-list-item-hd am-fl">{{item.name}} - {{item.attr}}</div>
+                            <div class="am-list-item-hd am-fl">{{item.name}} - {{item.attr}}</div>
 
-                                <div class="am-btn-group am-btn-group-xs am-fr">
+                            <div class="am-btn-group am-btn-group-xs am-fr">
 
-                                    <button type="button" class="am-btn am-btn-primary" ms-click="del_from_cart(item)">
-                                        <span class="am-icon-minus"></span>
-                                    </button>
-                                    <button type="button" class="am-btn am-btn-primary">
-                                        {{ item.cart_num }}
-                                    </button>
-                                    <button type="button" class="am-btn am-btn-primary" ms-click="add_to_cart(item)">
-                                        <span class="am-icon-plus"></span>
-                                    </button>
-                                </div>
+                                <button type="button" class="am-btn am-btn-primary" ms-click="del_from_cart(item)">
+                                    <span class="am-icon-minus"></span>
+                                </button>
+                                <button type="button" class="am-btn am-btn-primary">
+                                    {{ item.cart_num }}
+                                </button>
+                                <button type="button" class="am-btn am-btn-primary" ms-click="add_to_cart(item)">
+                                    <span class="am-icon-plus"></span>
+                                </button>
+                            </div>
 
 
-                            </li>
+                        </li>
                     </ul>
                 </div>
                 <hr ms-if="el.is_virtual">
@@ -111,6 +111,16 @@
             </div>
         </div>
     </div>
+    <div class="am-g price-bar">
+        <div class="am-u-sm-7" style="margin-top: 10px;margin-bottom: 5px">
+            <span style="color:#ffffff">总价:100元</span>
+        </div>
+        <div class="am-u-sm-3" style="margin-top: 5px;margin-bottom: 5px">
+            <button type="button" class="am-btn am-btn-success">快速提交</button>
+        </div>
+        <div class="am-u-sm-1"></div>
+
+    </div>
     <script>
         $.AMUI.progress.start();
         var vm = avalon.define({
@@ -129,15 +139,15 @@
 
             add_to_cart: function (product) {
                 if (product.max_num == -1 || product.cart_num < product.max_num) {
-                    if(product.min_score > 0){
-                        if (vm.user_info.status == "not_login"){
+                    if (product.min_score > 0) {
+                        if (vm.user_info.status == "not_login") {
                             show_modal('<a href="/login/"><div class="am-alert am-alert-info" data-am-alert>' +
                             "本商品需要至少" + product.min_score.toString() +
                             "积分才能购买，您还没有登录，点击登录</div></a>");
                             return;
                         }
-                        if(vm.user_info.score < product.min_score){
-                            show_modal('<div class="am-alert am-alert-info" data-am-alert>'+ "本商品需要至少" +
+                        if (vm.user_info.score < product.min_score) {
+                            show_modal('<div class="am-alert am-alert-info" data-am-alert>' + "本商品需要至少" +
                             product.min_score.toString() +
                             "积分才能购买，您的积分是" +
                             vm.user_info.score + "</div>");
@@ -145,12 +155,12 @@
                         }
                     }
 
-                    if(product.user_group.length){
-                        if(vm.user_info.status == "not_login"){
+                    if (product.user_group.length) {
+                        if (vm.user_info.status == "not_login") {
                             show_modal('<a href="/login/"><div class="am-alert am-alert-info" data-am-alert>本商品只有会员才能购买，您还没有登录，点击登录</div></a>');
                             return;
                         }
-                        if (product.user_group.indexOf(vm.user_info.user_group) < 0){
+                        if (product.user_group.indexOf(vm.user_info.user_group) < 0) {
                             show_modal('<div class="am-alert am-alert-info" data-am-alert>本商品只有会员才能购买，您还不是会员</div>');
                             return;
                         }
@@ -195,11 +205,11 @@
         function get_cart_num(product_list) {
             var list = [];
             for (var i in product_list) {
-                if(!product_list[i].is_virtual) {
+                if (!product_list[i].is_virtual) {
                     list.push(product_list[i].id)
                 }
-                else{
-                    for(var j in product_list[i].child_product){
+                else {
+                    for (var j in product_list[i].child_product) {
                         list.push(product_list[i].child_product[j].id);
                     }
                 }
@@ -209,13 +219,13 @@
                 url: "/shopping_cart/?operation=get_cart_num&_dc=" + new Date().getTime().toString() + "&product_list=" + JSON.stringify(list),
                 method: "get",
                 success: function (json) {
-                    for (var i=0; i < vm.product_list.length; i++) {
+                    for (var i = 0; i < vm.product_list.length; i++) {
                         console.log(i);
-                        if(!vm.product_list[i].is_virtual) {
+                        if (!vm.product_list[i].is_virtual) {
                             vm.product_list[i]["cart_num"] = json[vm.product_list[i].id];
                         }
-                        else{
-                            for(var j=0; j < vm.product_list[i].child_product.length; j++){
+                        else {
+                            for (var j = 0; j < vm.product_list[i].child_product.length; j++) {
                                 console.log(j);
                                 vm.product_list[i].child_product[j].cart_num = json[vm.product_list[i].child_product[j].id];
                             }
