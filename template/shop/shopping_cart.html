@@ -26,7 +26,9 @@
 
     <div class="am-header-right am-header-nav">
         <a href="#right-link" class="">
-            <i class="am-header-icon am-icon-del"></i>
+            <!--
+            <i class="am-header-icon am-icon-trash"></i>
+            -->
         </a>
     </div>
 </header>
@@ -136,7 +138,9 @@
                         vm.total_price = (vm.total_price * 100 - product.price * 100) / 100;
                     }
                     else {
-                        $('#' + product.id.toString()).iCheck('check');
+                        if(product.cart_num > 0) {
+                            $('#' + product.id.toString()).iCheck('check');
+                        }
                     }
                     shake_cart();
 
@@ -149,9 +153,6 @@
                         dataType: "json",
                         data: {"product_id": product.id, operation: -1}
                     });
-                    //if (product.cart_num == 0) {
-                    //    $('#' + product.id.toString()).iCheck('uncheck');
-                    //}
                 }
             }
         });
@@ -194,7 +195,7 @@
             <span style="color:#ffffff">合计:{{total_price}}元</span>
         </div>
         <div class="am-u-sm-3" style="margin-top: 5px;margin-bottom: 5px">
-            <button type="button" class="am-btn am-btn-success">提交订单</button>
+            <a type="button" class="am-btn am-btn-success" href="/order/">提交订单</a>
         </div>
         <div class="am-u-sm-1"></div>
 

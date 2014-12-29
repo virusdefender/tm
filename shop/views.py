@@ -69,3 +69,8 @@ class ShoppingCartView(APIView):
             else:
                 self.request.session["shopping_cart"] = s.del_from_cart(data["product_id"])
         return Response(data={"status": "success"})
+
+
+class OrderView(APIView):
+    def get(self, request):
+        return render(request, "shop/submit_order.html")

@@ -9,8 +9,7 @@ class ShopSerializer(serializers.ModelSerializer):
         model = Shop
         fields = ["id", "name",
                   "contact_information",
-                  "first_order_min_money",
-                  "ordinary_min_money",
+                  "min_money",
                   "announcement",
                   "personalized_recommendation",
                   "status"]
