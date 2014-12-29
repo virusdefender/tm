@@ -12,10 +12,8 @@ class Shop(models.Model):
     name = models.CharField(max_length=50, db_index=True, help_text=u"商店的名字")
     delivery_time = models.CharField(max_length=200, help_text=u"送货时间，请严格遵循标准，例子: 10:05-13:00;15:00-19:00")
     contact_information = models.CharField(max_length=200, help_text=u"联系信息，会在订单页面显示，可以为html")
-    # 首单起运价格
-    first_order_min_money = models.DecimalField(max_digits=10, decimal_places=2, help_text=u"首单起运价格")
-    # 正常起运限制价格
-    ordinary_min_money = models.DecimalField(max_digits=10, decimal_places=3, help_text=u"正常起运价格")
+    # 起运价格
+    min_money = models.DecimalField(max_digits=10, decimal_places=2, help_text=u"正常起运价格")
     delivery_area = models.CharField(max_length=200, blank=True, help_text=u"配送区域")
     create_time = models.DateTimeField(auto_now_add=True)
     delivery_prepare_time = models.IntegerField(default=0, help_text=u"配送准备时间，系统提前这个时间结束下个时间段的预定，单位分钟")

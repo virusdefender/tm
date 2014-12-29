@@ -112,8 +112,8 @@
         </div>
     </div>
     <div class="am-g price-bar">
-        <div class="am-u-sm-7" style="margin-top: 10px;margin-bottom: 5px">
-            <span style="color:#ffffff">总价:100元</span>
+        <div class="am-u-sm-7" style="margin-top: 13px;margin-bottom: 5px">
+            <span style="color:#ffffff">数量:{{total_number}} 总价:{{total_price}}元</span>
         </div>
         <div class="am-u-sm-3" style="margin-top: 5px;margin-bottom: 5px">
             <button type="button" class="am-btn am-btn-success">快速提交</button>
@@ -129,6 +129,8 @@
             modal_content: "",
             category_list: [],
             shop_info: {},
+            total_price: 0,
+            total_number: 0,
             user_info: {"status": "not_login"},
             show_product_detail: function (product) {
                 show_modal(product.introduction);
@@ -173,7 +175,10 @@
                         url: "/shopping_cart/",
                         method: "post",
                         dataType: "json",
-                        data: {"product_id": product.id, operation: 1}
+                        data: {"product_id": product.id, operation: 1},
+                        success: function (json) {
+                            get_cart_data();
+                        }
                     });
                     shake_cart();
                 }
@@ -196,7 +201,10 @@
                         url: "/shopping_cart/",
                         method: "post",
                         dataType: "json",
-                        data: {"product_id": product.id, operation: -1}
+                        data: {"product_id": product.id, operation: -1},
+                        success: function (json) {
+                            get_cart_data();
+                        }
                     });
                 }
             }
@@ -229,7 +237,6 @@
                                 console.log(j);
                                 vm.product_list[i].child_product[j].cart_num = json[vm.product_list[i].child_product[j].id];
                             }
-
                         }
                     }
                 }
@@ -271,7 +278,22 @@
                 });
             }
 
+        }
 
+        //获取下面购物车的总价和总数量
+        function get_cart_data() {
+            $.ajax({
+                url: "/shopping_cart/?operation=get_cart_data",
+                method: "get",
+                dataType: "json",
+                success: function (json) {
+                    vm.total_price = vm.total_number = 0;
+                    for (var i in json) {
+                        vm.total_price = (vm.total_price * 100 + json[i].price * 100 * json[i].cart_num) / 100;
+                        vm.total_number += json[i].cart_num;
+                    }
+                }
+            });
         }
 
 
@@ -300,6 +322,19 @@
                 $.AMUI.progress.done();
             }
         });
+
+        //加载店铺基本信息
+        $.ajax({
+            url: "/shop/1/?format=json",
+            method: "get",
+            success: function (json) {
+                vm.shop_info = json
+            }
+        });
+
+        get_cart_data();
+
+        //获取用户的信息
         $.AMUI.progress.done();
     </script>
 </div>

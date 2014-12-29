@@ -24,8 +24,10 @@ class UserLoginView(APIView):
             if user is not None:
                 if user.is_active:
                     LoginLog.objects.create(user=user, status="success", user_agent=request.META["HTTP_USER_AGENT"])
+                    shopping_cart = request.session.get("shopping_cart", [])
                     auth.logout(request)
                     auth.login(request, user)
+                    request.session["shopping_cart"] = shopping_cart
                     return Response(data={"status": "success"})
                 else:
                     LoginLog.objects.create(user=user, status="in_active", user_agent=request.META["HTTP_USER_AGENT"])

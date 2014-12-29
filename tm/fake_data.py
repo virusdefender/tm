@@ -20,8 +20,7 @@ def create_fake_data():
 
     s1 = Shop.objects.create(name="test", delivery_time="9:00-10:30;13:00-16:00",
                              contact_information="phone 123456",
-                             first_order_min_money=5.2,
-                             ordinary_min_money=6.7,
+                             min_money=5.2,
                              delivery_area="111",
                              delivery_prepare_time=10,
                              announcement="111")

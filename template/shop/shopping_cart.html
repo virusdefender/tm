@@ -26,7 +26,7 @@
 
     <div class="am-header-right am-header-nav">
         <a href="#right-link" class="">
-            <i class="am-header-icon am-icon-bars"></i>
+            <i class="am-header-icon am-icon-del"></i>
         </a>
     </div>
 </header>
@@ -42,7 +42,8 @@
 
             <div style="height: 70px;">
                 <p style="margin-bottom: 0;">{{el.name}}</p>
-                <span ms-html="el.cart_num"></span>×<span ms-html="el.price"></span>元/<span ms-html="el.unit"></span>=<span ms-html="get_item_total_price(el)"></span>元
+                <span ms-html="el.cart_num"></span>×<span ms-html="el.price"></span>元/<span
+                    ms-html="el.unit"></span>=<span ms-html="get_item_total_price(el)"></span>元
                 <br>
 
                 <div class="am-btn-group am-btn-group-xs am-fr">
@@ -106,11 +107,11 @@
                             else {
                                 product.cart_num += 1;
 
-                                if($("#" + product.id.toString()).parent().attr("class").indexOf("checked") >= 0) {
+                                if ($("#" + product.id.toString()).parent().attr("class").indexOf("checked") >= 0) {
                                     console.log("+1");
                                     vm.total_price = (vm.total_price * 100 + product.price * 100) / 100;
                                 }
-                                else{
+                                else {
                                     //vm.total_price = (vm.total_price * 100 + product.price * 100 * product.cart_num) / 100;
                                     $('#' + product.id.toString()).iCheck('check');
                                 }
@@ -131,10 +132,10 @@
             del_from_cart: function (product) {
                 if (product.cart_num >= 1) {
                     product.cart_num -= 1;
-                    if($("#" + product.id.toString()).parent().attr("class").indexOf("checked") >= 0) {
+                    if ($("#" + product.id.toString()).parent().attr("class").indexOf("checked") >= 0) {
                         vm.total_price = (vm.total_price * 100 - product.price * 100) / 100;
                     }
-                    else{
+                    else {
                         $('#' + product.id.toString()).iCheck('check');
                     }
                     shake_cart();
@@ -161,25 +162,25 @@
             dataType: "json",
             success: function (json) {
                 vm.product_list = json;
-                for(var i in json){
+                for (var i in json) {
                     vm.total_price = (vm.total_price * 100 + json[i].price * 100 * json[i].cart_num) / 100;
                 }
                 $('input').iCheck({
                     checkboxClass: 'icheckbox_square-blue'
                 });
-                $('input').on('ifUnchecked', function(event){
-                  var product_id = $(this)[0].id;
-                    for(var i in vm.product_list){
-                        if(vm.product_list[i].id == product_id){
+                $('input').on('ifUnchecked', function (event) {
+                    var product_id = $(this)[0].id;
+                    for (var i in vm.product_list) {
+                        if (vm.product_list[i].id == product_id) {
                             vm.total_price = (vm.total_price * 100 - vm.product_list[i].price * 100 * vm.product_list[i].cart_num) / 100;
                             break;
                         }
                     }
                 });
-                $('input').on('ifChecked', function(event){
-                  var product_id = $(this)[0].id;
-                    for(var i in vm.product_list){
-                        if(vm.product_list[i].id == product_id){
+                $('input').on('ifChecked', function (event) {
+                    var product_id = $(this)[0].id;
+                    for (var i in vm.product_list) {
+                        if (vm.product_list[i].id == product_id) {
                             vm.total_price = (vm.total_price * 100 + vm.product_list[i].price * 100 * vm.product_list[i].cart_num) / 100;
                             break;
                         }
@@ -188,20 +189,15 @@
             }
         });
     </script>
-    <div data-am-widget="navbar" class="am-navbar am-cf am-navbar-default">
-        <ul class="am-navbar-nav am-cf">
-            <li>
-                <a href="#">
-                    合计:<span ms-text="total_price"></span>元
-                </a>
-            </li>
-            <li>
-                <a href="https://github.com/allmobilize/amazeui/issues">
-                    <span class="am-icon-location-arrow"></span>
-                    <span class="am-navbar-label">提交</span>
-                </a>
-            </li>
-        </ul>
+    <div class="am-g price-bar-foot">
+        <div class="am-u-sm-7" style="margin-top: 13px;margin-bottom: 5px">
+            <span style="color:#ffffff">合计:{{total_price}}元</span>
+        </div>
+        <div class="am-u-sm-3" style="margin-top: 5px;margin-bottom: 5px">
+            <button type="button" class="am-btn am-btn-success">提交订单</button>
+        </div>
+        <div class="am-u-sm-1"></div>
+
     </div>
 </div>
 {% endverbatim %}
