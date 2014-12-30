@@ -57,11 +57,11 @@ docs/_build/
 
 #db file
 db.db
-*.sqlite3
-
 #vim cache
 *swp
 *swo
 
 #redis dump
 *.rdb
+
+db.sqlite3
