@@ -15,3 +15,6 @@ function shake_cart() {
         $("#shopping_cart_icon").attr("class", "am-icon-shopping-cart");
     }, 300);
 }
+
+
+$.AMUI.FastClick.attach(document.body);
