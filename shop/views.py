@@ -1,9 +1,12 @@
 # coding=utf-8
 import json
 from django.shortcuts import render
+from django.contrib.auth.models import AnonymousUser
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
+
+from log.models import CategoryClickLog, ShoppingCartOperationLog
 
 from .models import Shop, Product, Category
 from .serializers import (ShopSerializer, CategorySerializer, ProductSerializer,
@@ -34,6 +37,14 @@ class CategoryView(APIView):
 class ProductView(APIView):
     def get(self, request):
         category_id = request.GET.get("category", -1)
+        data = {}
+        data["category_id"] = category_id
+        if isinstance(request.user, AnonymousUser):
+            data["session_id"] = request.session._session_key
+        else:
+            data["user"] = request.user
+        CategoryClickLog.objects.create(**data)
+
         product = Product.objects.filter(category=category_id, parent_product__isnull=True).order_by("sort_index")
         return Response(data=ProductSerializer(product, many=True).data)
 
@@ -64,10 +75,24 @@ class ShoppingCartView(APIView):
         if serializer.is_valid():
             s = ShoppingCart(request)
             data = serializer.data
+
+            log_data = {}
+            log_data["product_id"] = data["product_id"]
+            log_data["source"] = data["source"]
+
+            if isinstance(request.user, AnonymousUser):
+                log_data["session_id"] = request.session._session_key
+            else:
+                log_data["user"] = request.user
+
             if data["operation"] > 0:
+                log_data["operation"] = "+1"
                 self.request.session["shopping_cart"] = s.add_to_cart(data["product_id"])
             else:
+                log_data["operation"] = "-1"
                 self.request.session["shopping_cart"] = s.del_from_cart(data["product_id"])
+
+            ShoppingCartOperationLog.objects.create(**log_data)
         return Response(data={"status": "success"})
 
 

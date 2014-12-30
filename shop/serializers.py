@@ -52,3 +52,4 @@ class ShoppingCartProductSerializer(serializers.ModelSerializer):
 class ProductCartOperationSerializer(serializers.Serializer):
     product_id = serializers.IntegerField()
     operation = serializers.IntegerField()
+    source = serializers.CharField(max_length=30)

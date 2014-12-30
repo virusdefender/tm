@@ -101,7 +101,7 @@
                         url: "/shopping_cart/",
                         method: "post",
                         dataType: "json",
-                        data: {"product_id": product.id, operation: 1},
+                        data: {"product_id": product.id, operation: 1, source: "shopping_cart"},
                         success: function (json) {
                             if (json.status != "success") {
                                 show_modal('<div class="am-alert am-alert-danger" data-am-alert>' + json.content + '</div>');
@@ -151,7 +151,7 @@
                         url: "/shopping_cart/",
                         method: "post",
                         dataType: "json",
-                        data: {"product_id": product.id, operation: -1}
+                        data: {"product_id": product.id, operation: -1, source: "shopping_cart"}
                     });
                 }
             }

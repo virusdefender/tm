@@ -42,6 +42,7 @@ INSTALLED_APPS = (
 
     'account',
     'shop',
+    'log',
 )
 
 MIDDLEWARE_CLASSES = (

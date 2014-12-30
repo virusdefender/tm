@@ -31,7 +31,7 @@ class PasswordRecoveryLog(models.Model):
 class LoginLog(models.Model):
     """用户登陆记录
     """
-    user = models.ForeignKey(User)
+    user_name = models.CharField(max_length=30)
     time = models.DateTimeField(auto_now_add=True)
     user_agent = models.TextField(blank=True, null=True)
     # status=True表示密码正确 False表示密码错误

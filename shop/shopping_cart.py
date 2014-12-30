@@ -1,4 +1,5 @@
 # coding=utf-8
+import time
 from .models import Product, Shop
 
 
@@ -13,8 +14,9 @@ class ShoppingCart(object):
         for item in self.shopping_cart:
             if item["product_id"] == product_id:
                 item["num"] += num
+                item["last_update_time"] = time.time()
                 return self.shopping_cart
-        self.shopping_cart.append({"product_id": product_id, "num": num})
+        self.shopping_cart.append({"product_id": product_id, "num": num, "last_update_time": time.time()})
         return self.shopping_cart
 
     def del_from_cart(self, product_id, num=1):
@@ -37,14 +39,12 @@ class ShoppingCart(object):
                     break
             if not flag:
                 response[item] = 0
-        print response
         return response
 
     @property
     def shopping_cart_data(self):
         data = []
         for item in self.shopping_cart:
-            # todo check
             try:
                 p = Product.objects.get(shop=self.shop, pk=item["product_id"])
             except Product.DoesNotExist:

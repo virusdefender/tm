@@ -134,6 +134,14 @@
             user_info: {"status": "not_login"},
             show_product_detail: function (product) {
                 show_modal(product.introduction);
+                $.ajax({
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("X-CSRFToken", csrf_token());
+                    },
+                    url: "/log/",
+                    method: "post",
+                    data: {log_type: "show_product_detail", product_id: product.id}
+                });
             },
             show_child_product: function (product) {
                 product.child_product_visible = !product.child_product_visible;
@@ -175,7 +183,7 @@
                         url: "/shopping_cart/",
                         method: "post",
                         dataType: "json",
-                        data: {"product_id": product.id, operation: 1},
+                        data: {"product_id": product.id, operation: 1, source: "index"},
                         success: function (json) {
                             get_cart_data();
                         }
@@ -201,7 +209,7 @@
                         url: "/shopping_cart/",
                         method: "post",
                         dataType: "json",
-                        data: {"product_id": product.id, operation: -1},
+                        data: {"product_id": product.id, operation: -1, source: "index"},
                         success: function (json) {
                             get_cart_data();
                         }
