@@ -64,4 +64,4 @@ db.db
 #redis dump
 *.rdb
 
-db.sqlite3
+*.sqlite3
