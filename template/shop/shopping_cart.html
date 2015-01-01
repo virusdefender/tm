@@ -34,6 +34,7 @@
 </header>
 <br>
 <div ms-controller="shopping_cart">
+    <div ms-html="shopping_cart_head"></div>
     <div ms-repeat="product_list" style="padding-left: 5px;padding-right: 5px">
         <div class="am-cf">
 
@@ -89,6 +90,7 @@
             product_list: [],
             modal_content: "",
             total_price: 0,
+            shopping_cart_head: "",
             get_item_total_price: function (product) {
                 return (product.price * 100) * product.cart_num / 100;
             },
@@ -186,6 +188,9 @@
             dataType: "json",
             success: function (json) {
                 vm.product_list = json;
+                if(json.length == 0){
+                    vm.shopping_cart_head = '<div class="am-alert am-alert-success am-text-center"">购物车还是空空如也啊～</div>';
+                }
                 for (var i in json) {
                     vm.total_price = (vm.total_price * 100 + json[i].price * 100 * json[i].cart_num) / 100;
                 }

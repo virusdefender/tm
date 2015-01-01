@@ -35,14 +35,14 @@
     </header>
     <div class="am-g">
         <div class="am-panel am-panel-default">
-            <div class="am-panel-bd">共13件商品，合计12.23元</div>
+            <div class="am-panel-bd">共{{total_number}}件商品，合计{{total_price}}元</div>
         </div>
         <form class="am-form">
             <fieldset>
                 <div class="am-form-group">
                     <label>支付方式</label>
-                    <input type="radio" name="icheck">货到付款
-                    <input type="radio" name="icheck">在线支付
+                    <input type="radio" name="pay">货到付款
+                    <input type="radio" name="pay">在线支付
                 </div>
 
                 <div class="am-form-group">
@@ -63,6 +63,13 @@
                     <label>备注</label>
                     <input type="text" class="" placeholder="还有什么想说的">
                 </div>
+                <div class="am-form-group">
+                    <label>送货时间</label>
+                    <span ms-repeat="delivery_time">
+                        <input type="checkbox" ms-attr-value="el" name="delivery_time">{{el}}
+                    </span>
+                </div>
+
 
                 <p>
                     <button type="button" class="am-btn am-btn-default" ms-click="submit_order">提交</button>
@@ -81,9 +88,7 @@
         </div>
     </div>
     <script>
-        $('input').iCheck({
-            radioClass: 'icheckbox_square-blue'
-        });
+
         function show_modal(content) {
             vm.modal_content = content;
             $("#modal").modal();
@@ -94,6 +99,9 @@
             phone: "",
             address: "",
             modal_content: "",
+            delivery_time: [],
+            total_price: 0,
+            total_number: 0,
             submit_order: function () {
                 if(vm.name.length < 2){
                     show_modal('<div class="am-alert am-alert-info" data-am-alert>请输入正确的姓名</div>');
@@ -107,6 +115,20 @@
                 }
             }
         });
+        //获取商品数量和总价
+        $.ajax({
+            url: "/shopping_cart/?operation=get_cart_data",
+            method: "get",
+            dataType: "json",
+            success: function (json) {
+                vm.total_price = vm.total_number = 0;
+                for (var i in json) {
+                    vm.total_price = (vm.total_price * 100 + json[i].price * 100 * json[i].cart_num) / 100;
+                    vm.total_number += json[i].cart_num;
+                }
+            }
+        });
+        //获取历史订单的地址信息等
         $.ajax({
             url: "/",
             method: "get",
@@ -116,7 +138,21 @@
                 vm.phone = json.phone;
                 vm.address = json.address;
             }
+        });
+        //获取商店的送货时间列表
+        $.ajax({
+            url: "/shop/1/?format=json&data=delivery_time",
+            method: "get",
+            dataType: "json",
+            success: function(json){
+                vm.delivery_time = json;
+                $('input').iCheck({
+                    radioClass: 'iradio_square-blue',
+                    checkboxClass: 'icheckbox_square-blue'
+                });
+            }
         })
+
     </script>
 </div>
 {% endverbatim %}

@@ -1,6 +1,8 @@
 # coding=utf-8
 from rest_framework import serializers
 
+from .models import User
+
 
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=30)
@@ -11,3 +13,9 @@ class UserLoginSerializer(serializers.Serializer):
 class UserRegisterSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=30)
     password = serializers.CharField(max_length=30)
+
+
+class UserInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username", "phone", "score", "gender", "default_shop_id", "group"]

@@ -8,7 +8,7 @@ from shop.models import UserGroup
 class User(AbstractUser):
     phone = models.CharField(max_length=12, blank=True, null=True)
     score = models.FloatField(default=0)
-    sex = models.CharField(max_length=3, blank=True, null=True)
+    gender = models.CharField(max_length=3, blank=True, null=True)
     default_shop_id = models.IntegerField(blank=True, null=True)
     group = models.ForeignKey(UserGroup, blank=True, null=True, help_text=u"用户分组")
     tags = models.TextField(blank=True, null=True)

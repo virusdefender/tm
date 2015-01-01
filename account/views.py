@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from account.models import User, LoginLog, PasswordRecoveryLog
-from .serializers import UserLoginSerializer, UserRegisterSerializer
+from .serializers import UserLoginSerializer, UserRegisterSerializer, UserInfoSerializer
 
 
 def check_is_need_captcha(username):
@@ -95,6 +95,14 @@ class CaptchaView(APIView):
         username = request.DATA.get("username", None)
         return Response(data=check_is_need_captcha(username))
 
+
+class UserView(APIView):
+    def get(self, request):
+        print request.user
+        if not request.user.is_authenticated():
+            return Response(data={"status": "not_login"})
+        else:
+            return Response(data=UserInfoSerializer(request.user).data)
 
 def get_user_rank(user):
     if not user.is_authenticated():

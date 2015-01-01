@@ -23,7 +23,12 @@ class ShopView(APIView):
             return Response(data={"status": "error"})
         data_format = request.GET.get("format", None)
         if data_format:
-            return Response(data=ShopSerializer(shop).data)
+            data = request.GET.get("data", None)
+            if not data:
+                return Response(data=ShopSerializer(shop).data)
+            else:
+                # data = delivery time
+                return Response(data=shop.get_delivery_time())
         else:
             return render(request, "shop/shop_index.html")
 

@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, include, url
 
 from django.contrib import admin
-from account.views import UserLoginView, UserRegisterView, CaptchaView
+from account.views import UserLoginView, UserRegisterView, CaptchaView, UserView
 from shop.views import CategoryView, ProductView, ShoppingCartView, OrderView, PayView
 from log.views import LogView
 
@@ -26,4 +26,5 @@ urlpatterns = patterns('',
                        url(r"^log/$", LogView.as_view()),
                        url(r"^captcha/$", CaptchaView.as_view()),
                        url(r'^pay/$', PayView.as_view()),
+                       url(r"^user/$", UserView.as_view()),
 )
