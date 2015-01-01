@@ -94,6 +94,29 @@
             },
             add_to_cart: function (product) {
                 if (product.max_num == -1 || product.cart_num < product.max_num) {
+                    if (product.min_score > 0) {
+                        if (vm.user_info.status == "not_login") {
+                            show_alert('<a href="/login/">本商品需要至少' + product.min_score.toString() +
+                            "积分才能购买，您还没有登录，点击登录</a>");
+                            return;
+                        }
+                        if (vm.user_info.score < product.min_score) {
+                            show_alert("本商品需要至少" + product.min_score.toString() +
+                            "积分才能购买，您的积分是" + vm.user_info.score);
+                            return;
+                        }
+                    }
+
+                    if (product.user_group.length) {
+                        if (vm.user_info.status == "not_login") {
+                            show_alert('<a href="/login/">本商品只有会员才能购买，您还没有登录，点击登录</a>');
+                            return;
+                        }
+                        if (product.user_group.indexOf(vm.user_info.user_group) < 0) {
+                            show_alert('本商品只有会员才能购买，您还不是会员');
+                            return;
+                        }
+                    }
                     $.ajax({
                         beforeSend: function (xhr) {
                             xhr.setRequestHeader("X-CSRFToken", csrf_token());
@@ -138,7 +161,7 @@
                         vm.total_price = (vm.total_price * 100 - product.price * 100) / 100;
                     }
                     else {
-                        if(product.cart_num > 0) {
+                        if (product.cart_num > 0) {
                             $('#' + product.id.toString()).iCheck('check');
                         }
                     }
@@ -195,7 +218,8 @@
             <span style="color:#ffffff">合计:{{total_price}}元</span>
         </div>
         <div class="am-u-sm-3" style="margin-top: 5px;margin-bottom: 5px">
-            <a type="button" class="am-btn am-btn-success" onclick="window.location.href='/order/?source=shopping_cart'">提交订单</a>
+            <a type="button" class="am-btn am-btn-success"
+               onclick="window.location.href='/order/?source=shopping_cart'">提交订单</a>
         </div>
         <div class="am-u-sm-1"></div>
     </div>

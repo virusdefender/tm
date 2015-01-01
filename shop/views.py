@@ -2,6 +2,7 @@
 import json
 from django.shortcuts import render
 from django.contrib.auth.models import AnonymousUser
+from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -99,3 +100,25 @@ class ShoppingCartView(APIView):
 class OrderView(APIView):
     def get(self, request):
         return render(request, "shop/submit_order.html")
+
+
+class PayView(APIView):
+    def get(self, request):
+        return render(request, "shop/pay.html")
+
+    def post(self, request):
+        print request.DATA
+        import pingpp
+        pingpp.api_key = 'sk_test_P4aDSG8CeHG0P0W1iPCKKun1'
+        ch = pingpp.Charge.create(
+            order_no='fsd23rfwef',
+            amount=1,
+            app=dict(id='app_HGqP44OW5un1Gyzz'),
+            channel=request.DATA["channel"],
+            currency='cny',
+            client_ip='192.26.2.12',
+            subject='test-subject',
+            body='test-body',
+            extra={"success_url": "http://127.0.0.1:8000/pay/success/"}
+          )
+        return Response(data=ch)

@@ -17,11 +17,7 @@ class Shop(models.Model):
     delivery_area = models.CharField(max_length=200, blank=True, help_text=u"配送区域")
     create_time = models.DateTimeField(auto_now_add=True)
     delivery_prepare_time = models.IntegerField(default=0, help_text=u"配送准备时间，系统提前这个时间结束下个时间段的预定，单位分钟")
-    # 超级管理员 可以管理下面的admin
-    # shop_super_admin = models.ForeignKey("account.User", related_name="super_admin", help_text=u"超级管理员")
-    # 普通管理员
-    # admin = models.ManyToManyField("account.User", blank=True, null=True,
-    # related_name="shop_admin", help_text=u"普通管理员，暂时没用到")
+    admin = models.ManyToManyField("account.User", blank=True, null=True)
     announcement = models.TextField(blank=True, null=True, help_text=u"全局公告")
     personalized_recommendation = models.BooleanField(default=True, help_text=u"是否开启个性化推荐")
     status = models.BooleanField(default=True, help_text=u"如果设置为false，代表关闭商店")
@@ -119,6 +115,7 @@ class Product(models.Model):
     # 首页小图
     preview_pic = models.CharField(max_length=200, help_text=u"图片小图")
     total_num = models.IntegerField(default=10000, help_text=u"库存数量")
+    auto_off_shelves = models.BooleanField(help_text=u"售完后自动下架", default=False)
     bought_num = models.IntegerField(default=0, help_text=u"该商品已经售出数量")
     create_time = models.DateTimeField(auto_now_add=True)
     last_modify_time = models.DateTimeField(auto_now=True)
@@ -163,12 +160,23 @@ class Product(models.Model):
         return order_product
 
 
+class AddressCategory(models.Model):
+    name = models.CharField(max_length=30)
+    keywords = models.TextField()
+    shop = models.ForeignKey(Shop)
+    index = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = "address_category"
+
+
 class Order(models.Model):
     user = models.ForeignKey("account.User")
     shop = models.ForeignKey(Shop)
     name = models.CharField(max_length=50)
     phone = models.CharField(max_length=15, blank=True)
     address = models.CharField(max_length=100)
+    address_category = models.ForeignKey(AddressCategory, blank=True, null=True)
     remark = models.CharField(max_length=100, blank=True)
     create_time = models.DateTimeField(auto_now_add=True)
     delivery_time = models.CharField(max_length=200)

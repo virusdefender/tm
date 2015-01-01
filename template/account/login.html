@@ -17,11 +17,19 @@
             <div class="am-form">
 
                 <label for="email">账号:</label>
-                <input type="email" name="" id="email" ms-duplex="username">
+                <input type="email" name="" id="email" ms-duplex="username" ms-on-blur="check_captcha">
                 <br>
                 <label for="password">密码:</label>
                 <input type="password" name="" id="password" ms-duplex="password">
                 <br/>
+
+                <div ms-if="show_captcha">
+                    <label for="email">验证码:</label>
+                    <img ms-src="captcha_src" ms-click="refresh_captcha">
+                    <span class="am-icon-refresh" ms-click="refresh_captcha"></span>
+                    <input type="email" name="" id="captcha" maxlength="4" ms-duplex="captcha">
+                    <br>
+                </div>
 
                 <div class="am-cf">
                     <button class="am-btn am-btn-primary am-btn-sm am-fl" ms-click="submit">登录</button>
@@ -54,10 +62,34 @@
 
             username: "",
             password: "",
+            captcha: "",
             alert_content: "",
+            show_captcha: false,
+            captcha_src: "/captcha/",
+            check_captcha: function () {
+                $.ajax({
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("X-CSRFToken", csrf_token());
+                    },
+                    url: "/captcha/",
+                    method: "post",
+                    data: {username: vm.username},
+                    dataType: "json",
+                    success: function(json){
+                        vm.show_captcha = json;
+                    }
+                });
+            },
+            refresh_captcha: function () {
+                vm.captcha_src = "/captcha/?_dc=" + new Date().getTime().toString();
+            },
             submit: function () {
                 if (vm.username == "" || vm.password == "") {
                     vm.alert_content = "请输入账号和密码";
+                    $('#login_alert').modal();
+                }
+                else if(vm.show_captcha && vm.captcha.length == 0){
+                    vm.alert_content = "请输入验证码";
                     $('#login_alert').modal();
                 }
                 else {
@@ -65,16 +97,18 @@
                         beforeSend: function (xhr) {
                             xhr.setRequestHeader("X-CSRFToken", csrf_token());
                         },
-                        data: {username: vm.username, password: vm.password},
+                        data: {username: vm.username, password: vm.password, captcha: vm.captcha},
                         url: "/login/",
                         method: "post",
-                        success: function(data){
+                        success: function (data) {
 
-                            if (data.status == "success"){
+                            if (data.status == "success") {
                                 window.location.href = document.referrer;
                             }
-                            else{
+                            else {
                                 vm.alert_content = data.content;
+                                vm.captcha = "";
+                                vm.refresh_captcha();
                                 $('#login_alert').modal();
                             }
                         }

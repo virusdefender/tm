@@ -3,11 +3,24 @@ from django.shortcuts import render
 from django.contrib import auth
 from django.template.response import TemplateResponse
 
+from DjangoCaptcha import Captcha
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from account.models import User, LoginLog, PasswordRecoveryLog
 from .serializers import UserLoginSerializer, UserRegisterSerializer
+
+
+def check_is_need_captcha(username):
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return True
+    if user.is_staff or user.is_superuser:
+        return True
+    # todo add rule
+    return False
 
 
 class UserLoginView(APIView):
@@ -19,23 +32,28 @@ class UserLoginView(APIView):
         if serializer.is_valid():
             data = serializer.data
 
+            if check_is_need_captcha(data["username"]):
+                captcha = Captcha(request)
+                if not captcha.check(data["captcha"]):
+                    return Response(data={"status": "error", "content": u"验证码错误"})
+
             user = auth.authenticate(username=data["username"], password=data["password"])
 
             if user is not None:
                 if user.is_active:
-                    LoginLog.objects.create(user=user, status="success", user_agent=request.META["HTTP_USER_AGENT"])
+                    LoginLog.objects.create(user_name=user.username, status="success", user_agent=request.META["HTTP_USER_AGENT"])
                     shopping_cart = request.session.get("shopping_cart", [])
                     auth.logout(request)
                     auth.login(request, user)
                     request.session["shopping_cart"] = shopping_cart
                     return Response(data={"status": "success"})
                 else:
-                    LoginLog.objects.create(user=user, status="in_active", user_agent=request.META["HTTP_USER_AGENT"])
+                    LoginLog.objects.create(user_name=user.username, status="in_active", user_agent=request.META["HTTP_USER_AGENT"])
                     return Response(data={"status": "error", "content": u"用户状态异常，请重置密码"})
             else:
                 try:
                     user = User.objects.get(username=data["username"])
-                    LoginLog.objects.create(user=user, status="failed", user_agent=request.META["HTTP_USER_AGENT"])
+                    LoginLog.objects.create(user_name=user.username, status="failed", user_agent=request.META["HTTP_USER_AGENT"])
                     # TODO 检测密码暴力破解
                 except User.DoesNotExist:
                     pass
@@ -64,6 +82,18 @@ class UserRegisterView(APIView):
             user.save()
             return Response(data={"status": "success"})
         return Response(data={"status": "error", "content": u"注册失败"})
+
+
+class CaptchaView(APIView):
+    def get(self, request):
+        captcha = Captcha(request)
+        return captcha.display()
+
+    def post(self, request):
+        """检查是否需要验证码
+        """
+        username = request.DATA.get("username", None)
+        return Response(data=check_is_need_captcha(username))
 
 
 def get_user_rank(user):

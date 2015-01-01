@@ -111,9 +111,19 @@
             </div>
         </div>
     </div>
+    <div class="am-modal am-modal-alert" id="alert">
+        <div class="am-modal-dialog">
+            <div class="am-modal-hd"></div>
+            <div class="am-modal-bd" ms-html="alert_content">
+            </div>
+            <div class="am-modal-footer">
+                <span class="am-modal-btn">确定</span>
+            </div>
+        </div>
+    </div>
     <div class="am-g price-bar">
         <div class="am-u-sm-7" style="margin-top: 13px;margin-bottom: 5px">
-            <span style="color:#ffffff">数量:{{total_number}} 总价:{{total_price}}元</span>
+            <span style="color:white">数量:{{total_number}} 总价:{{total_price}}元</span>
         </div>
         <div class="am-u-sm-3" style="margin-top: 5px;margin-bottom: 5px">
             <button type="button" class="am-btn am-btn-success" onclick="window.location.href='/order/?source=index'">快速提交</button>
@@ -127,6 +137,7 @@
             $id: "index",
             product_list: [],
             modal_content: "",
+            alert_content: "",
             category_list: [],
             shop_info: {},
             total_price: 0,
@@ -151,27 +162,24 @@
                 if (product.max_num == -1 || product.cart_num < product.max_num) {
                     if (product.min_score > 0) {
                         if (vm.user_info.status == "not_login") {
-                            show_modal('<a href="/login/"><div class="am-alert am-alert-info" data-am-alert>' +
-                            "本商品需要至少" + product.min_score.toString() +
-                            "积分才能购买，您还没有登录，点击登录</div></a>");
+                            show_alert('<a href="/login/">本商品需要至少' + product.min_score.toString() +
+                            "积分才能购买，您还没有登录，点击登录</a>");
                             return;
                         }
                         if (vm.user_info.score < product.min_score) {
-                            show_modal('<div class="am-alert am-alert-info" data-am-alert>' + "本商品需要至少" +
-                            product.min_score.toString() +
-                            "积分才能购买，您的积分是" +
-                            vm.user_info.score + "</div>");
+                            show_alert("本商品需要至少" + product.min_score.toString() +
+                            "积分才能购买，您的积分是" + vm.user_info.score);
                             return;
                         }
                     }
 
                     if (product.user_group.length) {
                         if (vm.user_info.status == "not_login") {
-                            show_modal('<a href="/login/"><div class="am-alert am-alert-info" data-am-alert>本商品只有会员才能购买，您还没有登录，点击登录</div></a>');
+                            show_alert('<a href="/login/">本商品只有会员才能购买，您还没有登录，点击登录</a>');
                             return;
                         }
                         if (product.user_group.indexOf(vm.user_info.user_group) < 0) {
-                            show_modal('<div class="am-alert am-alert-info" data-am-alert>本商品只有会员才能购买，您还不是会员</div>');
+                            show_alert('本商品只有会员才能购买，您还不是会员');
                             return;
                         }
                     }
@@ -191,11 +199,10 @@
                     shake_cart();
                 }
                 else if (product.max_num == 0) {
-                    show_modal('<div class="am-alert am-alert-danger" data-am-alert>该商品暂时不能购买</div>');
+                    show_alert('该商品暂时不能购买');
                 }
                 else {
-                    show_modal('<div class="am-alert am-alert-info" data-am-alert>该商品最多只能购买' +
-                    product.max_num.toString() + "件 </div>");
+                    show_alert('该商品最多只能购买' + product.max_num.toString() + "件");
                 }
             },
             del_from_cart: function (product) {
@@ -308,6 +315,11 @@
         function show_modal(content) {
             vm.modal_content = content;
             $("#modal").modal();
+        }
+
+        function show_alert(content) {
+            vm.alert_content = content;
+            $("#alert").modal();
         }
 
         window.onhashchange = function () {

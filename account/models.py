@@ -11,6 +11,8 @@ class User(AbstractUser):
     sex = models.CharField(max_length=3, blank=True, null=True)
     default_shop_id = models.IntegerField(blank=True, null=True)
     group = models.ForeignKey(UserGroup, blank=True, null=True, help_text=u"用户分组")
+    tags = models.TextField(blank=True, null=True)
+    role = models.CharField(max_length=20, default="user")
 
     class Meta:
         db_table = "user"
