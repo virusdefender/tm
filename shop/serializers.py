@@ -1,7 +1,7 @@
 # coding=utf-8
 from rest_framework import serializers
 
-from .models import Shop, Category, Product
+from .models import Shop, Category, Product, Order
 
 
 class ShopSerializer(serializers.ModelSerializer):
@@ -53,3 +53,16 @@ class ProductCartOperationSerializer(serializers.Serializer):
     product_id = serializers.IntegerField()
     operation = serializers.IntegerField()
     source = serializers.CharField(max_length=30)
+
+
+class SubmitOrderSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=30)
+    phone = serializers.CharField(max_length=11, min_length=11)
+    address = serializers.CharField(max_length=40)
+    remark = serializers.CharField(max_length=30, required=False)
+    order_delivery_time = serializers.WritableField()
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order

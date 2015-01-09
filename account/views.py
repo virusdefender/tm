@@ -43,9 +43,13 @@ class UserLoginView(APIView):
                 if user.is_active:
                     LoginLog.objects.create(user_name=user.username, status="success", user_agent=request.META["HTTP_USER_AGENT"])
                     shopping_cart = request.session.get("shopping_cart", [])
+                    default_shop_id = request.session.get("default_shop_id", None)
                     auth.logout(request)
                     auth.login(request, user)
                     request.session["shopping_cart"] = shopping_cart
+                    if (not user.default_shop_id) and default_shop_id:
+                        user.default_shop_id = default_shop_id
+                        user.save()
                     return Response(data={"status": "success"})
                 else:
                     LoginLog.objects.create(user_name=user.username, status="in_active", user_agent=request.META["HTTP_USER_AGENT"])

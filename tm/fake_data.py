@@ -7,6 +7,7 @@ def create_fake_data():
     u = User.objects.create(username="root")
     u.is_superuser = True
     u.is_staff = True
+    u.default_shop_id = 1
     u.set_password("root")
     u.save()
 

@@ -2,14 +2,14 @@ from django.conf.urls import patterns, include, url
 
 from django.contrib import admin
 from account.views import UserLoginView, UserRegisterView, CaptchaView, UserView
-from shop.views import CategoryView, ProductView, ShoppingCartView, OrderView, PayView
+from shop.views import CategoryView, ProductView, ShoppingCartView, OrderView, PayView, IndexView
 from log.views import LogView
 
 admin.autodiscover()
 
 urlpatterns = patterns('',
                        # Examples:
-                       # url(r'^$', 'tm.views.home', name='home'),
+                       url(r'^$', IndexView.as_view(), name='index'),
                        # url(r'^blog/', include('blog.urls')),
 
                        url(r'^admin/', include(admin.site.urls)),

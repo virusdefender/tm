@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}
+
+{% endblock %}
+
+{% block javascriptblock %}
+
+{% endblock %}
+
+{% block body %}
+{% verbatim %}
+<h2>请选择您的默认商店</h2>
+<div ms-controller="index">
+    <ul class="am-list am-list-static am-list-border am-list-striped">
+        <li ms-repeat="shop_list" class="am-text-center" ms-click="choose_shop(el)">{{el.name}}</li>
+    </ul>
+</div>
+<script>
+    var vm = avalon.define({
+        $id: "index",
+        shop_list: [],
+        choose_shop: function(shop){
+            $.ajax({
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("X-CSRFToken", csrf_token());
+                },
+                url: "/",
+                data: {shop: shop.id},
+                method: "post",
+                success: function(json){
+                    window.location.href="/shop/" + shop.id.toString() + "/";
+                }
+            })
+        }
+    });
+
+    $.ajax({
+        url: "/?format=json",
+        method: "get",
+        dataType: "json",
+        success: function (json) {
+            vm.shop_list = json;
+        }
+    });
+</script>
+{% endverbatim %}
+{% include 'foot.html' %}
+
+{% endblock %}

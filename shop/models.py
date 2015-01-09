@@ -10,10 +10,11 @@ from DjangoUeditor.models import UEditorField
 class Shop(models.Model):
     """商店"""
     name = models.CharField(max_length=50, db_index=True, help_text=u"商店的名字")
+    logo = models.CharField(max_length=200, blank=True, null=True, help_text=u"logo地址")
     delivery_time = models.CharField(max_length=200, help_text=u"送货时间，请严格遵循标准，例子: 10:05-13:00;15:00-19:00")
     contact_information = models.CharField(max_length=200, help_text=u"联系信息，会在订单页面显示，可以为html")
     # 起运价格
-    min_money = models.DecimalField(max_digits=10, decimal_places=2, help_text=u"正常起运价格")
+    min_money = models.DecimalField(max_digits=10, decimal_places=2, help_text=u"起运价格")
     delivery_area = models.CharField(max_length=200, blank=True, help_text=u"配送区域")
     create_time = models.DateTimeField(auto_now_add=True)
     delivery_prepare_time = models.IntegerField(default=0, help_text=u"配送准备时间，系统提前这个时间结束下个时间段的预定，单位分钟")
@@ -162,9 +163,9 @@ class Product(models.Model):
 
 class AddressCategory(models.Model):
     name = models.CharField(max_length=30)
-    keywords = models.TextField()
+    keywords = models.TextField(help_text=u"请务必使用英文分号分隔关键词，比如汇园;汇一，最后不要加分号")
     shop = models.ForeignKey(Shop)
-    index = models.IntegerField(default=0)
+    index = models.IntegerField(default=0, help_text=u"送货顺序")
 
     class Meta:
         db_table = "address_category"
@@ -173,6 +174,14 @@ class AddressCategory(models.Model):
 class Order(models.Model):
     user = models.ForeignKey("account.User")
     shop = models.ForeignKey(Shop)
+    # COD/ALIPAY
+    payment_method = models.CharField(max_length=20)
+    # 货到付款系列状态为负数 支付宝付款状态都是正数
+    # 货到付款： 还没有付款 -2 已经付款 -1 已经退款 -3
+    # 支付宝： 还没有付款 4 已经付款 1 付款失败 2 已经退款 3
+    payment_status = models.IntegerField()
+    # 订单状态：等待处理-1  已经确认0  等待配送1  订单完成 2  订单取消 3
+    order_status = models.IntegerField(default=0)
     name = models.CharField(max_length=50)
     phone = models.CharField(max_length=15, blank=True)
     address = models.CharField(max_length=100)
@@ -180,14 +189,12 @@ class Order(models.Model):
     remark = models.CharField(max_length=100, blank=True)
     create_time = models.DateTimeField(auto_now_add=True)
     delivery_time = models.CharField(max_length=200)
-    # status 可能有下面几种 等待处理 0 已经发货  1 订单完成 2 订单取消 3
-    status = models.IntegerField(default=0)
     source = models.CharField(max_length=20, default="web")
-    total_money = models.DecimalField(max_digits=10, decimal_places=3, default=0)
+    total_money = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     is_first = models.BooleanField(default=False)
 
     class Meta:
-        db_table = "order"
+        db_table = "shop_order"
 
     def add_order_product(self, product_id, number):
         product = Product.objects.get(pk=product_id)

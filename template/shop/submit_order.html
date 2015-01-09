@@ -41,7 +41,7 @@
             <fieldset>
                 <div class="am-form-group">
                     <label>支付方式</label>
-                    <input type="radio" name="pay">货到付款
+                    <input type="radio" name="pay" checked>货到付款
                     <input type="radio" name="pay">在线支付
                 </div>
 
@@ -61,12 +61,12 @@
 
                 <div class="am-form-group">
                     <label>备注</label>
-                    <input type="text" class="" placeholder="还有什么想说的">
+                    <input type="text" class="" placeholder="还有什么想说的" ms-duplex="remark">
                 </div>
                 <div class="am-form-group">
                     <label>送货时间</label>
                     <span ms-repeat="delivery_time">
-                        <input type="checkbox" ms-attr-value="el" name="delivery_time">{{el}}
+                        <input type="checkbox" ms-attr-value="el" name="delivery_time" ms-duplex-checked="$index==0">{{el}}
                     </span>
                 </div>
 
@@ -77,42 +77,79 @@
             </fieldset>
         </form>
     </div>
-    <div class="am-modal am-modal-no-btn" tabindex="-1" id="modal">
+    <div class="am-modal am-modal-alert" id="alert">
         <div class="am-modal-dialog">
-            <div class="am-modal-hd">&nbsp;
-                <a href="javascript: void(0)" class="am-close am-close-spin" data-am-modal-close>&times;</a>
+            <div class="am-modal-hd"></div>
+            <div class="am-modal-bd" ms-html="alert_content">
             </div>
-            <div class="am-modal-bd" id="modal_content" ms-html="modal_content">
-
+            <div class="am-modal-footer">
+                <span class="am-modal-btn">确定</span>
             </div>
         </div>
     </div>
     <script>
+        jQuery.fn.getCheckboxVal = function(){
+            var vals = [];
+            var i = 0;
+            this.each(function(){
+                vals[i++] = jQuery(this).val();
+            });
+            return vals;
+        };
 
-        function show_modal(content) {
-            vm.modal_content = content;
-            $("#modal").modal();
+        function show_alert(content) {
+            vm.alert_content = content;
+            $("#alert").modal();
         }
         var vm = avalon.define({
             $id: "submit_order",
             name: "",
             phone: "",
             address: "",
-            modal_content: "",
+            remark: "",
+            alert_content: "",
             delivery_time: [],
+            order_delivery_time: [],
             total_price: 0,
             total_number: 0,
             submit_order: function () {
                 if(vm.name.length < 2){
-                    show_modal('<div class="am-alert am-alert-info" data-am-alert>请输入正确的姓名</div>');
-                    return;
+                    show_alert('请输入正确的姓名');
+                    return
                 }
                 if(vm.phone.length != 11){
-                    show_modal('<div class="am-alert am-alert-info" data-am-alert>请输入正确的11位手机号码</div>');
+                    show_alert("请输入正确的11位手机号码");
+                    return
                 }
-                if(vm.phone.address <= 3){
-                    show_modal('<div class="am-alert am-alert-info" data-am-alert>请输入正确的地址</div>');
+                if(vm.address <= 3){
+                    show_alert("请输入正确的地址");
+                    return
                 }
+                vm.order_delivery_time = $("input[name='delivery_time']:checked").getCheckboxVal();
+                if(vm.order_delivery_time.length == 0){
+                    show_alert("请至少选择一个送货时间");
+                    return
+                }
+                $.ajax({
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("X-CSRFToken", csrf_token());
+                    },
+                    url: "/order/",
+                    method: "post",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        name: vm.name,
+                        phone: vm.phone,
+                        address: vm.address,
+                        remark: vm.remark,
+                        order_delivery_time: vm.order_delivery_time
+                    }),
+                    dataType: "json",
+                    success: function(json){
+
+                    }
+                })
+
             }
         });
         //获取商品数量和总价
@@ -130,7 +167,7 @@
         });
         //获取历史订单的地址信息等
         $.ajax({
-            url: "/",
+            url: "/order/?operation=get_history_info",
             method: "get",
             dataType: "json",
             success: function (json) {

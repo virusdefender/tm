@@ -1,4 +1,4 @@
-#encoding:utf-8
+# coding:utf-8
 
 """
 Copyright 2013 TY<tianyu0915@gmail.com>
@@ -22,7 +22,6 @@ import random
 import StringIO
 from django.http import HttpResponse
 from PIL import Image, ImageDraw, ImageFont
-from math import ceil
 
 
 class Captcha(object):
@@ -36,7 +35,7 @@ class Captcha(object):
         self.captcha_expires_time = '_django_captcha_expires_time'
 
         # 验证码图片尺寸
-        self.img_width = 150
+        self.img_width = 90
         self.img_height = 30
 
     def _get_font_size(self, code):
@@ -49,7 +48,7 @@ class Captcha(object):
 
     def _set_answer(self, answer):
         """  
-        设置答案
+        设置答案和过期时间
         """
         self.django_request.session[self.session_key] = str(answer)
         self.django_request.session[self.captcha_expires_time] = time.time() + 60
@@ -66,39 +65,42 @@ class Captcha(object):
         """
         生成验证码图片
         """
-        font_color = ['black', 'darkblue', 'darkred', 'red', 'green']
-        background = (random.randrange(50, 255), random.randrange(50, 255), random.randrange(50, 255))
+        background = (random.randrange(200, 255), random.randrange(200, 255), random.randrange(200, 255))
+        code_color = (random.randrange(0, 50), random.randrange(0, 50), random.randrange(0, 50), 255)
+
         font_path = os.path.join(os.path.normpath(os.path.dirname(__file__)), 'timesbi.ttf')
-        self.django_request.session[self.session_key] = ''
-        im = Image.new('RGB', (self.img_width, self.img_height), background)
+
+        image = Image.new('RGB', (self.img_width, self.img_height), background)
         code = self._make_code()
         font_size = self._get_font_size(code)
-        draw = ImageDraw.Draw(im)
-        for i in range(random.randrange(6, 10)):
-            line_color = (random.randrange(0, 255), random.randrange(0, 255), random.randrange(0, 255))
-            xy = (
-                random.randrange(0, int(self.img_width * 0.5)),
-                random.randrange(0, self.img_height),
-                random.randrange(3 * self.img_width / 4, self.img_width),
-                random.randrange(0, self.img_height)
-            )
-            draw.line(xy, fill=line_color, width=int(font_size * 0.15))
-        # draw code
-        j = int(font_size * 0.3)
-        k = int(font_size * 0.5)
-        x = random.randrange(j, k)  #starts point
-        for i in code:
-            # 上下抖动量,字数越多,上下抖动越大
-            m = int(len(code))
-            y = random.randrange(1, 3)
-            # 字体大小变化量,字数越少,字体大小变化越多
-            m = random.randrange(0, int(45 / font_size) + int(font_size / 5))
+        draw = ImageDraw.Draw(image)
 
-            font = ImageFont.truetype(font_path.replace('\\', '/'), font_size + int(ceil(m)))
-            draw.text((x, y), i, font=font, fill=random.choice(font_color))
-            x += font_size * 0.9
+        '''
+        xy = (
+            random.randrange(0, int(self.img_width * 0.5)),
+            random.randrange(0, self.img_height),
+            random.randrange(3 * self.img_width / 4, self.img_width),
+            random.randrange(0, self.img_height)
+        )
+        draw.line(xy, fill=code_color, width=int(font_size * 0.15))
+        '''
+
+        # x是第一个字母的x坐标
+        x = random.randrange(int(font_size * 0.3), int(font_size * 0.5))
+
+        for i in code:
+            # 字符y坐标
+            y = random.randrange(1, 7)
+            # 随机字符大小
+            font = ImageFont.truetype(font_path.replace('\\', '/'), font_size + random.randrange(-3, 7))
+            draw.text((x, y), i, font=font, fill=code_color)
+            # 随机化字符之间的距离 字符粘连可以降低识别率
+            x += font_size * random.randrange(4, 6) / 10
+
         buf = StringIO.StringIO()
-        im.save(buf, 'gif')
+        image.save(buf, 'gif')
+
+        self.django_request.session[self.session_key] = ''
         return HttpResponse(buf.getvalue(), 'image/gif')
 
     def check(self, code):
@@ -109,7 +111,7 @@ class Captcha(object):
         if not _code:
             return False
         expires_time = self.django_request.session.get(self.captcha_expires_time) or 0
-        #注意 如果验证之后不清除之前的验证码的话 可能会造成重复验证的现象
+        # 注意 如果验证之后不清除之前的验证码的话 可能会造成重复验证的现象
         del self.django_request.session[self.session_key]
         del self.django_request.session[self.captcha_expires_time]
         if _code.lower() == str(code).lower() and time.time() < expires_time:

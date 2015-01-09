@@ -2,17 +2,44 @@
 import json
 from django.shortcuts import render
 from django.contrib.auth.models import AnonymousUser
-from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponseRedirect
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from log.models import CategoryClickLog, ShoppingCartOperationLog
 
-from .models import Shop, Product, Category
+from .models import Shop, Product, Category, AddressCategory,Order
 from .serializers import (ShopSerializer, CategorySerializer, ProductSerializer,
-                          ProductCartOperationSerializer, ShoppingCartProductSerializer)
+                          ProductCartOperationSerializer, ShoppingCartProductSerializer,
+                          SubmitOrderSerializer, OrderSerializer)
 from .shopping_cart import ShoppingCart
+
+
+class IndexView(APIView):
+    def get(self, request):
+        data_format = request.GET.get("format", None)
+        if not data_format:
+            if request.user.is_authenticated() and request.user.default_shop_id:
+                return HttpResponseRedirect("/shop/" + str(request.user.default_shop_id) + "/")
+            else:
+                shop = Shop.objects.all()
+                if shop.count() > 1:
+                    return render(request, "shop/index.html")
+                else:
+                    request.session["default_shop_id"] = shop[0].id
+                    return HttpResponseRedirect("/shop/" + str(shop[0].id) + "/")
+        shop = Shop.objects.all()
+        return Response(data=ShopSerializer(shop, many=True).data)
+
+    def post(self, request):
+        shop_id = request.DATA.get("shop", -1)
+        try:
+            Shop.objects.get(pk=shop_id)
+        except Shop.DoesNotExist:
+            return Response(data={"status": "error"})
+        request.session["default_shop_id"] = shop_id
+        return Response(data={"status": "success"})
 
 
 class ShopView(APIView):
@@ -92,6 +119,7 @@ class ShoppingCartView(APIView):
                 log_data["user"] = request.user
 
             if data["operation"] > 0:
+                # todo check
                 log_data["operation"] = "+1"
                 self.request.session["shopping_cart"] = s.add_to_cart(data["product_id"])
             else:
@@ -104,7 +132,37 @@ class ShoppingCartView(APIView):
 
 class OrderView(APIView):
     def get(self, request):
-        return render(request, "shop/submit_order.html")
+        operation = request.GET.get("operation", None)
+        if not operation:
+            return render(request, "shop/submit_order.html")
+        if operation == "get_history_info":
+            # todo
+            return Response(data={"name": "123", "phone": "11111111111"})
+
+    def post(self, request):
+        serializer = SubmitOrderSerializer(data=request.DATA)
+        if serializer.is_valid():
+            data = serializer.data
+            try:
+                data["shop"] = Shop.objects.get(pk=request.user.default_shop_id)
+            except Shop.DoesNotExist:
+                return Response(data={"status": "error", "content": "Shop does not exist"})
+            data["user"] = request.user
+
+            data["delivery_time"] = json.dumps(data.pop("order_delivery_time"))
+            address_category = AddressCategory.objects.filter(shop=data["shop"])
+            for item in address_category:
+                for keyword in item.keywords.split(";"):
+                    if keyword in data["address"]:
+                        data["address_category"] = item
+                        break
+                if data.get("address_category", None):
+                    break
+            data["is_first"] = Order.objects.filter(user=data["user"], shop=data["shop"]).exists()
+            order = Order.objects.create(**data)
+            return Response(data=OrderSerializer(order).data)
+        else:
+            return Response(data={"status": "error", "content": serializer.errors})
 
 
 class PayView(APIView):
