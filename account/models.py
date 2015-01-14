@@ -1,18 +1,19 @@
 # coding=utf-8
+from decimal import Decimal
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
-from shop.models import UserGroup
 
 
 class User(AbstractUser):
     phone = models.CharField(max_length=12, blank=True, null=True)
-    score = models.FloatField(default=0)
     gender = models.CharField(max_length=3, blank=True, null=True)
     default_shop_id = models.IntegerField(blank=True, null=True)
-    group = models.ForeignKey(UserGroup, blank=True, null=True, help_text=u"用户分组")
     tags = models.TextField(blank=True, null=True)
     role = models.CharField(max_length=20, default="user")
+    is_vip = models.BooleanField(default=False)
+    # vip过期时间
+    vip_expire_time = models.DateTimeField(blank=True, null=True)
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0'))
 
     class Meta:
         db_table = "user"
