@@ -20,6 +20,7 @@ class Shop(models.Model):
     status = models.BooleanField(default=True, help_text=u"如果设置为false，代表关闭商店")
     freight_line = models.DecimalField(help_text=u"低于这个价格将收取运费", max_digits=10, decimal_places=2)
     freight = models.DecimalField(help_text=u"运费", max_digits=10, decimal_places=2)
+    ad = models.TextField(help_text=u"商店上部轮播广告", max_length=1000, blank=True, null=True)
 
     class Meta:
         db_table = "shop"
