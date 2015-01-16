@@ -40,9 +40,13 @@ INSTALLED_APPS = (
     'rest_framework',
     'DjangoUeditor',
 
+    'xadmin',
+    'crispy_forms',
+
     'account',
     'shop',
     'log',
+    'utils',
 )
 
 MIDDLEWARE_CLASSES = (

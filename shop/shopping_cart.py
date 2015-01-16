@@ -1,23 +1,41 @@
 # coding=utf-8
+import redis
+import json
 import time
+
 from .models import Product, Shop
 
 
 class ShoppingCart(object):
-    def __init__(self, request):
-        self.shopping_cart = request.session.get("shopping_cart", [])
-        self.user = request.user
+    def __init__(self, shopping_cart_key):
+        self.key = shopping_cart_key
         # todo
-        self.shop = 1
+        self.redis = redis.Redis()
+        self.shopping_cart = self._shopping_cart()
+        # 过期时间 30天
+        self.key_expire_time = 60 * 60 * 24 * 30
+
+    def set_key(self, value):
+        self.redis.set(self.key, json.dumps(value))
+        self.redis.expire(self.key,  self.key_expire_time)
+
+    def _shopping_cart(self):
+        shopping_cart = self.redis.get(self.key)
+        if shopping_cart is None:
+            return []
+        else:
+            return json.loads(shopping_cart)
 
     def add_to_cart(self, product_id, num=1):
         for item in self.shopping_cart:
             if item["product_id"] == product_id:
                 item["num"] += num
                 item["last_update_time"] = time.time()
-                return self.shopping_cart
+                self.set_key(self.shopping_cart)
+                return
+
         self.shopping_cart.append({"product_id": product_id, "num": num, "last_update_time": time.time()})
-        return self.shopping_cart
+        self.set_key(self.shopping_cart)
 
     def del_from_cart(self, product_id, num=1):
         for item in self.shopping_cart:
@@ -26,7 +44,7 @@ class ShoppingCart(object):
                 if item["num"] == 0:
                     self.shopping_cart = [item for item in self.shopping_cart if item["product_id"] != product_id]
                 break
-        return self.shopping_cart
+        self.set_key(self.shopping_cart)
 
     def get_product_cart_num(self, product_list):
         response = {}
@@ -43,12 +61,4 @@ class ShoppingCart(object):
 
     @property
     def shopping_cart_data(self):
-        data = []
-        for item in self.shopping_cart:
-            try:
-                p = Product.objects.get(shop=self.shop, pk=item["product_id"])
-            except Product.DoesNotExist:
-                continue
-            setattr(p, "_cart_num", item["num"])
-            data.append(p)
-        return data
+        pass

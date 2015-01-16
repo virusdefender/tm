@@ -18,6 +18,8 @@ class Shop(models.Model):
     signup_score = models.IntegerField(help_text=u"一次签到的积分数目")
     score_balance_rate = models.DecimalField(max_digits=10, decimal_places=2, help_text=u"积分到余额的比例，积分乘以这个数字")
     status = models.BooleanField(default=True, help_text=u"如果设置为false，代表关闭商店")
+    freight_line = models.DecimalField(help_text=u"低于这个价格将收取运费", max_digits=10, decimal_places=2)
+    freight = models.DecimalField(help_text=u"运费", max_digits=10, decimal_places=2)
 
     class Meta:
         db_table = "shop"
@@ -96,7 +98,7 @@ class Product(models.Model):
         db_table = "product"
 
     def __unicode__(self):
-        return "%s %s %s %s" % (self.name, self.shop.name, self.price, self.is_virtual)
+        return "%s %s %s" % (self.name, self.shop.name, self.price)
 
     def create_order_product(self, order, number):
         pass
@@ -115,14 +117,13 @@ class AddressCategory(models.Model):
 class Order(models.Model):
     user = models.ForeignKey("account.User")
     shop = models.ForeignKey(Shop)
-    # COD/ALIPAY
+    # 货到付款 支付宝 余额 支付宝和余额同时使用
+    # COD/ALIPAY/BALANCE/ALIPAY&BALANCE
     payment_method = models.CharField(max_length=20)
-    # 货到付款系列状态为负数 支付宝付款状态都是正数
-    # 货到付款： 还没有付款 -2 已经付款 -1 已经退款 -3
-    # 支付宝： 还没有付款 4 已经付款 1 付款失败 2 已经退款 3
-    payment_status = models.IntegerField()
-    # 订单状态：等待处理-1  已经确认0  等待配送1  订单完成 2  订单取消 3
-    order_status = models.IntegerField(default=0)
+    # 支付状态 0 没有付款 -1 已经退款 1 支付成功
+    payment_status = models.IntegerField(default=0)
+    # 订单配送状态：等待处理-1  已经确认0  正在配送1  订单完成 2  订单取消 3
+    order_status = models.IntegerField(default=-1)
     name = models.CharField(max_length=50)
     phone = models.CharField(max_length=15, blank=True)
     address = models.CharField(max_length=100)
@@ -130,7 +131,7 @@ class Order(models.Model):
     remark = models.CharField(max_length=100, blank=True)
     create_time = models.DateTimeField(auto_now_add=True)
     delivery_time = models.CharField(max_length=200)
-    source = models.CharField(max_length=20, default="web")
+    source = models.CharField(max_length=200)
     total_money = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     is_first = models.BooleanField(default=False)
 

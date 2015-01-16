@@ -1,231 +1,94 @@
-# coding=utf-8
-import time
-import json
-import datetime
-from django.db import models
+/* 前后端通信相关的配置,注释只允许使用多行方式 */
+{
+    /* 上传图片配置项 */
+    "imageActionName": "uploadimage", /* 执行上传图片的action名称 */
+    "imageFieldName": "upfile", /* 提交的图片表单名称 */
+    "imageMaxSize": 2048000, /* 上传大小限制，单位B */
+    "imageAllowFiles": [".png", ".jpg", ".jpeg", ".gif", ".bmp"], /* 上传图片格式显示 */
+    "imageCompressEnable": true, /* 是否压缩图片,默认是true */
+    "imageCompressBorder": 1600, /* 图片压缩最长边限制 */
+    "imageInsertAlign": "none", /* 插入的图片浮动方式 */
+    "imageUrlPrefix": "", /* 图片访问路径前缀 */
+    "imagePathFormat": "/ueditor/php/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}", /* 上传保存路径,可以自定义保存路径和文件名格式 */
+                                /* {filename} 会替换成原文件名,配置这项需要注意中文乱码问题 */
+                                /* {rand:6} 会替换成随机数,后面的数字是随机数的位数 */
+                                /* {time} 会替换成时间戳 */
+                                /* {yyyy} 会替换成四位年份 */
+                                /* {yy} 会替换成两位年份 */
+                                /* {mm} 会替换成两位月份 */
+                                /* {dd} 会替换成两位日期 */
+                                /* {hh} 会替换成两位小时 */
+                                /* {ii} 会替换成两位分钟 */
+                                /* {ss} 会替换成两位秒 */
+                                /* 非法字符 \ : * ? " < > | */
+                                /* 具请体看线上文档: fex.baidu.com/ueditor/#use-format_upload_filename */
 
-from DjangoUeditor.models import UEditorField
-from account.models import User
+    /* 涂鸦图片上传配置项 */
+    "scrawlActionName": "uploadscrawl", /* 执行上传涂鸦的action名称 */
+    "scrawlFieldName": "upfile", /* 提交的图片表单名称 */
+    "scrawlPathFormat": "/ueditor/php/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}", /* 上传保存路径,可以自定义保存路径和文件名格式 */
+    "scrawlMaxSize": 2048000, /* 上传大小限制，单位B */
+    "scrawlUrlPrefix": "", /* 图片访问路径前缀 */
+    "scrawlInsertAlign": "none",
 
+    /* 截图工具上传 */
+    "snapscreenActionName": "uploadimage", /* 执行上传截图的action名称 */
+    "snapscreenPathFormat": "/ueditor/php/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}", /* 上传保存路径,可以自定义保存路径和文件名格式 */
+    "snapscreenUrlPrefix": "", /* 图片访问路径前缀 */
+    "snapscreenInsertAlign": "none", /* 插入的图片浮动方式 */
 
-class Shop(models.Model):
-    """商店"""
-    name = models.CharField(max_length=50, db_index=True, help_text=u"商店的名字")
-    delivery_time = models.CharField(max_length=200, help_text=u"送货时间，请严格遵循标准，例子: 10:05-13:00;15:00-19:00")
-    contact_information = models.CharField(max_length=200, help_text=u"联系信息，会在订单页面显示，可以为html")
-    # 首单起运价格
-    first_order_min_money = models.FloatField(default=0, help_text=u"首单起运价格")
-    # 正常起运限制价格
-    ordinary_min_money = models.FloatField(default=0, help_text=u"正常起运价格")
-    delivery_area = models.CharField(max_length=200, blank=True, help_text=u"配送区域")
-    create_time = models.DateTimeField(auto_now_add=True)
-    delivery_prepare_time = models.IntegerField(default=0, help_text=u"配送准备时间，系统提前这个时间结束下个时间段的预定，单位分钟")
-    # 超级管理员 可以管理下面的admin
-    shop_super_admin = models.ForeignKey(User, related_name="super_admin", help_text=u"超级管理员")
-    # 普通管理员
-    admin = models.ManyToManyField(User, blank=True, null=True, related_name="shop_admin", help_text=u"普通管理员，暂时没用到")
-    announcement = models.TextField(blank=True, null=True, help_text=u"全局公告")
-    personalized_recommendation = models.BooleanField(default=True, help_text=u"是否开启个性化推荐")
-    status = models.BooleanField(default=True, help_text=u"如果设置为false，代表关闭商店")
+    /* 抓取远程图片配置 */
+    "catcherLocalDomain": ["127.0.0.1", "localhost", "img.baidu.com"],
+    "catcherActionName": "catchimage", /* 执行抓取远程图片的action名称 */
+    "catcherFieldName": "source", /* 提交的图片列表表单名称 */
+    "catcherPathFormat": "/ueditor/php/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}", /* 上传保存路径,可以自定义保存路径和文件名格式 */
+    "catcherUrlPrefix": "", /* 图片访问路径前缀 */
+    "catcherMaxSize": 2048000, /* 上传大小限制，单位B */
+    "catcherAllowFiles": [".png", ".jpg", ".jpeg", ".gif", ".bmp"], /* 抓取图片格式显示 */
 
-    def __unicode__(self):
-        return "%s" % self.name
+    /* 上传视频配置 */
+    "videoActionName": "uploadvideo", /* 执行上传视频的action名称 */
+    "videoFieldName": "upfile", /* 提交的视频表单名称 */
+    "videoPathFormat": "/ueditor/php/upload/video/{yyyy}{mm}{dd}/{time}{rand:6}", /* 上传保存路径,可以自定义保存路径和文件名格式 */
+    "videoUrlPrefix": "", /* 视频访问路径前缀 */
+    "videoMaxSize": 102400000, /* 上传大小限制，单位B，默认100MB */
+    "videoAllowFiles": [
+        ".flv", ".swf", ".mkv", ".avi", ".rm", ".rmvb", ".mpeg", ".mpg",
+        ".ogg", ".ogv", ".mov", ".wmv", ".mp4", ".webm", ".mp3", ".wav", ".mid"], /* 上传视频格式显示 */
 
-    def set_super_admin(self, user):
-        self.shop_super_admin = user
-        self.save()
+    /* 上传文件配置 */
+    "fileActionName": "uploadfile", /* controller里,执行上传视频的action名称 */
+    "fileFieldName": "upfile", /* 提交的文件表单名称 */
+    "filePathFormat": "/ueditor/php/upload/file/{yyyy}{mm}{dd}/{time}{rand:6}", /* 上传保存路径,可以自定义保存路径和文件名格式 */
+    "fileUrlPrefix": "", /* 文件访问路径前缀 */
+    "fileMaxSize": 51200000, /* 上传大小限制，单位B，默认50MB */
+    "fileAllowFiles": [
+        ".png", ".jpg", ".jpeg", ".gif", ".bmp",
+        ".flv", ".swf", ".mkv", ".avi", ".rm", ".rmvb", ".mpeg", ".mpg",
+        ".ogg", ".ogv", ".mov", ".wmv", ".mp4", ".webm", ".mp3", ".wav", ".mid",
+        ".rar", ".zip", ".tar", ".gz", ".7z", ".bz2", ".cab", ".iso",
+        ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".pdf", ".txt", ".md", ".xml"
+    ], /* 上传文件格式显示 */
 
-    def add_admin(self, user):
-        self.admin.add(user)
-        self.save()
+    /* 列出指定目录下的图片 */
+    "imageManagerActionName": "listimage", /* 执行图片管理的action名称 */
+    "imageManagerListPath": "/ueditor/php/upload/image/", /* 指定要列出图片的目录 */
+    "imageManagerListSize": 20, /* 每次列出文件数量 */
+    "imageManagerUrlPrefix": "", /* 图片访问路径前缀 */
+    "imageManagerInsertAlign": "none", /* 插入的图片浮动方式 */
+    "imageManagerAllowFiles": [".png", ".jpg", ".jpeg", ".gif", ".bmp"], /* 列出的文件类型 */
 
-    def get_delivery_time(self):
-        hour = datetime.datetime.now().hour
-        minute = datetime.datetime.now().minute
-        delivery_time_list = []
-        time_list = self.delivery_time.split(";")
+    /* 列出指定目录下的文件 */
+    "fileManagerActionName": "listfile", /* 执行文件管理的action名称 */
+    "fileManagerListPath": "/ueditor/php/upload/file/", /* 指定要列出文件的目录 */
+    "fileManagerUrlPrefix": "", /* 文件访问路径前缀 */
+    "fileManagerListSize": 20, /* 每次列出文件数量 */
+    "fileManagerAllowFiles": [
+        ".png", ".jpg", ".jpeg", ".gif", ".bmp",
+        ".flv", ".swf", ".mkv", ".avi", ".rm", ".rmvb", ".mpeg", ".mpg",
+        ".ogg", ".ogv", ".mov", ".wmv", ".mp4", ".webm", ".mp3", ".wav", ".mid",
+        ".rar", ".zip", ".tar", ".gz", ".7z", ".bz2", ".cab", ".iso",
+        ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".pdf", ".txt", ".md", ".xml"
+    ] /* 列出的文件类型 */
 
-        for item in time_list:
-            start_hour = time.strptime(item.split("-")[0], "%H:%M").tm_hour
-            start_min = time.strptime(item.split("-")[0], "%H:%M").tm_min
-            end_hour = time.strptime(item.split("-")[1], "%H:%M").tm_hour
-            end_min = time.strptime(item.split("-")[1], "%H:%M").tm_min
-
-            now_min = hour * 60 + minute
-            d_time = start_hour * 60 + start_min
-
-            if d_time - now_min >= self.delivery_prepare_time and d_time <= end_hour * 60 + end_min:
-                delivery_time_list.append(item)
-        if not delivery_time_list:
-            delivery_time_list = [unicode(item) + u"(第二天)" for item in time_list]
-
-        return delivery_time_list
-
-
-SORT_TYPE_CHOICES = (("-create_time", u"按照发布时间正向排序"),
-                     ("create_time", u"按照发布时间逆向排序"),
-                     ("-bought_num", u"按照销量正向排序"),
-                     ("bought_num", u"按照销量逆向排序"),
-                     ("custom_sort", u"自定义排序"))
-
-
-class Category(models.Model):
-    """商品分类"""
-    shop = models.ForeignKey(Shop, help_text=u"这个分类属于哪个商店")
-    name = models.CharField(max_length=50, db_index=True, help_text=u"分类的名字")
-    sort_type = models.CharField(max_length=20, choices=SORT_TYPE_CHOICES, help_text=u"排序方式")
-    is_index = models.BooleanField(default=False, help_text=u"如果为true，打开商店首页显示的将是这个分类")
-    sort_index = models.IntegerField(default=0, help_text=u"商店首页顶部分类名称排序")
-
-    def __unicode__(self):
-        return "%s %s" % (self.name, self.shop.name)
-
-
-class Icon(models.Model):
-    name = models.CharField(max_length=20)
-    code = models.CharField(max_length=200)
-
-    def __unicode__(self):
-        return self.name
-
-
-class Product(models.Model):
-    """一个商品的表"""
-    shop = models.ForeignKey(Shop, help_text=u"这个商品是哪个商店的")
-    category = models.ForeignKey(Category, help_text=u"这个商品属于哪个分类的")
-    name = models.CharField(max_length=50, help_text=u"商品名称,如果是多个口味的，这里不要填写口味。")
-    icons = models.ManyToManyField(Icon, blank=True, null=True, help_text=u"商品小图标")
-    # remark是商品的附加说明字段 比如商品名称是西瓜 你可以在备注中写赠送勺子 然后打印订单的时候会显示备注的
-    remark = models.CharField(max_length=50, blank=True, help_text=u"备注，打印订单的时候会显示在商品名称最后面")
-    # 现在在首页上 标题下面的 可能还会修改
-    simple_introduction_top = models.CharField(max_length=200, default='<span style="color:red">￥元/袋</span>', help_text=u"显示在商品名称下面的简介")
-    simple_introduction_foot = models.CharField(max_length=200, blank=True, help_text=u"显示在上面那个简介下面的简介，暂时没显示")
-    price = models.FloatField(help_text=u"售价")
-    # 原价 用来计算利润用的
-    origin_price = models.FloatField(null=True, help_text=u"进价，用来计算利润用的")
-    # 单位 比如斤/5个 等等
-    unit = models.CharField(max_length=50, help_text=u"单位")
-    # 最多购买数量 -1表示无限制 ;0表示这个物品只能展示 不能购买 ;>0的正常限制
-    max_num = models.IntegerField(default=-1, help_text=u"最多购买数量 -1表示无限制 ;0表示这个物品只能展示 不能购买 >0的正常限制")
-    # 首页小图
-    preview_pic = models.CharField(max_length=200, help_text=u"图片小图")
-    total_num = models.IntegerField(default=10000, help_text=u"库存数量，暂时没计算")
-    bought_num = models.IntegerField(default=0, help_text=u"该商品已经售出数量")
-    create_time = models.DateTimeField(auto_now_add=True)
-    last_modify_time = models.DateTimeField(auto_now=True)
-    introduction = UEditorField(help_text=u"点击商品弹框显示内容")
-    min_score = models.IntegerField(default=0, help_text=u"最低积分")
-    # False的话是商品下架 不会再显示 不要删除商品 因为很多历史订单会用到的
-    status = models.BooleanField(default=True, help_text=u"false就是商品下架，暂时没考虑")
-    sort_index = models.IntegerField(default=0, help_text=u"商品排序索引")
-    # 如果为True 说明为虚拟商品，分类用的，不能购买
-    is_virtual = models.BooleanField(default=False, help_text=u"如果为True 说明为虚拟商品，分类用的，不能购买")
-    # 如果这是不同口味的，就指向父商品
-    parent_product = models.ForeignKey("self", blank=True, null=True, help_text=u"如果这是不同口味的，就指向父商品")
-    # 口味的名字
-    attr = models.CharField(max_length=20, blank=True, null=True, help_text=u"口味，颜色等属性")
-
-    def __unicode__(self):
-        return "%s %s %s %s" % (self.name, self.shop.name, self.price, self.is_virtual)
-
-    def create_order_product(self, order, number):
-        if self.parent_product and self.is_virtual is False:
-            name = self.name + self.attr
-        else:
-            name = self.name
-        # 更新已购数目 注意虚拟商品
-        if self.parent_product:
-            self.parent_product.bought_num += number
-            self.parent_product.save()
-        else:
-            self.bought_num += number
-            self.save()
-        order_product = OrderProduct.objects.create(name=name,
-                                                    order=order,
-                                                    remark=self.remark,
-                                                    preview_pic=self.preview_pic,
-                                                    price=self.price,
-                                                    origin_price=self.origin_price,
-                                                    unit=self.unit, number=number)
-        return order_product
-
-
-class Order(models.Model):
-    user = models.ForeignKey(User)
-    shop = models.ForeignKey(Shop)
-    name = models.CharField(max_length=50)
-    phone = models.CharField(max_length=15, blank=True)
-    address = models.CharField(max_length=100)
-    remark = models.CharField(max_length=100, blank=True)
-    create_time = models.DateTimeField(auto_now_add=True)
-    delivery_time = models.CharField(max_length=200)
-    # status 可能有下面几种 等待处理 0 已经发货  1 订单完成 2 订单取消 3
-    status = models.IntegerField(default=0)
-    source = models.CharField(max_length=20, default="web")
-    total_money = models.FloatField(default=0)
-    is_first = models.BooleanField(default=False)
-
-    def add_order_product(self, product_id, number):
-        product = Product.objects.get(pk=product_id)
-        product.save()
-        product.create_order_product(self, number)
-
-    def add_log(self, content):
-        OrderLog.objects.create(order=self,
-                                content=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " " + content)
-
-    def get_total_money(self):
-        order_product = OrderProduct.objects.filter(order=self)
-        total_money = 0
-        for item in order_product:
-            total_money += item.total_money
-        return total_money
-
-    def get_profit(self):
-        order_product = OrderProduct.objects.filter(order=self)
-        profit = 0
-        for item in order_product:
-            profit += item.profit
-        return profit
-    
-    def get_delivery_time(self):
-        try:
-            return json.loads(self.delivery_time)
-        except Exception:
-            return ["error"]
-
-    def __unicode__(self):
-        return "%s %s" % (self.name, self.phone)
-
-
-class OrderProduct(models.Model):
-    """类似商品快照 有一个字段和商品关联 还保存了关键信息
-    """
-    order = models.ForeignKey(Order)
-    name = models.CharField(max_length=50)
-    remark = models.CharField(max_length=100, blank=True)
-    preview_pic = models.CharField(max_length=200)
-    price = models.FloatField()
-    origin_price = models.FloatField()
-    unit = models.CharField(max_length=20)
-    number = models.IntegerField()
-
-    def __unicode__(self):
-        return "%s %s %s" % (self.name, self.price, self.origin_price)
-
-    @property
-    def total_money(self):
-        return round(self.price * self.number, 2)
-
-    @property
-    def profit(self):
-        return round((self.price - self.origin_price) * self.number, 2)
-
-
-class OrderLog(models.Model):
-    order = models.ForeignKey(Order)
-    content = models.CharField(max_length=200)
-    create_time = models.DateTimeField(auto_now_add=True)
-
-    def __unicode__(self):
-        return "%s" % self.content
+}
