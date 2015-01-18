@@ -16,7 +16,6 @@ class Shop(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
     admin = models.ManyToManyField("account.User", blank=True, null=True)
     signup_score = models.IntegerField(help_text=u"一次签到的积分数目")
-    score_balance_rate = models.DecimalField(max_digits=10, decimal_places=2, help_text=u"积分到余额的比例，积分乘以这个数字")
     status = models.BooleanField(default=True, help_text=u"如果设置为false，代表关闭商店")
     freight_line = models.DecimalField(help_text=u"低于这个价格将收取运费", max_digits=10, decimal_places=2)
     freight = models.DecimalField(help_text=u"运费", max_digits=10, decimal_places=2)
