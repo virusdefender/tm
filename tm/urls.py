@@ -6,7 +6,7 @@ xadmin.autodiscover()
 from django.contrib import admin
 from account.views import UserLoginView, UserRegisterView, CaptchaView, UserView
 from log.views import LogView
-from shop.views import CategoryView
+from shop.views import CategoryView, ShopView, ProductView
 
 admin.autodiscover()
 
@@ -16,5 +16,7 @@ urlpatterns = patterns('',
 
                        url(r'^ueditor/', include('DjangoUeditor.urls')),
 
-                       url("^api/v1/category/$", CategoryView.as_view()),
+                       url(r"^api/v1/category/$", CategoryView.as_view()),
+                       url(r"^api/v1/shop/$", ShopView.as_view()),
+                       url(r"^api/v1/product/$", ProductView.as_view()),
 )

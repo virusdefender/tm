@@ -15,11 +15,11 @@ class Shop(models.Model):
     delivery_area = models.CharField(max_length=200, blank=True, help_text=u"配送区域")
     create_time = models.DateTimeField(auto_now_add=True)
     admin = models.ManyToManyField("account.User", blank=True, null=True)
-    signup_score = models.IntegerField(help_text=u"一次签到的积分数目")
+    # signup_score = models.IntegerField(help_text=u"一次签到的积分数目")
     status = models.BooleanField(default=True, help_text=u"如果设置为false，代表关闭商店")
     freight_line = models.DecimalField(help_text=u"低于这个价格将收取运费", max_digits=10, decimal_places=2)
     freight = models.DecimalField(help_text=u"运费", max_digits=10, decimal_places=2)
-    ad = models.TextField(help_text=u"商店上部轮播广告", max_length=1000, blank=True, null=True)
+    banner = models.TextField(help_text=u"商店上部轮播广告", max_length=1000, blank=True, null=True)
 
     class Meta:
         db_table = "shop"
@@ -42,7 +42,7 @@ class Shop(models.Model):
             now_min = hour * 60 + minute
             d_time = start_hour * 60 + start_min
 
-            if d_time - now_min >= self.delivery_prepare_time and d_time <= end_hour * 60 + end_min:
+            if d_time >= now_min and d_time <= end_hour * 60 + end_min:
                 delivery_time_list.append(item)
         if not delivery_time_list:
             delivery_time_list = [unicode(item) + u"(第二天)" for item in time_list]
@@ -61,8 +61,11 @@ class Category(models.Model):
     """商品分类"""
     shop = models.ForeignKey(Shop, help_text=u"这个分类属于哪个商店")
     name = models.CharField(max_length=50, db_index=True, help_text=u"分类的名字")
-    sort_index = models.IntegerField(default=0, help_text=u"排序")
-    parent_category = models.ForeignKey("self", related_name="child_category", blank=True, null=True, help_text=u"指向父级分类")
+    sort_type = models.CharField(max_length=20, choices=SORT_TYPE_CHOICES, default="-create_time",
+                                 help_text=u"注意，排序方法只需要设置在二级分类，一级分类无效")
+    sort_index = models.IntegerField(help_text=u"分类排序，注意二级分类同一个父分类下不要有重复的，一级分类同一个商店内不要有重复的")
+    parent_category = models.ForeignKey("self", related_name="child_category",
+                                        blank=True, null=True, help_text=u"指向父级分类")
 
     class Meta:
         db_table = "category"
@@ -70,14 +73,34 @@ class Category(models.Model):
     def __unicode__(self):
         return "%s %s" % (self.name, self.shop.name)
 
+    def get_category_product(self):
+        # 是二级分类
+        if self.parent_category:
+            if self.sort_type != "custom_sort":
+                return Product.objects.filter(category=self).order_by(self.sort_type)
+            else:
+                return Product.objects.filter(category=self).order_by("-sort_index")
+        # 是一级分类
+        else:
+            product_list = []
+
+            for item in Category.objects.filter(parent_category=self).order_by("-sort_index"):
+                if self.sort_type != "custom_sort":
+                    for p in Product.objects.filter(category=item).order_by(self.sort_type):
+                        product_list.append(p)
+                else:
+                    for p in Product.objects.filter(category=item).order_by("-sort_index"):
+                        product_list.append(p)
+            return product_list
+
 
 class Product(models.Model):
     """一个商品的表"""
     shop = models.ForeignKey(Shop, help_text=u"这个商品是哪个商店的")
     category = models.ForeignKey(Category, help_text=u"这个商品属于哪个分类的")
-    name = models.CharField(max_length=50, help_text=u"商品名称,如果是多个口味的，这里不要填写口味。")
+    name = models.CharField(max_length=50, help_text=u"商品名称")
     # 现在在首页上 标题下面的 可能还会修改
-    simple_introduction = models.CharField(max_length=200, default='<span style="color:red">￥元/袋</span>', help_text=u"显示在商品名称下面的简介")
+    simple_introduction = models.CharField(max_length=200, help_text=u"显示在商品名称下面的简介")
     price = models.DecimalField(max_digits=10, decimal_places=2, help_text=u"售价")
     # 原价 用来计算利润用的
     origin_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, help_text=u"进价，用来计算利润用的")
@@ -86,16 +109,17 @@ class Product(models.Model):
     # 首页小图
     preview_pic = models.CharField(max_length=200, help_text=u"图片小图")
     total_num = models.IntegerField(default=10000, help_text=u"库存数量")
-    bought_num = models.IntegerField(default=0, help_text=u"该商品已经售出数量")
+    sold_num = models.IntegerField(default=0, help_text=u"该商品已经售出数量")
     create_time = models.DateTimeField(auto_now_add=True)
     last_modify_time = models.DateTimeField(auto_now=True)
     introduction = UEditorField(help_text=u"点击商品弹框显示内容")
     # False的话是商品下架 不会再显示 不要删除商品 因为很多历史订单会用到的
     status = models.BooleanField(default=True, help_text=u"false就是商品下架")
-    sort_index = models.IntegerField(default=0, help_text=u"商品排序索引")
+    sort_index = models.IntegerField(help_text=u"排序，注意同一个二级分类下不要有重复的")
 
     class Meta:
         db_table = "product"
+        unique_together = ["category", "sort_index"]
 
     def __unicode__(self):
         return "%s %s %s" % (self.name, self.shop.name, self.price)
