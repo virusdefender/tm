@@ -23,10 +23,10 @@ def create_fake_data():
     s1 = Shop.objects.create(name="天目青大店", delivery_time="9:00-10:30;13:00-16:00",
                              contact_information="电话：123456",
                              delivery_area="青岛大学中心校区", freight_line=20, freight=4,
-                             banner=json.dumps([{"img": "http://tmimage.b0.upaiyun.com/1421293126%E6%94%BE%E5%81%87%E9%80%9A%E7%9F%A5%E5%89%AF%E6%9C%AC.jpg",
-                                                 "url": "http://baidu.com"},
-                                                {"img": "http://tmimage.b0.upaiyun.com/1421293126%E6%94%BE%E5%81%87%E9%80%9A%E7%9F%A5%E5%89%AF%E6%9C%AC.jpg",
-                                                 "url": "http://baidu.com"}]))
+                             banner=json.dumps([
+                                 "http://tmimage.b0.upaiyun.com/1421293126%E6%94%BE%E5%81%87%E9%80%9A%E7%9F%A5%E5%89%AF%E6%9C%AC.jpg",
+                                 "http://tmimage.b0.upaiyun.com/1421293126%E6%94%BE%E5%81%87%E9%80%9A%E7%9F%A5%E5%89%AF%E6%9C%AC.jpg"
+                             ]))
 
     c1 = Category.objects.create(shop=s1, name=u"测试1", sort_index=1)
     c2 = Category.objects.create(shop=s1, name=u"测试2", sort_index=2)
