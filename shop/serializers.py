@@ -40,3 +40,8 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         exclude = ["shop", "origin_price", "total_num", "create_time", "last_modify_time", "status", "sort_index"]
+
+
+class ShoppingCartOperationSerializer(serializers.Serializer):
+    product_id = serializers.IntegerField()
+    number = serializers.IntegerField()

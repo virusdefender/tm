@@ -104,3 +104,5 @@ AUTH_USER_MODEL = 'account.User'
 SESSION_ENGINE = 'redis_sessions.session'
 
 SESSION_REDIS_DB = 0
+
+SHOPPING_CART_REDIS_DB = 1
