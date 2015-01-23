@@ -147,8 +147,8 @@ class OrderIndexView(APIView):
             client_ip='127.0.0.1',
             subject='test-subject',
             body='test-body',
-            extra={"success_url": "http://127.0.0.1:8000/pay/success/",
-                   "cancel_url": "http://127.0.0.1:8000/pay/failed/"}
+            extra={"success_url": "https://tmqdu.com/pay/success/",
+                   "cancel_url": "https://tmqdu.com/pay/failed/"}
         )
 
         return Response(data=ch)
