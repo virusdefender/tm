@@ -7,7 +7,8 @@ from django.contrib import admin
 from django.views.generic import TemplateView
 from account.views import UserLoginView, UserRegisterView, CaptchaView, UserView
 from log.views import LogView
-from shop.views import CategoryView, ShopView, ProductView, ShoppingCartView, ShopIndexView, ShoppingCartIndexView
+from shop.views import (CategoryView, ShopView, ProductView, ShoppingCartView,
+                        ShopIndexView, ShoppingCartIndexView, OrderIndexView, PayResultView)
 
 admin.autodiscover()
 
@@ -16,6 +17,9 @@ urlpatterns = patterns('',
                        url(r'^$', TemplateView.as_view(template_name='shop/index.html')),
                        url(r"^shop/(?P<shop_id>\d+)/$", ShopIndexView.as_view()),
                        url(r"^shopping_cart/$", ShoppingCartIndexView.as_view()),
+                       url(r"^order/$", OrderIndexView.as_view()),
+
+                       url(r"^pay/(?P<result>\w+)/", PayResultView.as_view()),
 
                        url(r'xadmin/', include(xadmin.site.urls)),
 

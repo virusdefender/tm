@@ -1,5 +1,8 @@
 # coding=utf-8
 import json
+import time
+
+import pingpp
 
 from django.shortcuts import render
 
@@ -121,3 +124,36 @@ class ShopIndexView(APIView):
 class ShoppingCartIndexView(APIView):
     def get(self, request):
         return render(request, "shop/shopping_cart.html")
+
+
+class OrderIndexView(APIView):
+    def get(self, request):
+        data = request.GET.get("data", None)
+        if not data:
+            return render(request, "shop/submit_order.html")
+        else:
+            return Response(data={"name": "name", "phone": "11111111111", "address": "address"})
+
+    def post(self, request):
+
+        pingpp.api_key = 'sk_live_efHSmHz9G0iLGqPmPS5OynXD'
+
+        ch = pingpp.Charge.create(
+            order_no=str(int(time.time())),
+            amount=1,
+            app=dict(id='app_HGqP44OW5un1Gyzz'),
+            channel='alipay_wap',
+            currency='cny',
+            client_ip='127.0.0.1',
+            subject='test-subject',
+            body='test-body',
+            extra={"success_url": "http://127.0.0.1:8000/pay/success/",
+                   "cancel_url": "http://127.0.0.1:8000/pay/failed/"}
+        )
+
+        return Response(data=ch)
+
+
+class PayResultView(APIView):
+    def get(self, request, result):
+        return render(request, "shop/pay_result.html", {"result": result})

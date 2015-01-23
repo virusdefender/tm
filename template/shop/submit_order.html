@@ -10,6 +10,7 @@
 
 {% block javascriptblock %}
 <script src="{{ STATIC_URL }}js/icheck.min.js"></script>
+    <script src="{{ STATIC_URL }}js/pingpp_pay.js"></script>
 {% endblock %}
 {% block body %}
 
@@ -146,28 +147,36 @@
                     }),
                     dataType: "json",
                     success: function(json){
+                        pingpp.createPayment(json, function(result, err) {
+                        console.log(result);
+                        console.log(err);
+                    });
 
                     }
                 })
 
             }
         });
+
+        var default_shop_id = get_cookie("default_shop_id");
+        if(default_shop_id == ""){
+            window.location.href="/";
+        }
+
         //获取商品数量和总价
         $.ajax({
-            url: "/shopping_cart/?operation=get_cart_data",
+            url: "/api/v1/shopping_cart/?data=total&shop_id=" + get_cookie("default_shop_id"),
             method: "get",
             dataType: "json",
             success: function (json) {
-                vm.total_price = vm.total_number = 0;
-                for (var i in json) {
-                    vm.total_price = (vm.total_price * 100 + json[i].price * 100 * json[i].cart_num) / 100;
-                    vm.total_number += json[i].cart_num;
-                }
+                vm.total_price = json.total_price;
+                vm.total_number = json.total_number;
             }
         });
+
         //获取历史订单的地址信息等
         $.ajax({
-            url: "/order/?operation=get_history_info",
+            url: "/order/?data=history_info",
             method: "get",
             dataType: "json",
             success: function (json) {
@@ -178,11 +187,11 @@
         });
         //获取商店的送货时间列表
         $.ajax({
-            url: "/shop/1/?format=json&data=delivery_time",
+            url: "/api/v1/shop/?shop_id=" + get_cookie("default_shop_id"),
             method: "get",
             dataType: "json",
             success: function(json){
-                vm.delivery_time = json;
+                vm.delivery_time = json.delivery_time;
                 $('input').iCheck({
                     radioClass: 'iradio_square-blue',
                     checkboxClass: 'icheckbox_square-blue'

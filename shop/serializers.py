@@ -7,12 +7,12 @@ from .models import Shop, Category, Product, Order
 
 
 class ShopSerializer(serializers.ModelSerializer):
-    # delivery_time = serializers.SerializerMethodField("_get_shop_delivery_time")
+    delivery_time = serializers.SerializerMethodField("_get_shop_delivery_time")
     banner = serializers.SerializerMethodField("_get_shop_banner")
 
     class Meta:
         model = Shop
-        exclude = ["admin", "create_time", "status", "delivery_time"]
+        exclude = ["admin", "create_time", "status"]
 
     def _get_shop_delivery_time(self, obj):
         return obj.get_delivery_time
