@@ -20,22 +20,26 @@
         $id: "index",
         shop_list: [],
         choose_shop: function(shop){
+            /*
             $.ajax({
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader("X-CSRFToken", csrf_token());
                 },
-                url: "/",
+                url: "/api/v1/shop/",
                 data: {shop: shop.id},
                 method: "post",
                 success: function(json){
                     window.location.href="/shop/" + shop.id.toString() + "/";
                 }
             })
+            */
+            set_cookie("default_shop_id", shop.id);
+            window.location.href="/shop/" + shop.id.toString() + "/";
         }
     });
 
     $.ajax({
-        url: "/?format=json",
+        url: "/api/v1/shop/?format=json",
         method: "get",
         dataType: "json",
         success: function (json) {

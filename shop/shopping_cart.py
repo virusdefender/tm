@@ -4,6 +4,8 @@ import hashlib
 import json
 import time
 
+from decimal import Decimal
+
 import redis
 
 from tm.settings import SHOPPING_CART_REDIS_DB
@@ -12,6 +14,7 @@ from .models import Product, Shop
 
 
 class ShoppingCart(object):
+
     def __init__(self, shopping_cart_key=hashlib.md5(str(time.time())).hexdigest()):
         self.key = shopping_cart_key
         self.redis = redis.Redis(db=SHOPPING_CART_REDIS_DB)
@@ -47,7 +50,7 @@ class ShoppingCart(object):
     def del_from_cart(self, product_id, num=1):
         for item in self.shopping_cart:
             if item["product_id"] == product_id:
-                item["number"] -= num
+                item["number"] += num
                 if item["number"] <= 0:
                     self.shopping_cart = [item for item in self.shopping_cart if item["product_id"] != product_id]
                 break
@@ -58,7 +61,6 @@ class ShoppingCart(object):
 
     def data(self, shop_id):
         result_list = []
-
         for item in self.shopping_cart:
             try:
                 product = Product.objects.get(shop=shop_id, pk=item["product_id"])
@@ -71,3 +73,25 @@ class ShoppingCart(object):
                 continue
 
         return result_list
+
+    def total(self, shop_id):
+        result = {"total_number": 0, "total_price": Decimal('0')}
+        for item in self.data(shop_id):
+            if item["product"].shop_id == shop_id:
+                result["total_number"] += item["number"]
+                result["total_price"] += Decimal(item["product"].price) * Decimal(item["number"])
+        return result
+
+    def get_product_cart_number(self, product_list, shop_id):
+        response_data = []
+
+        for product_id in product_list:
+            flag = False
+            for item in self.data(shop_id):
+                if item["product"].id == product_id:
+                    response_data.append(item["number"])
+                    flag = True
+                    break
+            if not flag:
+                response_data.append(0)
+        return response_data

@@ -1,4 +1,8 @@
 # coding=utf-8
+import json
+
+from django.shortcuts import render
+
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -45,7 +49,7 @@ class ShoppingCartView(APIView):
     def get(self, request):
         shopping_cart_id = request.session.get("shopping_cart_id", None)
         if not shopping_cart_id:
-            return Response(data=[])
+            shopping_cart = ShoppingCart()
         else:
             shopping_cart = ShoppingCart(request.session["shopping_cart_id"])
 
@@ -54,13 +58,29 @@ class ShoppingCartView(APIView):
         except Exception as e:
             return http_400_response(e)
 
-        data = []
-        for item in shopping_cart.data(shop_id):
-            data.append({"product": ProductSerializer(item["product"]).data, "number": item["number"]})
-        return Response(data=data)
+        data = request.GET.get("data", None)
+        if not data:
+            product_list = []
+            for item in shopping_cart.data(shop_id):
+                product_list.append({"product": ProductSerializer(item["product"]).data, "number": item["number"]})
+            response_data = {"total": shopping_cart.total(shop_id), "products": product_list}
+            return Response(data=response_data)
+
+        elif data == "cart_num":
+            product_list = request.GET.get("product_list", json.dumps([]))
+            try:
+                product_list = json.loads(product_list)
+            except Exception:
+                return http_400_response("Failed to parse product list")
+
+            return Response(data=shopping_cart.get_product_cart_number(product_list, shop_id))
+
+        elif data == "total":
+            return Response(data=shopping_cart.total(shop_id))
 
     def post(self, request):
         shopping_cart_id = request.session.get("shopping_cart_id", None)
+        print shopping_cart_id
         if not shopping_cart_id:
             shopping_cart = ShoppingCart()
             request.session["shopping_cart_id"] = shopping_cart.key
@@ -84,6 +104,20 @@ class ShoppingCartView(APIView):
             else:
                 shopping_cart.del_from_cart(data["product_id"], data["number"])
 
-            return Response(data=request.DATA)
+            return Response(data=shopping_cart.total(data["shop_id"]))
         else:
             return http_400_response(serializer.errors)
+
+
+class ShopIndexView(APIView):
+    def get(self, request, shop_id):
+        try:
+            Shop.objects.get(pk=shop_id)
+        except Shop.DoesNotExist:
+            return render(request, "error.html")
+        return render(request, "shop/shop_index.html", {"shop_id": shop_id})
+
+
+class ShoppingCartIndexView(APIView):
+    def get(self, request):
+        return render(request, "shop/shopping_cart.html")

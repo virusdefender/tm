@@ -16,7 +16,12 @@
 {% verbatim %}
 <header data-am-widget="header" class="am-header am-header-default">
     <div class="am-header-left am-header-nav">
-        <a href="/shop/1/">
+        <script>
+            function return_index(){
+                window.location.href="/shop/" + get_cookie("default_shop_id") + "/";
+            }
+        </script>
+        <a href="#" onclick="return_index()">
             <i class="am-header-icon am-icon-arrow-left"></i>主页
         </a>
     </div>
@@ -80,6 +85,7 @@
     </div>
 
     <script>
+
         function show_modal(content) {
             vm.modal_content = content;
             $("#modal").modal();
@@ -89,111 +95,84 @@
             $id: "shopping_cart",
             product_list: [],
             modal_content: "",
-            total_price: 0,
+            total_price: "",
             shopping_cart_head: "",
-            get_item_total_price: function (product) {
-                return (product.price * 100) * product.cart_num / 100;
-            },
+
             add_to_cart: function (product) {
-                if (product.max_num == -1 || product.cart_num < product.max_num) {
-                    if (product.min_score > 0) {
-                        if (vm.user_info.status == "not_login") {
-                            show_alert('<a href="/login/">本商品需要至少' + product.min_score.toString() +
-                            "积分才能购买，您还没有登录，点击登录</a>");
-                            return;
+                $.ajax({
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("X-CSRFToken", csrf_token());
+                    },
+                    url: "/api/v1/shopping_cart/",
+                    method: "post",
+                    dataType: "json",
+                    data: {"product_id": product.id, number: 1, "shop_id": get_cookie("default_shop_id")},
+                    success: function (json) {
+                        product.cart_num += 1;
+
+                        if ($("#" + product.id.toString()).parent().attr("class").indexOf("checked") >= 0) {
+                            vm.total_price = json.total_price;
                         }
-                        if (vm.user_info.score < product.min_score) {
-                            show_alert("本商品需要至少" + product.min_score.toString() +
-                            "积分才能购买，您的积分是" + vm.user_info.score);
-                            return;
+                        else {
+                            $('#' + product.id.toString()).iCheck('check');
                         }
                     }
-
-                    if (product.user_group.length) {
-                        if (vm.user_info.status == "not_login") {
-                            show_alert('<a href="/login/">本商品只有会员才能购买，您还没有登录，点击登录</a>');
-                            return;
-                        }
-                        if (product.user_group.indexOf(vm.user_info.user_group) < 0) {
-                            show_alert('本商品只有会员才能购买，您还不是会员');
-                            return;
-                        }
-                    }
-                    $.ajax({
-                        beforeSend: function (xhr) {
-                            xhr.setRequestHeader("X-CSRFToken", csrf_token());
-                        },
-                        url: "/shopping_cart/",
-                        method: "post",
-                        dataType: "json",
-                        data: {"product_id": product.id, operation: 1, source: "shopping_cart"},
-                        success: function (json) {
-                            if (json.status != "success") {
-                                show_modal('<div class="am-alert am-alert-danger" data-am-alert>' + json.content + '</div>');
-                            }
-                            else {
-                                product.cart_num += 1;
-
-                                if ($("#" + product.id.toString()).parent().attr("class").indexOf("checked") >= 0) {
-                                    console.log("+1");
-                                    vm.total_price = (vm.total_price * 100 + product.price * 100) / 100;
-                                }
-                                else {
-                                    //vm.total_price = (vm.total_price * 100 + product.price * 100 * product.cart_num) / 100;
-                                    $('#' + product.id.toString()).iCheck('check');
-                                }
-
-                            }
-                        }
-                    });
-                    shake_cart();
-                }
-                else if (product.max_num == 0) {
-                    show_modal('<div class="am-alert am-alert-danger" data-am-alert>该商品暂时不能购买</div>');
-                }
-                else {
-                    show_modal('<div class="am-alert am-alert-danger" data-am-alert>该商品最多只能购买' +
-                    product.max_num.toString() + "件 </div>");
-                }
+                });
+                shake_cart();
             },
             del_from_cart: function (product) {
                 if (product.cart_num >= 1) {
                     product.cart_num -= 1;
-                    if ($("#" + product.id.toString()).parent().attr("class").indexOf("checked") >= 0) {
-                        vm.total_price = (vm.total_price * 100 - product.price * 100) / 100;
-                    }
-                    else {
-                        if (product.cart_num > 0) {
-                            $('#' + product.id.toString()).iCheck('check');
-                        }
-                    }
-                    shake_cart();
+
 
                     $.ajax({
                         beforeSend: function (xhr) {
                             xhr.setRequestHeader("X-CSRFToken", csrf_token());
                         },
-                        url: "/shopping_cart/",
+                        url: "/api/v1/shopping_cart/",
                         method: "post",
                         dataType: "json",
-                        data: {"product_id": product.id, operation: -1, source: "shopping_cart"}
+                        data: {"product_id": product.id, number: -1, "shop_id": get_cookie("default_shop_id")},
+                        success: function(json){
+                            if ($("#" + product.id.toString()).parent().attr("class").indexOf("checked") >= 0) {
+                                vm.total_price = json.total_price;
+                            }
+                            else {
+                                if (product.cart_num > 0) {
+                                    $('#' + product.id.toString()).iCheck('check');
+                                }
+                            }
+                            shake_cart();
+                        }
                     });
                 }
+            },
+
+            get_item_total_price: function(product){
+                return accMul(product.price, product.cart_num);
             }
         });
 
+        var default_shop_id = get_cookie("default_shop_id");
+        if(default_shop_id == ""){
+            window.location.href="/";
+        }
+
         $.ajax({
-            url: "/shopping_cart/?operation=get_cart_data",
+            url: "/api/v1/shopping_cart/?shop_id=" + default_shop_id,
             method: "get",
             dataType: "json",
             success: function (json) {
-                vm.product_list = json;
-                if(json.length == 0){
+                vm.product_list = [];
+                for(var i = 0;i < json["products"].length;i++){
+                    json["products"][i]["product"]["cart_num"] = json["products"][i]["number"];
+                    vm.product_list.push(json["products"][i]["product"]);
+                }
+                vm.total_price = json["total"].total_price;
+                if(json["products"].length == 0){
                     vm.shopping_cart_head = '<div class="am-alert am-alert-success am-text-center"">购物车还是空空如也啊～</div>';
                 }
-                for (var i in json) {
-                    vm.total_price = (vm.total_price * 100 + json[i].price * 100 * json[i].cart_num) / 100;
-                }
+
                 $('input').iCheck({
                     checkboxClass: 'icheckbox_square-blue'
                 });
@@ -201,7 +180,10 @@
                     var product_id = $(this)[0].id;
                     for (var i in vm.product_list) {
                         if (vm.product_list[i].id == product_id) {
-                            vm.total_price = (vm.total_price * 100 - vm.product_list[i].price * 100 * vm.product_list[i].cart_num) / 100;
+                            console.log(vm.total_price);
+                            console.log(accMul(vm.product_list[i].price, vm.product_list[i].cart_num));
+                            vm.total_price = accSub(accMul(vm.product_list[i].price, vm.product_list[i].cart_num), vm.total_price);
+                            console.log(vm.total_price);
                             break;
                         }
                     }
@@ -210,17 +192,29 @@
                     var product_id = $(this)[0].id;
                     for (var i in vm.product_list) {
                         if (vm.product_list[i].id == product_id) {
-                            vm.total_price = (vm.total_price * 100 + vm.product_list[i].price * 100 * vm.product_list[i].cart_num) / 100;
+                            vm.total_price = accAdd(vm.total_price, accMul(vm.product_list[i].price, vm.product_list[i].cart_num));
                             break;
                         }
                     }
                 });
             }
         });
+
+        function refresh_cart_total_price() {
+            $.ajax({
+                url: "/api/v1/shopping_cart/?data=total&shop_id=" + get_cookie("default_shop_id"),
+                method: "get",
+                dataType: "json",
+                success: function (json) {
+                    vm.total_price = json.total_price;
+                }
+            });
+        }
+
     </script>
     <div class="am-g price-bar-foot">
         <div class="am-u-sm-7" style="margin-top: 13px;margin-bottom: 5px">
-            <span style="color:#ffffff">合计:{{total_price}}元</span>
+            <span style="color:#ffffff">总价:{{total_price}}元</span>
         </div>
         <div class="am-u-sm-3" style="margin-top: 5px;margin-bottom: 5px">
             <a type="button" class="am-btn am-btn-success"

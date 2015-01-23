@@ -36,6 +36,10 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    # cart_num = serializers.SerializerMethodField("_cart_num")
+
+    def _cart_num(self, obj):
+        return 0
 
     class Meta:
         model = Product
@@ -45,3 +49,4 @@ class ProductSerializer(serializers.ModelSerializer):
 class ShoppingCartOperationSerializer(serializers.Serializer):
     product_id = serializers.IntegerField()
     number = serializers.IntegerField()
+    shop_id = serializers.IntegerField()
