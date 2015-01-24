@@ -45,6 +45,7 @@ class ProductAdmin(object):
 class ShopAdmin(object):
     list_display = ["name"]
 
+
 class OrderAdmin(object):
     list_display = ["name", "phone", "pay_method", "payment_status", "order_status", "create_time"]
 
