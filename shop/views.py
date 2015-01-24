@@ -252,3 +252,12 @@ class PayResultPageView(APIView):
         import logging
         logging.basicConfig(filename = 'log.txt', level = logging.DEBUG)
         logging.debug(request.DATA)
+
+        order_no = request.DATA["order_no"]
+        try:
+            order = Order.objects.get(alipay_order_id=order_no)
+        except Order.DoesNotExist:
+            return ""
+        order.payment_status = 1
+        order.save()
+        return Response(data="success")
