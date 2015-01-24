@@ -223,7 +223,7 @@ class OrderAPIView(APIView):
 
                     ch = pingpp.Charge.create(
                         order_no=order.alipay_order_id,
-                        amount=int(order.alipay_amount * Decimal("100")),
+                        amount=1, #int(order.alipay_amount * Decimal("100")),
                         app=dict(id='app_HGqP44OW5un1Gyzz'),
                         channel='alipay_wap',
                         currency='cny',
