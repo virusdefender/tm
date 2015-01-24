@@ -11,6 +11,7 @@ import pingpp
 
 from django.shortcuts import render
 from django.db import transaction
+from django.http import HttpResponseRedirect
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -237,7 +238,6 @@ class OrderAPIView(APIView):
                     return Response(data=ch)
                 else:
                     return Response(data="not implement")
-
             else:
                 return http_400_response(serializer.errors)
 
@@ -247,7 +247,14 @@ class PayResultPageView(APIView):
         # result 是success 和 failed 的时候 是支付后跳转到这个页面上 result 是notify 的时候是异步通知
         if result not in ["success", "failed"]:
             return render(request, "error.html")
-        return render(request, "shop/pay_result.html", {"result": result})
+        alipay_order_id = request.GET.get("out_trade_no", None)
+        if not alipay_order_id:
+            return render(request, "error.html")
+        try:
+            order = Order.objects.get(alipay_order_id=alipay_order_id)
+            return HttpResponseRedirect("/order/?order_id=" + str(order.id))
+        except Order.DoesNotExist:
+            return HttpResponseRedirect("/order/")
 
     def post(self, request, result):
         order_no = request.DATA["order_no"]
