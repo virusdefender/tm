@@ -45,10 +45,13 @@ class ProductAdmin(object):
 class ShopAdmin(object):
     list_display = ["name"]
 
+class OrderAdmin(object):
+    list_display = ["name", "phone", "pay_method", "payment_status", "order_status", "create_time"]
+
 
 xadmin.site.register(views.BaseAdminView, BaseSetting)
 xadmin.site.register(Shop)
-xadmin.site.register(Order)
+xadmin.site.register(Order, OrderAdmin)
 xadmin.site.register(OrderLog)
 xadmin.site.register(OrderProduct)
 xadmin.site.register(Category)
