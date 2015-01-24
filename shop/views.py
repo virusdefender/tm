@@ -3,6 +3,7 @@ import json
 import time
 import hashlib
 import random
+import uuid
 
 from decimal import Decimal
 
@@ -195,7 +196,7 @@ class OrderAPIView(APIView):
                 if data["pay_method"] == "alipay":
                     order = Order.objects.create(name=data["name"], phone=data["phone"],
                                                  address=data["address"], remark=data["remark"],
-                                                 alipay_order_id=hashlib.md5(str(time.time()) + str(random.randrange(1, 10000))).hexdigest(),
+                                                 alipay_order_id=hashlib.md5(str(time.time()) + str(uuid.uuid1())).hexdigest(),
                                                  delivery_time=delivery_time, shop=shop,
                                                  pay_method=data["pay_method"], is_first=is_first, user=user,
                                                  address_category=address_category,
@@ -249,10 +250,6 @@ class PayResultPageView(APIView):
         return render(request, "shop/pay_result.html", {"result": result})
 
     def post(self, request, result):
-        import logging
-        logging.basicConfig(filename = 'log.txt', level = logging.DEBUG)
-        logging.debug(request.DATA)
-
         order_no = request.DATA["order_no"]
         try:
             order = Order.objects.get(alipay_order_id=order_no)
