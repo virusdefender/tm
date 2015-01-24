@@ -4,7 +4,7 @@ from fabric.colors import *
 from fabric.contrib.console import confirm
 
 env.hosts = ["root@tmqdu.com"]
-env.password = "Zarpe2014"
+env.password = "Zarpe092122302"
 
 
 def deploy():
