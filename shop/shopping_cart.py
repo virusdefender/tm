@@ -59,7 +59,7 @@ class ShoppingCart(object):
     def empty(self):
         self.set_key_value([])
 
-    def data(self, shop_id):
+    def _data(self, shop_id):
         result_list = []
         for item in self.shopping_cart:
             try:
@@ -76,10 +76,19 @@ class ShoppingCart(object):
 
     def total(self, shop_id):
         result = {"total_number": 0, "total_price": Decimal('0')}
-        for item in self.data(shop_id):
+        for item in self._data(shop_id):
             if item["product"].shop_id == shop_id:
                 result["total_number"] += item["number"]
                 result["total_price"] += Decimal(item["product"].price) * Decimal(item["number"])
+        try:
+            shop = Shop.objects.get(pk=shop_id)
+        except Shop.DoesNotExist:
+            return {}
+        if shop.freight_line <= result["total_price"]:
+            result["freight"] = '0'
+        else:
+            result["freight"] = shop.freight
+            result["total_price"] += result["freight"]
         return result
 
     def get_product_cart_number(self, product_list, shop_id):
@@ -87,7 +96,7 @@ class ShoppingCart(object):
 
         for product_id in product_list:
             flag = False
-            for item in self.data(shop_id):
+            for item in self._data(shop_id):
                 if item["product"].id == product_id:
                     response_data.append(item["number"])
                     flag = True

@@ -13,6 +13,13 @@
     </script>
     {% verbatim %}
     <div ms-controller="index">
+        <div class="am-slider am-slider-default" data-am-flexslider>
+          <ul class="am-slides">
+            <li ms-repeat="banner">
+                <img ms-src="el"/>
+            </li>
+          </ul>
+        </div>
         <div id="category" class="am-g">
             <nav data-am-widget="menu" class="am-menu  am-menu-default">
                 <a href="javascript: void(0)" class="am-menu-toggle">
@@ -112,6 +119,7 @@
                 modal_content: "",
                 alert_content: "",
                 category_list: [],
+                banner: [],
                 shop_info: {},
                 total_price: 0,
                 total_number: 0,
@@ -267,10 +275,11 @@
 
             //加载店铺基本信息
             $.ajax({
-                url: "/shop/1/?format=json",
+                url: "/api/v1/shop/?shop_id=" + get_cookie("default_shop_id"),
                 method: "get",
                 success: function (json) {
-                    vm.shop_info = json
+                    vm.shop_info = json;
+                    vm.banner = json.banner;
                 }
             });
 

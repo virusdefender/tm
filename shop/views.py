@@ -2,6 +2,8 @@
 import json
 import time
 
+from decimal import Decimal
+
 import pingpp
 
 from django.shortcuts import render
@@ -10,8 +12,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from utils.shortcuts import http_400_response
-from .models import Shop, Category, Product
-from .serializers import CategorySerializer, ShopSerializer, ProductSerializer, ShoppingCartOperationSerializer
+from .models import Shop, Category, Product, Order, AddressCategory
+from .serializers import (CategorySerializer, ShopSerializer, ProductSerializer,
+                          ShoppingCartOperationSerializer, CreateOrderSerializer)
 from .shopping_cart import ShoppingCart
 
 
@@ -50,6 +53,7 @@ class ProductView(APIView):
 
 class ShoppingCartView(APIView):
     def get(self, request):
+        print request.META
         shopping_cart_id = request.session.get("shopping_cart_id", None)
         if not shopping_cart_id:
             shopping_cart = ShoppingCart()
@@ -64,7 +68,7 @@ class ShoppingCartView(APIView):
         data = request.GET.get("data", None)
         if not data:
             product_list = []
-            for item in shopping_cart.data(shop_id):
+            for item in shopping_cart._data(shop_id):
                 product_list.append({"product": ProductSerializer(item["product"]).data, "number": item["number"]})
             response_data = {"total": shopping_cart.total(shop_id), "products": product_list}
             return Response(data=response_data)
@@ -126,6 +130,16 @@ class ShoppingCartIndexView(APIView):
         return render(request, "shop/shopping_cart.html")
 
 
+def get_address_category(address, shop_id):
+    if not address:
+        return None
+    for item in AddressCategory.objects.filter(shop=shop_id):
+        for keyword in item.keywords.split(";"):
+            if keyword in address:
+                return item
+    return None
+
+
 class OrderIndexView(APIView):
     def get(self, request):
         data = request.GET.get("data", None)
@@ -135,23 +149,72 @@ class OrderIndexView(APIView):
             return Response(data={"name": "name", "phone": "11111111111", "address": "address"})
 
     def post(self, request):
+        serializer = CreateOrderSerializer(data=request.DATA)
+        if serializer.is_valid():
+            data = serializer.data
+            try:
+                shop = Shop.objects.get(pk=data["shop_id"])
+            except Shop.DoesNotExist:
+                return http_400_response(u"商店不存在")
+            shopping_cart_id = request.session.get("shopping_cart_id", None)
+            if not shopping_cart_id:
+                return http_400_response(u"购物车为空，请重新添加")
+            else:
+                shopping_cart = ShoppingCart(shopping_cart_id)
 
-        pingpp.api_key = 'sk_live_efHSmHz9G0iLGqPmPS5OynXD'
+            shopping_cart_data = shopping_cart.total(shop.id)
+            if shopping_cart_data["total_price"] <= Decimal("0"):
+                return http_400_response(u"购物车为空。请重新添加")
+            try:
+                delivery_time = json.dumps(data["delivery_time"])
+            except Exception as e:
+                return http_400_response(e)
 
-        ch = pingpp.Charge.create(
-            order_no=str(int(time.time())),
-            amount=1,
-            app=dict(id='app_HGqP44OW5un1Gyzz'),
-            channel='alipay_wap',
-            currency='cny',
-            client_ip='127.0.0.1',
-            subject='test-subject',
-            body='test-body',
-            extra={"success_url": "https://tmqdu.com/pay/success/",
-                   "cancel_url": "https://tmqdu.com/pay/failed/"}
-        )
+            user = request.user
 
-        return Response(data=ch)
+            is_first = Order.objects.filter(user=user, shop=shop).exists()
+
+            address_category = get_address_category(data["address"], shop.id)
+            if data["pay_method"] == "alipay":
+                order = Order.objects.create(name=data["name"], phone=data["phone"],
+                                             address=data["address"], remark=data["remark"],
+                                             delivery_time=delivery_time, shop=shop,
+                                             pay_method=data["pay_method"], is_first=is_first, user=user,
+                                             address_category=address_category,
+                                             alipay_amount=shopping_cart_data["total_price"],
+                                             total_price=shopping_cart_data["total_price"])
+            else:
+                order = Order.objects.create(name=data["name"], phone=data["phone"],
+                                             address=data["address"], remark=data["remark"],
+                                             delivery_time=delivery_time, shop=shop,
+                                             pay_method=data["pay_method"], is_first=is_first, user=user,
+                                             address_category=address_category,
+                                             total_price=shopping_cart_data["total_price"])
+
+            if data["pay_method"] == "alipay":
+                # sk_live_efHSmHz9G0iLGqPmPS5OynXD
+                # sk_test_P4aDSG8CeHG0P0W1iPCKKun1
+                pingpp.api_key = 'sk_live_efHSmHz9G0iLGqPmPS5OynXD'
+                ch = pingpp.Charge.create(
+                    order_no=order.id,
+                    amount=int(order.alipay_amount * Decimal("100")),
+                    app=dict(id='app_HGqP44OW5un1Gyzz'),
+                    channel='alipay_wap',
+                    currency='cny',
+                    client_ip='127.0.0.1',
+                    subject=u'天目订单',
+                    body='test-body',
+                    extra={"success_url": "https://tmqdu.com/pay/success/",
+                           "cancel_url": "https://tmqdu.com/pay/failed/"}
+                )
+                return Response(data=ch)
+            else:
+                return Response(data="not implement")
+
+        else:
+            return http_400_response(serializer.errors)
+
+
 
 
 class PayResultView(APIView):

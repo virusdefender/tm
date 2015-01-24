@@ -42,13 +42,13 @@
             <fieldset>
                 <div class="am-form-group">
                     <label>支付方式</label>
-                    <input type="radio" name="pay" checked>货到付款
-                    <input type="radio" name="pay">在线支付
+                    <input type="radio" name="pay" value="alipay" id="alipay" checked>在线支付
+                    <input type="radio" name="pay" value="COD" id="COD">货到付款
                 </div>
 
                 <div class="am-form-group">
                     <label>姓名</label>
-                    <input type="text" class="" placeholder="输入您的姓名" ms-duplex="name">
+                    <input type="text" class="" placeholder="输入您的姓名" ms-duplex="name" maxlength="20">
                 </div>
 
                 <div class="am-form-group">
@@ -57,12 +57,12 @@
                 </div>
                 <div class="am-form-group">
                     <label>地址</label>
-                    <input type="text" class="" placeholder="您的收货地址" ms-duplex="address">
+                    <input type="text" class="" placeholder="您的收货地址" ms-duplex="address" maxlength="30">
                 </div>
 
                 <div class="am-form-group">
                     <label>备注</label>
-                    <input type="text" class="" placeholder="还有什么想说的" ms-duplex="remark">
+                    <input type="text" class="" placeholder="还有什么想说的" ms-duplex="remark" maxlength="30">
                 </div>
                 <div class="am-form-group">
                     <label>送货时间</label>
@@ -88,6 +88,14 @@
             </div>
         </div>
     </div>
+    <div class="am-modal am-modal-alert" tabindex="-1" id="pay_alert">
+      <div class="am-modal-dialog">
+        <div class="am-modal-hd">正在确认订单</div>
+        <div class="am-modal-bd">
+          正在确认订单，请稍候~
+        </div>
+      </div>
+    </div>
     <script>
         jQuery.fn.getCheckboxVal = function(){
             var vals = [];
@@ -111,6 +119,7 @@
             alert_content: "",
             delivery_time: [],
             order_delivery_time: [],
+            pay_method: "",
             total_price: 0,
             total_number: 0,
             submit_order: function () {
@@ -131,6 +140,14 @@
                     show_alert("请至少选择一个送货时间");
                     return
                 }
+
+                $('#pay_alert').modal();
+                if($("#COD").parent().attr("class").indexOf("checked") >= 0){
+                    vm.pay_method = "COD";
+                }
+                else{
+                    vm.pay_method = "alipay";
+                }
                 $.ajax({
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader("X-CSRFToken", csrf_token());
@@ -139,20 +156,21 @@
                     method: "post",
                     contentType: "application/json",
                     data: JSON.stringify({
+                        pay_method: vm.pay_method,
                         name: vm.name,
                         phone: vm.phone,
                         address: vm.address,
                         remark: vm.remark,
-                        order_delivery_time: vm.order_delivery_time
+                        delivery_time: vm.order_delivery_time,
+                        shop_id: default_shop_id
                     }),
                     dataType: "json",
                     success: function(json){
                         pingpp.createPayment(json, function(result, err) {
-                        console.log(result);
-                        console.log(err);
                     });
 
-                    }
+                    },
+
                 })
 
             }

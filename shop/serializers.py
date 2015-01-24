@@ -50,3 +50,13 @@ class ShoppingCartOperationSerializer(serializers.Serializer):
     product_id = serializers.IntegerField()
     number = serializers.IntegerField()
     shop_id = serializers.IntegerField()
+
+
+class CreateOrderSerializer(serializers.Serializer):
+    pay_method = serializers.ChoiceField(choices=(("COD", "COD"), ("alipay", "alipay")))
+    name = serializers.CharField(max_length=30)
+    phone = serializers.CharField(max_length=11, min_length=11)
+    address = serializers.CharField(max_length=40)
+    remark = serializers.CharField(max_length=40, required=False)
+    shop_id = serializers.IntegerField()
+    delivery_time = serializers.WritableField()

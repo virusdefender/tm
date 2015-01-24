@@ -109,7 +109,7 @@ class Product(models.Model):
     # 单位 比如斤/5个 等等
     unit = models.CharField(max_length=50, help_text=u"单位")
     # 首页小图
-    preview_pic = models.CharField(max_length=200, help_text=u"图片小图")
+    preview_pic = models.CharField(max_length=500, help_text=u"图片小图")
     total_num = models.IntegerField(default=10000, help_text=u"库存数量")
     sold_num = models.IntegerField(default=0, help_text=u"该商品已经售出数量")
     create_time = models.DateTimeField(auto_now_add=True)
@@ -127,7 +127,8 @@ class Product(models.Model):
         return "%s %s %s" % (self.name, self.shop.name, self.price)
 
     def create_order_product(self, order, number):
-        pass
+        OrderProduct.objects.create(order=order, number=number, preview_pic=self.preview_pic,
+                                    price=self.price, origin_price=self.origin_price, unit=self.unit)
 
 
 class AddressCategory(models.Model):
@@ -144,13 +145,13 @@ class Order(models.Model):
     user = models.ForeignKey("account.User")
     shop = models.ForeignKey(Shop)
     # 货到付款 支付宝 余额 支付宝和余额同时使用
-    # COD/ALIPAY/BALANCE/ALIPAY&BALANCE
-    payment_method = models.CharField(max_length=20)
+    # COD/ALIPAY/
+    pay_method = models.CharField(max_length=20)
     # 支付状态 0 没有付款 -1 已经退款 1 支付成功
     payment_status = models.IntegerField(default=0)
     alipay_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0"))
     balance_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0"))
-    total_money = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0"))
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0"))
     # 订单配送状态：等待处理-1  已经确认0  正在配送1  订单完成 2  订单取消 3
     order_status = models.IntegerField(default=-1)
     name = models.CharField(max_length=50)
@@ -175,9 +176,9 @@ class OrderProduct(models.Model):
     """
     order = models.ForeignKey(Order)
     name = models.CharField(max_length=50)
-    preview_pic = models.CharField(max_length=200)
+    preview_pic = models.CharField(max_length=2500)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    origin_price = models.DecimalField(max_digits=10, decimal_places=3)
+    origin_price = models.DecimalField(max_digits=10, decimal_places=2)
     unit = models.CharField(max_length=20)
     number = models.IntegerField()
 
