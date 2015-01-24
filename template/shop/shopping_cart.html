@@ -168,7 +168,7 @@
                     json["products"][i]["product"]["cart_num"] = json["products"][i]["number"];
                     vm.product_list.push(json["products"][i]["product"]);
                 }
-                vm.total_price = json["total"].total_price;
+                vm.total_price = json.total_price;
                 if(json["products"].length == 0){
                     vm.shopping_cart_head = '<div class="am-alert am-alert-success am-text-center"">购物车还是空空如也啊～</div>';
                 }
@@ -202,7 +202,7 @@
 
         function refresh_cart_total_price() {
             $.ajax({
-                url: "/api/v1/shopping_cart/?data=total&shop_id=" + get_cookie("default_shop_id"),
+                url: "/api/v1/shopping_cart/?shop_id=" + get_cookie("default_shop_id"),
                 method: "get",
                 dataType: "json",
                 success: function (json) {

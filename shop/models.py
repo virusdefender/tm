@@ -144,16 +144,19 @@ class AddressCategory(models.Model):
 class Order(models.Model):
     user = models.ForeignKey("account.User")
     shop = models.ForeignKey(Shop)
-    # 货到付款 支付宝 余额 支付宝和余额同时使用
-    # COD/ALIPAY/
-    pay_method = models.CharField(max_length=20)
+    # 支付方式 支付宝或者货到付款
+    pay_method = models.CharField(max_length=20, choices=(("alipay", u" 支付宝"), ("COD", "货到付款")))
+    alipay_order_id = models.CharField(max_length=50, blank=True, null=True)
     # 支付状态 0 没有付款 -1 已经退款 1 支付成功
-    payment_status = models.IntegerField(default=0)
+    payment_status = models.IntegerField(default=0, choices=((0, u"没有付款"), (-1, u"已经退款"), (1, u" 支付成功")))
     alipay_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0"))
     balance_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0"))
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0"))
+    freight = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0"))
     # 订单配送状态：等待处理-1  已经确认0  正在配送1  订单完成 2  订单取消 3
-    order_status = models.IntegerField(default=-1)
+    order_status = models.IntegerField(default=-1, choices=((-1, u"等待处理"), (0, u"已经确认"),
+                                                            (1, u"正在配送"), (2, u" 订单完成"),
+                                                            (3, u"订单取消")))
     name = models.CharField(max_length=50)
     phone = models.CharField(max_length=15, blank=True)
     address = models.CharField(max_length=100)

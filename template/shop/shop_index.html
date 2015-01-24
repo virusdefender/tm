@@ -231,7 +231,7 @@
             //获取下面购物车的总价和总数量
             function get_cart_data() {
                 $.ajax({
-                    url: "/api/v1/shopping_cart/?data=total&shop_id=" + get_cookie("default_shop_id"),
+                    url: "/api/v1/shopping_cart/?shop_id=" + get_cookie("default_shop_id"),
                     method: "get",
                     dataType: "json",
                     success: function (json) {
