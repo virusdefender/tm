@@ -97,7 +97,6 @@ class ShoppingCartAPIView(APIView):
     def post(self, request):
         # 添加或减少商品数量
         shopping_cart_id = request.session.get("shopping_cart_id", None)
-        print shopping_cart_id
         if not shopping_cart_id:
             shopping_cart = ShoppingCart()
             request.session["shopping_cart_id"] = shopping_cart.key
@@ -121,7 +120,10 @@ class ShoppingCartAPIView(APIView):
             else:
                 shopping_cart.del_from_cart(data["product_id"], data["number"])
 
-            return Response(data=shopping_cart.total(data["shop_id"]))
+            data = shopping_cart.total(data["shop_id"])
+            data.pop("products")
+
+            return Response(data=data)
         else:
             return http_400_response(serializer.errors)
 
