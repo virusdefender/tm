@@ -14,9 +14,13 @@ from .models import Product, Shop
 from .serializers import ProductSerializer
 
 
+def rand_key():
+    hashlib.md5(str(time.time())).hexdigest()
+
+
 class ShoppingCart(object):
 
-    def __init__(self, shopping_cart_key=hashlib.md5(str(time.time())).hexdigest()):
+    def __init__(self, shopping_cart_key=rand_key):
         """
         shopping_cart_key 是存储在session 中的标识唯一一个购物车的
         """
