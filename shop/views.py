@@ -23,6 +23,10 @@ from .serializers import (CategorySerializer, ShopSerializer, ProductSerializer,
 from .shopping_cart import ShoppingCart
 
 
+def rand_key():
+    return hashlib.md5(str(time.time())).hexdigest()
+
+
 class ShopAPIView(APIView):
     def get(self, request):
         shop_id = request.GET.get("shop_id", None)
@@ -64,7 +68,7 @@ class ShoppingCartAPIView(APIView):
     def get(self, request):
         shopping_cart_id = request.session.get("shopping_cart_id", None)
         if not shopping_cart_id:
-            shopping_cart = ShoppingCart()
+            shopping_cart = ShoppingCart(rand_key())
         else:
             shopping_cart = ShoppingCart(request.session["shopping_cart_id"])
 
@@ -98,7 +102,7 @@ class ShoppingCartAPIView(APIView):
         # 添加或减少商品数量
         shopping_cart_id = request.session.get("shopping_cart_id", None)
         if not shopping_cart_id:
-            shopping_cart = ShoppingCart()
+            shopping_cart = ShoppingCart(rand_key())
             request.session["shopping_cart_id"] = shopping_cart.key
         else:
             shopping_cart = ShoppingCart(request.session["shopping_cart_id"])
