@@ -127,8 +127,9 @@ class Product(models.Model):
         return "%s %s %s" % (self.name, self.shop.name, self.price)
 
     def create_order_product(self, order, number):
-        OrderProduct.objects.create(order=order, number=number, preview_pic=self.preview_pic,
-                                    price=self.price, origin_price=self.origin_price, unit=self.unit)
+        OrderProduct.objects.create(order=order, name=self.name, number=number,
+                                    preview_pic=self.preview_pic, price=self.price,
+                                    origin_price=self.origin_price, unit=self.unit)
 
 
 class AddressCategory(models.Model):

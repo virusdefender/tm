@@ -42,7 +42,6 @@ INSTALLED_APPS = (
 
     'xadmin',
     'crispy_forms',
-
     'account',
     'shop',
     'log',

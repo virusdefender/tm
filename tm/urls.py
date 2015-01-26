@@ -16,6 +16,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
 
                        url(r'^$', TemplateView.as_view(template_name='shop/index.html')),
+                       url(r"^captcha/$", CaptchaView.as_view()),
                        url(r"^shop/(?P<shop_id>\d+)/$", ShopIndexPageView.as_view()),
                        url(r"^shopping_cart/$", ShoppingCartPageView.as_view()),
                        url(r"^order/$", SubmitOrderPageView.as_view()),

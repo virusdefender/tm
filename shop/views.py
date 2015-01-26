@@ -173,7 +173,7 @@ class OrderAPIView(APIView):
 
                 shopping_cart_id = request.session.get("shopping_cart_id", None)
                 if not shopping_cart_id:
-                    return http_400_response(u"购物车为空，请重新添加")
+                    return http_400_response(u"购物车为空，请重新添加1")
                 else:
                     shopping_cart = ShoppingCart(shopping_cart_id)
 
@@ -181,7 +181,7 @@ class OrderAPIView(APIView):
 
                 # 购物车中没有商品
                 if shopping_cart_data["total_price"] <= Decimal("0"):
-                    return http_400_response(u"购物车为空。请重新添加")
+                    return http_400_response(u"购物车为空。请重新添加2")
 
                 try:
                     delivery_time = json.dumps(data["delivery_time"])
@@ -252,9 +252,9 @@ class PayResultPageView(APIView):
             return render(request, "error.html")
         try:
             order = Order.objects.get(alipay_order_id=alipay_order_id)
-            return HttpResponseRedirect("/order/?order_id=" + str(order.id))
+            return HttpResponseRedirect("/my_order/?order_id=" + str(order.id))
         except Order.DoesNotExist:
-            return HttpResponseRedirect("/order/")
+            return HttpResponseRedirect("/my_order/")
 
     def post(self, request, result):
         order_no = request.DATA["order_no"]
