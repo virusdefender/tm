@@ -15,7 +15,7 @@ from .serializers import ProductSerializer
 
 
 def rand_key():
-    hashlib.md5(str(time.time())).hexdigest()
+    return hashlib.md5(str(time.time())).hexdigest()
 
 
 class ShoppingCart(object):
