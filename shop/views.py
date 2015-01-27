@@ -18,7 +18,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from utils.decorators import login_required
-from utils.shortcuts import http_400_response
+from utils.shortcuts import http_400_response, decimal_round
 from .models import Shop, Category, Product, Order, AddressCategory
 from .serializers import (CategorySerializer, ShopSerializer, ProductSerializer,
                           ShoppingCartOperationSerializer, CreateOrderSerializer)
@@ -90,10 +90,9 @@ class ShoppingCartAPIView(APIView):
 
             if request.user.is_authenticated() and request.user.is_vip:
                 products_info["discount"] = True
-                products_info["after_discount"] = round(products_info["total_price"] * shop.vip_discount, 2)
+                products_info["total_price"] = decimal_round(products_info["origin_price"] * shop.vip_discount + products_info["freight"])
             else:
                 products_info["discount"] = False
-                products_info["after_discount"] = products_info["total_price"]
 
             for item in products_info["products"]:
                 item["product"] = ProductSerializer(item["product"]).data
@@ -146,10 +145,9 @@ class ShoppingCartAPIView(APIView):
 
             if request.user.is_authenticated() and request.user.is_vip:
                 data["discount"] = True
-                data["after_discount"] = round(data["total_price"] * shop.vip_discount, 2)
+                data["total_price"] = decimal_round(data["origin_price"] * shop.vip_discount + data["freight"])
             else:
                 data["discount"] = False
-                data["after_discount"] = data["total_price"]
 
             return Response(data=data)
         else:

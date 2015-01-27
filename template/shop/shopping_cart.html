@@ -40,11 +40,10 @@
 <br>
 <div ms-controller="shopping_cart">
     <div ms-html="shopping_cart_head"></div>
-    <div ms-repeat="product_list" style="padding-left: 5px;padding-right: 5px">
-        <div class="am-cf">
-
+    <div ms-repeat="product_list" style="padding-left: 5px;padding-right: 5px;">
+        <div class="am-cf" ms-css-opacity="el.opacity">
             <p class="am-align-left">
-                <input type="checkbox" ms-attr-id="el.id" checked>
+                <!--<input type="checkbox" ms-attr-id="el.id" checked>-->
                 <img src="https://tmimage.b0.upaiyun.com/14173400666.%E6%98%9F%E7%90%83%E6%9D%AF%20%E5%B0%8F.png">
             </p>
 
@@ -109,13 +108,17 @@
                     data: {"product_id": product.id, number: 1, "shop_id": get_cookie("default_shop_id")},
                     success: function (json) {
                         product.cart_num += 1;
+                        product.opacity = "";
 
+                        /*
                         if ($("#" + product.id.toString()).parent().attr("class").indexOf("checked") >= 0) {
                             vm.total_price = json.total_price;
                         }
                         else {
                             $('#' + product.id.toString()).iCheck('check');
                         }
+                        */
+                        vm.total_price = json.total_price;
                     }
                 });
                 shake_cart();
@@ -123,6 +126,9 @@
             del_from_cart: function (product) {
                 if (product.cart_num >= 1) {
                     product.cart_num -= 1;
+                    if(product.cart_num <= 0){
+                        product.opacity = ".45";
+                    }
 
 
                     $.ajax({
@@ -134,6 +140,7 @@
                         dataType: "json",
                         data: {"product_id": product.id, number: -1, "shop_id": get_cookie("default_shop_id")},
                         success: function(json){
+                            /*
                             if ($("#" + product.id.toString()).parent().attr("class").indexOf("checked") >= 0) {
                                 vm.total_price = json.total_price;
                             }
@@ -142,6 +149,8 @@
                                     $('#' + product.id.toString()).iCheck('check');
                                 }
                             }
+                            */
+                            vm.total_price = json.total_price;
                             shake_cart();
                         }
                     });
@@ -166,6 +175,7 @@
                 vm.product_list = [];
                 for(var i = 0;i < json["products"].length;i++){
                     json["products"][i]["product"]["cart_num"] = json["products"][i]["number"];
+                    json["products"][i]["product"]["opacity"] = "";
                     vm.product_list.push(json["products"][i]["product"]);
                 }
                 vm.total_price = json.total_price;
@@ -173,6 +183,7 @@
                     vm.shopping_cart_head = '<div class="am-alert am-alert-success am-text-center"">购物车还是空空如也啊～</div>';
                 }
 
+                /*
                 $('input').iCheck({
                     checkboxClass: 'icheckbox_square-blue'
                 });
@@ -197,6 +208,7 @@
                         }
                     }
                 });
+                */
             }
         });
 

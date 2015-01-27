@@ -101,18 +101,19 @@ class ShoppingCart(object):
             shop = Shop.objects.get(pk=shop_id)
         except Shop.DoesNotExist:
             return None
-        result = {"total_number": 0, "total_price": Decimal("0"),
+        result = {"total_number": 0, "total_price": Decimal("0"), "origin_price": Decimal("0"),
                   "freight": Decimal("0"), "products": self._products(shop.id)}
 
         for item in result["products"]:
             result["total_number"] += item["number"]
-            result["total_price"] += Decimal(item["product"].price) * Decimal(item["number"])
+            result["origin_price"] += Decimal(item["product"].price) * Decimal(item["number"])
 
         if shop.freight_line <= result["total_price"]:
             result["freight"] = '0'
+            result["total_price"] = result["origin_price"]
         else:
             result["freight"] = shop.freight
-            result["total_price"] += result["freight"]
+            result["total_price"] = result["origin_price"] + result["freight"]
 
         return result
 
