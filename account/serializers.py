@@ -18,4 +18,4 @@ class UserRegisterSerializer(serializers.Serializer):
 class UserInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "phone", "score", "gender", "default_shop_id", "group"]
+        fields = ["id", "username", "phone", "score", "gender", "is_vip"]

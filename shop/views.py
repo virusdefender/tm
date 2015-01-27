@@ -76,6 +76,7 @@ class ShoppingCartAPIView(APIView):
 
         try:
             shop_id = int(request.GET.get("shop_id", -1))
+            shop = Shop.objects.get(pk=shop_id)
         except Exception as e:
             return http_400_response(e)
 
@@ -86,6 +87,14 @@ class ShoppingCartAPIView(APIView):
             products_info = shopping_cart.total(shop_id)
             if not products_info:
                 return http_400_response("Shop does not exist")
+
+            if request.user.is_authenticated() and request.user.is_vip:
+                products_info["discount"] = True
+                products_info["after_discount"] = round(products_info["total_price"] * shop.vip_discount, 2)
+            else:
+                products_info["discount"] = False
+                products_info["after_discount"] = products_info["total_price"]
+
             for item in products_info["products"]:
                 item["product"] = ProductSerializer(item["product"]).data
             return Response(data=products_info)
@@ -113,6 +122,12 @@ class ShoppingCartAPIView(APIView):
 
         if serializer.is_valid():
             data = serializer.data
+
+            try:
+                shop = Shop.objects.get(pk=data["shop_id"])
+            except Shop.DoesNotExist:
+                return http_400_response("Shop does not exist")
+
             if data["number"] == 0:
                 return http_400_response("Error number")
 
@@ -128,6 +143,13 @@ class ShoppingCartAPIView(APIView):
 
             data = shopping_cart.total(data["shop_id"])
             data.pop("products")
+
+            if request.user.is_authenticated() and request.user.is_vip:
+                data["discount"] = True
+                data["after_discount"] = round(data["total_price"] * shop.vip_discount, 2)
+            else:
+                data["discount"] = False
+                data["after_discount"] = data["total_price"]
 
             return Response(data=data)
         else:

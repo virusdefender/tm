@@ -95,7 +95,7 @@ class Captcha(object):
             font = ImageFont.truetype(font_path.replace('\\', '/'), font_size + random.randrange(-3, 7))
             draw.text((x, y), i, font=font, fill=code_color)
             # 随机化字符之间的距离 字符粘连可以降低识别率
-            x += font_size * random.randrange(4, 6) / 10
+            x += font_size * random.randrange(6, 8) / 10
 
         buf = StringIO.StringIO()
         image.save(buf, 'gif')

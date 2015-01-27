@@ -7,13 +7,12 @@ from django.contrib.auth.models import AbstractUser
 class User(AbstractUser):
     phone = models.CharField(max_length=12, blank=True, null=True)
     gender = models.CharField(max_length=3, blank=True, null=True)
-    default_shop_id = models.IntegerField(blank=True, null=True)
     tags = models.TextField(blank=True, null=True)
     is_vip = models.BooleanField(default=False)
     # vip过期时间
     vip_expire_time = models.DateTimeField(blank=True, null=True)
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0'))
-    #score = models.IntegerField(default=0)
+    score = models.IntegerField(default=0)
 
     class Meta:
         db_table = "user"

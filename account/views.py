@@ -46,7 +46,7 @@ class UserLoginView(APIView):
                 if user.is_active:
                     auth.logout(request)
                     auth.login(request, user)
-                    return Response(data={"status": "success"})
+                    return Response(data={"status": "success", "user": UserInfoSerializer(request.user).data})
                 else:
                     return Response(data={"status": "error", "show": 1, "content": u"用户状态异常"})
             else:
@@ -95,9 +95,8 @@ class CaptchaView(APIView):
 
 class UserView(APIView):
     def get(self, request):
-        print request.user
         if not request.user.is_authenticated():
-            return Response(data={"status": "not_login"})
+            return http_400_response("Login required")
         else:
             return Response(data=UserInfoSerializer(request.user).data)
 

@@ -30,6 +30,7 @@ urlpatterns = patterns('',
                        url(r"^login/$", UserLoginPageView.as_view()),
 
                        url(r"^api/v1/login/$", UserLoginView.as_view()),
+                       url(r"^api/v1/user/$", UserView.as_view()),
 
                        url(r"^api/v1/captcha/$", CaptchaView.as_view()),
                        url(r"^api/v1/category/$", CategoryAPIView.as_view()),
