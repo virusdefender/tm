@@ -198,7 +198,7 @@
 
         //获取历史订单的地址信息等
         $.ajax({
-            url: "/order/?data=history_info",
+            url: "/api/v1/order/?data=history_info",
             method: "get",
             dataType: "json",
             success: function (json) {
