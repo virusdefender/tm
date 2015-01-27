@@ -111,6 +111,11 @@
                                 vm.refresh_captcha();
                                 $('#login_alert').modal();
                             }
+                        },
+                        error: function(data){
+                            vm.alert_content = data.content;
+                            $('#login_alert').modal();
+                            vm.refresh_captcha();
                         }
                     });
                 }
