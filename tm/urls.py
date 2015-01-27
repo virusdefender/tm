@@ -28,6 +28,7 @@ urlpatterns = patterns('',
                        url(r'^ueditor/', include('DjangoUeditor.urls')),
 
                        url(r"^login/$", UserLoginPageView.as_view()),
+
                        url(r"^api/v1/login/$", UserLoginView.as_view()),
 
                        url(r"^api/v1/captcha/$", CaptchaView.as_view()),
