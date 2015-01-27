@@ -65,13 +65,13 @@
             captcha: "",
             alert_content: "",
             show_captcha: false,
-            captcha_src: "/captcha/",
+            captcha_src: "/api/v1/captcha/",
             check_captcha: function () {
                 $.ajax({
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader("X-CSRFToken", csrf_token());
                     },
-                    url: "/captcha/",
+                    url: "/api/v1/captcha/",
                     method: "post",
                     data: {username: vm.username},
                     dataType: "json",
@@ -98,7 +98,7 @@
                             xhr.setRequestHeader("X-CSRFToken", csrf_token());
                         },
                         data: {username: vm.username, password: vm.password, captcha: vm.captcha},
-                        url: "/login/",
+                        url: "/api/v1/login/",
                         method: "post",
                         success: function (data) {
 

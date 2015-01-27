@@ -46,7 +46,7 @@ class UserLoginView(APIView):
                     auth.login(request, user)
                     return Response(data={"status": "success"})
                 else:
-                    return Response(data={"status": "error", "content": u"用户状态异常，请重置密码"})
+                    return Response(data={"status": "error", "content": u"用户状态异常"})
             else:
                 try:
                     user = User.objects.get(username=data["username"])
