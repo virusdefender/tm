@@ -38,7 +38,7 @@ class UserLoginView(APIView):
             if check_is_need_captcha(data["username"]):
                 captcha = Captcha(request)
                 if not captcha.check(data["captcha"]):
-                    return http_400_response(u"验证码错误", 1)
+                    return Response(data={"status": "error", "show": 1, "content": u"验证码错误"})
 
             user = auth.authenticate(username=data["username"], password=data["password"])
 
@@ -48,15 +48,15 @@ class UserLoginView(APIView):
                     auth.login(request, user)
                     return Response(data={"status": "success"})
                 else:
-                    return http_400_response(u"用户状态异常")
+                    return Response(data={"status": "error", "show": 1, "content": u"用户状态异常"})
             else:
                 try:
                     user = User.objects.get(username=data["username"])
                 except User.DoesNotExist:
                     pass
-                return http_400_response(u"用户名或密码错误", 1)
+                return Response(data={"status": "error", "show": 1, "content": u"用户名或密码错误"})
         else:
-            return http_400_response(u"用户名或密码错误", 1)
+            return Response(data={"status": "error", "show": 1, "content": u"用户名或密码错误"})
 
 
 class UserRegisterView(APIView):
@@ -69,16 +69,16 @@ class UserRegisterView(APIView):
             data = serializer.data
             try:
                 User.objects.get(username=data["username"])
-                return http_400_response(u"用户名已经存在", 1)
+                return Response(data={"status": "error", "show": 1, "content": u"用户名已经存在"})
             except User.DoesNotExist:
                 pass
             if len(data["password"]) < 6:
-                return http_400_response(u"密码太短", 1)
+                return Response(data={"status": "error", "show": 1, "content": u"密码太短"})
             user = User.objects.create(username=data["username"])
             user.set_password(data["password"])
             user.save()
-            return Response(data={"status": "success", "show": 0})
-        return http_400_response(u"注册失败", 1)
+            return Response(data={"status": "success"})
+        return Response(data={"status": "error", "show": 1, "content": u"注册失败"})
 
 
 class CaptchaView(APIView):
