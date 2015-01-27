@@ -16,6 +16,7 @@ from django.http import HttpResponseRedirect
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from utils.decorators import login_required
 from utils.shortcuts import http_400_response
 from .models import Shop, Category, Product, Order, AddressCategory
 from .serializers import (CategorySerializer, ShopSerializer, ProductSerializer,
@@ -157,15 +158,12 @@ def get_address_category(address, shop_id):
 
 
 class SubmitOrderPageView(APIView):
+    @login_required
     def get(self, request):
-        data = request.GET.get("data", None)
-        if not data:
-            return render(request, "shop/submit_order.html")
-        else:
-            return Response(data={"name": "name", "phone": "11111111111", "address": "address"})
-
+        return render(request, "shop/submit_order.html")
 
 class OrderAPIView(APIView):
+    @login_required
     def post(self, request):
         # 创建订单
         with transaction.atomic():
@@ -175,11 +173,12 @@ class OrderAPIView(APIView):
                 try:
                     shop = Shop.objects.get(pk=data["shop_id"])
                 except Shop.DoesNotExist:
-                    return http_400_response(u"商店不存在")
+                    return http_400_response(u"商店不存在", 1)
 
                 shopping_cart_id = request.session.get("shopping_cart_id", None)
+
                 if not shopping_cart_id:
-                    return http_400_response(u"购物车为空，请重新添加1")
+                    return http_400_response(u"购物车为空，请重新添加", 1)
                 else:
                     shopping_cart = ShoppingCart(shopping_cart_id)
 
@@ -187,7 +186,7 @@ class OrderAPIView(APIView):
 
                 # 购物车中没有商品
                 if shopping_cart_data["total_price"] <= Decimal("0"):
-                    return http_400_response(u"购物车为空。请重新添加2")
+                    return http_400_response(u"购物车为空。请重新添加", 1)
 
                 try:
                     delivery_time = json.dumps(data["delivery_time"])
@@ -241,11 +240,16 @@ class OrderAPIView(APIView):
                         extra={"success_url": "https://tmqdu.com/pay/success/",
                                "cancel_url": "https://tmqdu.com/pay/failed/"}
                     )
-                    return Response(data=ch)
+                    return Response(data={"pay_method": "alipay", "order_id": order.id, "charge": ch}, status=201)
                 else:
-                    return Response(data="not implement")
+                    return Response(data={"pay_method": "COD", "order_id": order.id}, status=201)
             else:
                 return http_400_response(serializer.errors)
+
+    @login_required
+    def get(self, request):
+        if request.GET.get("data", None) == "history_info":
+            return Response(data={"name": "name", "phone": "11111111111", "address": "address"})
 
 
 class PayResultPageView(APIView):

@@ -14,6 +14,6 @@ def http_201_response(data):
     return Response(data=data, status=status.HTTP_201_CREATED)
 
 
-def http_400_response(error_reason):
-    return Response(data={"status": "error", "content": error_reason},
+def http_400_response(error_reason, show=0):
+    return Response(data={"status": "error", "show": show, "content": error_reason},
                     status=status.HTTP_400_BAD_REQUEST)

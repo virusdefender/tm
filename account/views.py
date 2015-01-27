@@ -19,14 +19,15 @@ def check_is_need_captcha(username):
         return True
     if user.is_staff or user.is_superuser:
         return True
-    # todo add rule
     return False
 
 
-class UserLoginView(APIView):
+class UserLoginPageView(APIView):
     def get(self, request):
         return TemplateResponse(request, "account/login.html")
 
+
+class UserLoginView(APIView):
     def post(self, request):
         serializer = UserLoginSerializer(data=request.DATA)
         if serializer.is_valid():
@@ -35,30 +36,20 @@ class UserLoginView(APIView):
             if check_is_need_captcha(data["username"]):
                 captcha = Captcha(request)
                 if not captcha.check(data["captcha"]):
-                    return Response(data={"status": "error", "content": u"验证码错误"})
+                    return Response(data={"status": "error", "content": u"Error captcha"})
 
             user = auth.authenticate(username=data["username"], password=data["password"])
 
             if user is not None:
                 if user.is_active:
-                    LoginLog.objects.create(user_name=user.username, status="success", user_agent=request.META["HTTP_USER_AGENT"])
-                    shopping_cart = request.session.get("shopping_cart", [])
-                    default_shop_id = request.session.get("default_shop_id", None)
                     auth.logout(request)
                     auth.login(request, user)
-                    request.session["shopping_cart"] = shopping_cart
-                    if (not user.default_shop_id) and default_shop_id:
-                        user.default_shop_id = default_shop_id
-                        user.save()
                     return Response(data={"status": "success"})
                 else:
-                    LoginLog.objects.create(user_name=user.username, status="in_active", user_agent=request.META["HTTP_USER_AGENT"])
                     return Response(data={"status": "error", "content": u"用户状态异常，请重置密码"})
             else:
                 try:
                     user = User.objects.get(username=data["username"])
-                    LoginLog.objects.create(user_name=user.username, status="failed", user_agent=request.META["HTTP_USER_AGENT"])
-                    # TODO 检测密码暴力破解
                 except User.DoesNotExist:
                     pass
                 return Response(data={"status": "error", "content": u"用户名或密码错误"})
@@ -107,21 +98,6 @@ class UserView(APIView):
             return Response(data={"status": "not_login"})
         else:
             return Response(data=UserInfoSerializer(request.user).data)
-
-def get_user_rank(user):
-    if not user.is_authenticated():
-        return {"rank": 0, "score": -1, "name": u"不是会员", "discount": 1}
-    score = user.score
-    if score < 50:
-        return {"rank": 1, "score": score, "name": u"不是会员", "discount": 1}
-    if 50 <= score < 100:
-        return {"rank": 2, "score": score, "name": u"初级会员", "discount": 0.99}
-    if 100 <= score < 200:
-        return {"rank": 3, "score": score, "name": u"中级会员", "discount": 0.98}
-    if 200 <= score < 300:
-        return {"rank": 4, "score": score, "name": u"高级会员", "discount": 0.97}
-    return {"rank": 5, "score": score, "name": u"骨灰级会员", "discount": 0.95}
-
 
 
 '''

@@ -166,11 +166,12 @@
                     }),
                     dataType: "json",
                     success: function(json){
-                        pingpp.createPayment(json, function(result, err) {
-                    });
-
+                        if(json.pay_method == "alipay"){
+                        pingpp.createPayment(json.charge, function(result, err) {})
+                        }
                     },
                     error: function(json){
+                        console.log(json);
                         alert("提交订单失败，请重新选购");
                         window.location.href="/help/";
                     }
