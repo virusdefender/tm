@@ -1,3 +1,4 @@
+# coding=utf-8
 """
 Django settings for tm project.
 
@@ -9,7 +10,15 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+
+import socket
 import os
+
+if socket.gethostname() == "Macbook-Pro.local":
+    from .local_settings import *
+else:
+    from .server_settings import *
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
@@ -108,24 +117,48 @@ SHOPPING_CART_REDIS_DB = 1
 
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
+    'disable_existing_loggers': True,
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s [%(threadName)s:%(thread)d] [%(name)s:%(lineno)d] [%(module)s:%(funcName)s] [%(levelname)s]- %(message)s'}
+        # 日志格式
     },
     'handlers': {
-        'mail_admins': {
+        'default': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOG_PATH + 'all.log',  # 日志输出文件
+            'maxBytes': 1024 * 1024 * 5,  #文件大小
+            'backupCount': 5,  #备份份数
+            'formatter': 'standard',  #使用哪种formatters日志格式
+        },
+        'error': {
             'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOG_PATH + 'error.log',
+            'maxBytes': 1024 * 1024 * 5,
+            'backupCount': 2,
+            'formatter': 'standard',
+        },
+        'info': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOG_PATH + 'info.log',
+            'maxBytes': 1024 * 1024 * 5,
+            'backupCount': 2,
+            'formatter': 'standard',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard'
         }
     },
     'loggers': {
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
+        'pay_log': {
+            'handlers': ['info', "console"],
+            'level': 'DEBUG',
+            'propagate': True
+        }
     }
 }

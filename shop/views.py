@@ -4,6 +4,7 @@ import time
 import hashlib
 import random
 import uuid
+import logging
 
 from decimal import Decimal
 
@@ -162,9 +163,12 @@ class SubmitOrderPageView(APIView):
     def get(self, request):
         return render(request, "shop/submit_order.html")
 
+
 class OrderAPIView(APIView):
     @login_required
     def post(self, request):
+        logger = logging.getLogger('pay_log')
+        logger.debug("test1111111")
         # 创建订单
         with transaction.atomic():
             serializer = CreateOrderSerializer(data=request.DATA)
