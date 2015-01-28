@@ -109,7 +109,7 @@ class Captcha(object):
         """
         _code = self.django_request.session.get(self.session_key) or ''
         if not _code:
-            return False
+            return _code
         expires_time = self.django_request.session.get(self.captcha_expires_time) or 0
         # 注意 如果验证之后不清除之前的验证码的话 可能会造成重复验证的现象
         del self.django_request.session[self.session_key]
@@ -117,5 +117,5 @@ class Captcha(object):
         if _code.lower() == str(code).lower() and time.time() < expires_time:
             return True
         else:
-            return False
+            return _code
 
