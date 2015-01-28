@@ -83,8 +83,12 @@ class UserRegisterView(APIView):
 
 class CaptchaView(APIView):
     def get(self, request):
-        captcha = Captcha(request)
-        return captcha.display()
+        data = request.GET.get("data", None)
+        if not data:
+            captcha = Captcha(request)
+            return captcha.display()
+        else:
+            return Response(data=request.session.get("_django_captcha_key", ""))
 
     def post(self, request):
         """检查是否需要验证码
