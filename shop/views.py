@@ -21,7 +21,8 @@ from utils.decorators import login_required
 from utils.shortcuts import http_400_response, decimal_round
 from .models import Shop, Category, Product, Order, AddressCategory
 from .serializers import (CategorySerializer, ShopSerializer, ProductSerializer,
-                          ShoppingCartOperationSerializer, CreateOrderSerializer)
+                          ShoppingCartOperationSerializer, CreateOrderSerializer,
+                          ShoppingCartDeleteSerializer)
 from .shopping_cart import ShoppingCart
 
 
@@ -150,6 +151,30 @@ class ShoppingCartAPIView(APIView):
                 data["discount"] = False
 
             return Response(data=data)
+        else:
+            return http_400_response(serializer.errors)
+
+    def delete(self, request):
+        serializer = ShoppingCartDeleteSerializer(data=request.DATA)
+        if serializer.is_valid():
+            data = serializer.data
+            try:
+                shop = Shop.objects.get(pk=data["shop_id"])
+            except Shop.DoesNotExist:
+                return http_400_response("Shop does not exist")
+
+            shopping_cart_id = request.session.get("shopping_cart_id", None)
+            if not shopping_cart_id:
+                shopping_cart = ShoppingCart(rand_key())
+                request.session["shopping_cart_id"] = shopping_cart.key
+            else:
+                shopping_cart = ShoppingCart(request.session["shopping_cart_id"])
+
+            for item in data["products"]:
+                shopping_cart.del_from_cart(item, -10000)
+            cart_data = shopping_cart.total(shop.id)
+            cart_data.pop("products")
+            return Response(data=cart_data)
         else:
             return http_400_response(serializer.errors)
 

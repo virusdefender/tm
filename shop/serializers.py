@@ -52,6 +52,11 @@ class ShoppingCartOperationSerializer(serializers.Serializer):
     shop_id = serializers.IntegerField()
 
 
+class ShoppingCartDeleteSerializer(serializers.Serializer):
+    shop_id = serializers.IntegerField()
+    products = serializers.WritableField()
+
+
 class CreateOrderSerializer(serializers.Serializer):
     pay_method = serializers.ChoiceField(choices=(("COD", "COD"), ("alipay", "alipay")))
     name = serializers.CharField(max_length=30)
