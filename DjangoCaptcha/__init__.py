@@ -20,6 +20,8 @@ import os
 import time
 import random
 import StringIO
+import logging
+
 from django.http import HttpResponse
 from PIL import Image, ImageDraw, ImageFont
 
@@ -108,6 +110,11 @@ class Captcha(object):
         检查用户输入的验证码是否正确
         """
         _code = self.django_request.session.get(self.session_key) or ''
+        logger = logging.getLogger('pay_log')
+        logger.debug("code:")
+        logger.debug(code)
+        logger.debug("_code:")
+        logger.debug(_code)
         if not _code:
             return False
         expires_time = self.django_request.session.get(self.captcha_expires_time) or 0

@@ -44,8 +44,13 @@ class UserLoginView(APIView):
 
             if user is not None:
                 if user.is_active:
+                    shopping_cart_id = request.session.GET("shopping_cart_id", None)
+
                     auth.logout(request)
                     auth.login(request, user)
+                    if shopping_cart_id:
+                        request.session["shopping_cart_id"] = shopping_cart_id
+
                     return Response(data={"status": "success", "user": UserInfoSerializer(request.user).data})
                 else:
                     return Response(data={"status": "error", "show": 1, "content": u"用户状态异常"})
