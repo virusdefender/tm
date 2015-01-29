@@ -31,6 +31,10 @@ class UserLoginPageView(APIView):
 
 class UserLoginView(APIView):
     def post(self, request):
+
+        import logging
+        logger = logging.getLogger('pay_log')
+        logger.debug(request.META)
         serializer = UserLoginSerializer(data=request.DATA)
         if serializer.is_valid():
             data = serializer.data
