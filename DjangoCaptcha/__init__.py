@@ -109,14 +109,7 @@ class Captcha(object):
         """
         检查用户输入的验证码是否正确
         """
-        logger = logging.getLogger('pay_log')
         _code = self.django_request.session.get(self.session_key) or ''
-        logger.debug("request session")
-        logger.debug(self.django_request.session)
-        logger.debug("code:")
-        logger.debug(code)
-        logger.debug("_code:")
-        logger.debug(_code)
         if not _code:
             return False
         expires_time = self.django_request.session.get(self.captcha_expires_time) or 0

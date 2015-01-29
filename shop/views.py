@@ -85,15 +85,9 @@ class ShoppingCartAPIView(APIView):
 
         if not data:
             # 获取购物车所有信息 比如商品信息 总价 总数量 运费等
-            products_info = shopping_cart.total(shop_id)
+            products_info = shopping_cart.total(shop_id, request.user)
             if not products_info:
                 return http_400_response("Shop does not exist")
-
-            if request.user.is_authenticated() and request.user.is_vip:
-                products_info["discount"] = True
-                products_info["total_price"] = decimal_round(products_info["origin_price"] * shop.vip_discount + products_info["freight"])
-            else:
-                products_info["discount"] = False
 
             for item in products_info["products"]:
                 item["product"] = ProductSerializer(item["product"]).data
@@ -141,14 +135,8 @@ class ShoppingCartAPIView(APIView):
             else:
                 shopping_cart.del_from_cart(data["product_id"], data["number"])
 
-            data = shopping_cart.total(data["shop_id"])
+            data = shopping_cart.total(shop.id, request.user)
             data.pop("products")
-
-            if request.user.is_authenticated() and request.user.is_vip:
-                data["discount"] = True
-                data["total_price"] = decimal_round(data["origin_price"] * shop.vip_discount + data["freight"])
-            else:
-                data["discount"] = False
 
             return Response(data=data)
         else:
@@ -172,7 +160,7 @@ class ShoppingCartAPIView(APIView):
 
             for item in data["products"]:
                 shopping_cart.del_from_cart(item, -10000)
-            cart_data = shopping_cart.total(shop.id)
+            cart_data = shopping_cart.total(shop.id, request.user)
             cart_data.pop("products")
             return Response(data=cart_data)
         else:
@@ -231,7 +219,7 @@ class OrderAPIView(APIView):
                 else:
                     shopping_cart = ShoppingCart(shopping_cart_id)
 
-                shopping_cart_data = shopping_cart.total(shop.id)
+                shopping_cart_data = shopping_cart.total(shop.id, request.user)
 
                 # 购物车中没有商品
                 if shopping_cart_data["total_price"] <= Decimal("0"):

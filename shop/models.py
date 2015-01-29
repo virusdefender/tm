@@ -22,7 +22,9 @@ class Shop(models.Model):
     freight_line = models.DecimalField(help_text=u"低于这个价格将收取运费", max_digits=10, decimal_places=2)
     freight = models.DecimalField(help_text=u"运费", max_digits=10, decimal_places=2)
     banner = models.TextField(help_text=u"商店上部轮播广告", blank=True, null=True)
-    vip_discount = models.DecimalField(help_text=u"会员打折", default=Decimal("1"), max_digits=10, decimal_places=2)
+    vip_discount = models.DecimalField(help_text=u"会员打折", default=Decimal("0.95"), max_digits=10, decimal_places=2)
+    x = models.DecimalField(help_text=u"满x元减y元", max_digits=10, decimal_places=2)
+    y = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
         db_table = "shop"

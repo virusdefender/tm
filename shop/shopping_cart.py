@@ -9,6 +9,7 @@ from decimal import Decimal
 import redis
 
 from tm.settings import SHOPPING_CART_REDIS_DB
+from utils.shortcuts import decimal_round
 
 from .models import Product, Shop
 from .serializers import ProductSerializer
@@ -93,7 +94,7 @@ class ShoppingCart(object):
 
         return result_list
 
-    def total(self, shop_id):
+    def total(self, shop_id, user):
         """
         获取购物车中总价，总数量，运费和商品信息
         """
@@ -102,18 +103,34 @@ class ShoppingCart(object):
         except Shop.DoesNotExist:
             return None
         result = {"total_number": 0, "total_price": Decimal("0"), "origin_price": Decimal("0"),
-                  "freight": Decimal("0"), "products": self._products(shop.id)}
+                  "vip_discount": False, "vip_discount_amount": Decimal("0"), "activity_discount": False,
+                  "activity_discount_amount": Decimal("0"),
+                  "need_freight": False, "freight": Decimal("0"),
+                  "products": self._products(shop.id)}
 
         for item in result["products"]:
             result["total_number"] += item["number"]
             result["origin_price"] += Decimal(item["product"].price) * Decimal(item["number"])
 
+        if result["origin_price"] == Decimal("0"):
+            return result
+
+        if user.is_authenticated() and user.is_vip:
+            result["vip_discount"] = True
+            result["vip_discount_amount"] = decimal_round(result["origin_price"] * (Decimal("1") - shop.vip_discount))
+
+        if result["origin_price"] - result["vip_discount_amount"] >= shop.x:
+            result["activity_discount"] = True
+            result["activity_discount_amount"] = shop.y
+
+        result["total_price"] = result["origin_price"] - result["vip_discount_amount"] - result["activity_discount_amount"]
+
         if shop.freight_line <= result["total_price"]:
-            result["freight"] = '0'
-            result["total_price"] = result["origin_price"]
+            result["freight"] = Decimal("0")
         else:
+            result["need_freight"] = True
             result["freight"] = shop.freight
-            result["total_price"] = result["origin_price"] + result["freight"]
+            result["total_price"] += result["freight"]
 
         return result
 

@@ -1,6 +1,7 @@
 # coding=utf-8
 import json
 import random
+from decimal import Decimal
 from shop.models import Category, Shop, Product
 from account.models import User
 
@@ -19,6 +20,7 @@ def create_product(shop, name, category, price, sort_index):
 
 def create_fake_data():
     u = User.objects.create(username="root")
+    u.is_vip = True
     u.is_superuser = True
     u.is_staff = True
     u.default_shop_id = 1
@@ -35,11 +37,11 @@ def create_fake_data():
 
     s1 = Shop.objects.create(name="天目青大店", delivery_time="9:00-10:30;13:00-16:00",
                              contact_information="电话：123456",
-                             delivery_area="青岛大学中心校区", freight_line=20, freight=4,
+                             delivery_area="青岛大学中心校区", freight_line=35, freight=4,
                              banner=json.dumps([
                                  "http://tmimage.b0.upaiyun.com/1421293126%E6%94%BE%E5%81%87%E9%80%9A%E7%9F%A5%E5%89%AF%E6%9C%AC.jpg",
                                  "http://tmimage.b0.upaiyun.com/1421293126%E6%94%BE%E5%81%87%E9%80%9A%E7%9F%A5%E5%89%AF%E6%9C%AC.jpg"
-                             ]))
+                             ]), x=Decimal("30"), y=Decimal("5"))
 
     c1 = Category.objects.create(shop=s1, name=u"测试1", sort_index=1)
     c2 = Category.objects.create(shop=s1, name=u"测试2", sort_index=2)
@@ -56,10 +58,9 @@ def create_fake_data():
     c14 = Category.objects.create(shop=s1, name=u"测试11", sort_index=6, parent_category=c2)
     c15 = Category.objects.create(shop=s1, name=u"测试12", sort_index=7, parent_category=c2)
 
-
     for item in Category.objects.filter(parent_category__isnull=False):
         for i in range(10):
-            create_product(shop=s1, category=item, price=random.randint(100, 500) / 100,
+            create_product(shop=s1, category=item, price=Decimal(str(random.randint(100, 500) / 100.0)),
                            name=u"唇动牛奶味蛋糕" + str(item.id) + str(i), sort_index=i)
     '''
     p1 = Product.objects.create(shop=s1, category=c6, name=u"唇动牛奶味蛋糕1", price=1.2,
