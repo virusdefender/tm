@@ -58,7 +58,7 @@ def create_fake_data():
 
 
     for item in Category.objects.filter(parent_category__isnull=False):
-        for i in range(8):
+        for i in range(10):
             create_product(shop=s1, category=item, price=random.randint(100, 500) / 100,
                            name=u"唇动牛奶味蛋糕" + str(item.id) + str(i), sort_index=i)
     '''
