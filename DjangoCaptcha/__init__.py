@@ -109,8 +109,10 @@ class Captcha(object):
         """
         检查用户输入的验证码是否正确
         """
-        _code = self.django_request.session.get(self.session_key) or ''
         logger = logging.getLogger('pay_log')
+        _code = self.django_request.session.get(self.session_key) or ''
+        logger.debug("request session")
+        logger.debug(self.django_request.session)
         logger.debug("code:")
         logger.debug(code)
         logger.debug("_code:")
