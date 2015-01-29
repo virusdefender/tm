@@ -192,8 +192,9 @@ def get_address_category(address, shop_id):
 
 
 class SubmitOrderPageView(APIView):
-    @login_required
     def get(self, request):
+        if not request.user.is_authenticated():
+            return HttpResponseRedirect("/login/")
         return render(request, "shop/submit_order.html")
 
 

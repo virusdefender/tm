@@ -36,7 +36,12 @@
     </header>
     <div class="am-g">
         <div class="am-panel am-panel-default">
-            <div class="am-panel-bd">共{{total_number}}件商品，合计{{total_price}}元</div>
+            <div class="am-panel-bd">
+                <p>共{{total_number}}件商品，合计{{total_price}}元</p>
+                <p ms-if="vip_discount">会员优惠:{{ vip_discount_amount }}</p>
+                <p ms-if="need_freight">运费:{{ freight }}元</p>
+                <p ms-if="activity_discount"> 活动优惠:{{ activity_discount_amount }}元</p>
+            </div>
         </div>
         <form class="am-form">
             <fieldset>
@@ -122,6 +127,12 @@
             pay_method: "",
             total_price: 0,
             total_number: 0,
+            need_freight: false,
+            freight: 0,
+            vip_discount: false,
+            activity_discount: false,
+            vip_discount_amount: 0,
+            activity_discount_amount: 0,
             submit_order: function () {
                 if(vm.name.length < 2){
                     show_alert('请输入正确的姓名');
@@ -193,6 +204,12 @@
             success: function (json) {
                 vm.total_price = json.total_price;
                 vm.total_number = json.total_number;
+                vm.need_frieght = json.need_freight;
+                vm.freight = json.freight;
+                vm.activity_discount = json.activity_discount;
+                vm.activity_discount_amount = json.activity_discount_amount;
+                vm.vip_discount = json.vip_discount;
+                vm.vip_discount_amount = json.vip_discount_amount;
             }
         });
 
