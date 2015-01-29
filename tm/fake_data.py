@@ -1,7 +1,20 @@
 # coding=utf-8
 import json
+import random
 from shop.models import Category, Shop, Product
 from account.models import User
+
+
+def create_product(shop, name, category, price, sort_index):
+    Product.objects.create(shop=shop, category=category, name=name, price=price,
+                           origin_price=1.02, unit=u"个",
+                           simple_introduction="x元/份，特惠价",
+                           preview_pic="https://tmimage.b0.upaiyun.com/1417489338%E6%97%BA%E6%9"
+                                       "7%BA%E4%BB%99%E8%B4%9D%E5%B0%8F.jpg",
+                           total_num=100, sold_num=10,
+                           introduction="<img src='http://tmimage.b0.upaiyun.com/141733908617."
+                                        "%E5%94%87%E5%8A%A8%E7%89%9B%E5%A5%B6.png'>",
+                           sort_index=sort_index)
 
 
 def create_fake_data():
@@ -43,6 +56,12 @@ def create_fake_data():
     c14 = Category.objects.create(shop=s1, name=u"测试11", sort_index=6, parent_category=c2)
     c15 = Category.objects.create(shop=s1, name=u"测试12", sort_index=7, parent_category=c2)
 
+
+    for item in Category.objects.filter(parent_category__isnull=False):
+        for i in range(8):
+            create_product(shop=s1, category=item, price=random.randint(100, 500) / 100,
+                           name=u"唇动牛奶味蛋糕" + str(item.id) + str(i), sort_index=i)
+    '''
     p1 = Product.objects.create(shop=s1, category=c6, name=u"唇动牛奶味蛋糕1", price=1.2,
                                 origin_price=1.02, unit=u"个",
                                 simple_introduction="x元/份，特惠价",
@@ -115,6 +134,7 @@ def create_fake_data():
                                 introduction="<img src='http://tmimage.b0.upaiyun.com/141733908617."
                                              "%E5%94%87%E5%8A%A8%E7%89%9B%E5%A5%B6.png'>",
                                 sort_index=4)
+    '''
 
 
 create_fake_data()
