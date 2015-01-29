@@ -44,7 +44,7 @@ class UserLoginView(APIView):
 
             if user is not None:
                 if user.is_active:
-                    shopping_cart_id = request.session.GET("shopping_cart_id", None)
+                    shopping_cart_id = request.session.get("shopping_cart_id", None)
 
                     auth.logout(request)
                     auth.login(request, user)
