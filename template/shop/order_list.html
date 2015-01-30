@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}
+
+{% endblock %}
+
+{% block javascriptblock %}
+
+{% endblock %}
+
+{% block body %}
+    <header data-am-widget="header" class="am-header am-header-default">
+        <h1 class="am-header-title">
+            <a href="#title-link" class="">我的订单</a>
+        </h1>
+    </header>
+
+    {% verbatim %}
+    <div ms-controller="order_list">
+
+        <div data-am-widget="list_news" class="am-list-news am-list-news-default">
+            <div class="am-list-news-bd">
+                <ul class="am-list">
+                    <li class="am-g am-list-item-desced" ms-repeat="order_list">
+                        <a ms-href="'/my_order/?order_id=' + el.id"
+                           class="am-list-item-hd ">
+                            <span ms-html="order_title(el)"></span>
+
+                        </a>
+
+                        <div class="am-list-item-text">
+                            总价：{{ el.total_price }}；{{ el.payment_status }}；{{ el.order_status }}
+                        </div>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+
+
+
+        <script>
+            var vm = avalon.define({
+                $id: "order_list",
+                order_list: [],
+                previous_url: "",
+                next_url: "",
+
+                order_icon: function (order) {
+                    if (order.pay_method == "alipay") {
+                        return '<span class="am-icon-credit-card"></span>'
+                    }
+                    return '<span class="am-icon-cny"></span>'
+                },
+                order_title: function (order) {
+                    var title = "";
+                    if (order.pay_method == "alipay") {
+                        title = '<span class="am-icon-credit-card"></span>'
+                    }
+                    else {
+                        title = '<span class="am-icon-cny"></span>';
+                    }
+                    if (order.order_products.length > 1) {
+                        return title + order.order_products[0].name + "等" + order.order_products.length.toString() + "件商品";
+                    }
+                    else {
+                        return title + order.order_products[0].name;
+                    }
+                },
+
+                update_list: function(url){
+                    init_info(url);
+                }
+
+            });
+
+            var pay_method_dict = {"alipay": "支付宝", "COD": "货到付款"};
+            var payment_status_dict = {"0": "没有付款", "-1": "已经退款", "1": "支付成功"};
+            var order_status_dict = {"-1": "订单等待处理", "0": "订单已经确认", "1": "订单正在配送", "2": "订单完成", "3": "订单取消"};
+
+            function init_info(url) {
+                $.ajax({
+                    url: url,
+                    method: "get",
+                    dataType: "json",
+                    success: function (json) {
+                        vm.order_list = json.results;
+                        for (var i in json.results) {
+                            vm.order_list[i].pay_method = pay_method_dict[vm.order_list[i].pay_method];
+                            vm.order_list[i].payment_status = payment_status_dict[vm.order_list[i].payment_status];
+                            vm.order_list[i].order_status = order_status_dict[vm.order_list[i].order_status];
+                        }
+
+                        if(json.previous != null) {
+
+                            vm.pervious_url = json.previous;
+                        }
+                        else{
+                            vm.previoud_url = "";
+                        }
+
+                        if(json.next != null) {
+
+                            vm.next_url = json.previous;
+                        }
+                        else{
+                            vm.next_url = "";
+                        }
+                    }
+
+                });
+            }
+
+            init_info("/api/v1/order/?paging=true&limit=2&page=1");
+        </script>
+    </div>
+    {% endverbatim %}
+    {% include 'foot.html' %}
+
+{% endblock %}

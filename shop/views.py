@@ -319,7 +319,7 @@ class PayResultPageView(APIView):
             return render(request, "error.html")
         try:
             order = Order.objects.get(alipay_order_id=alipay_order_id, user=request.user)
-            return HttpResponseRedirect("/api/v1/order/?order_id=" + str(order.id))
+            return HttpResponseRedirect("/my_order/?order_id=" + str(order.id))
         except Order.DoesNotExist:
             return HttpResponseRedirect("/my_order/")
 
@@ -332,3 +332,11 @@ class PayResultPageView(APIView):
         order.payment_status = 1
         order.save()
         return Response(data="success")
+
+
+class OrderListPageView(APIView):
+    def get(self, request):
+        order_id = request.GET.get("order_id", None)
+        if order_id:
+            return render(request, "shop/order.html", {"order_id": order_id})
+        return render(request, "shop/order_list.html")

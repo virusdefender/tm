@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}
+
+{% endblock %}
+
+{% block javascriptblock %}
+
+{% endblock %}
+
+{% block body %}
+    <script>
+        var order_id = {{ order_id }};
+    </script>
+    {% verbatim %}
+    <div ms-controller="order_obj">
+        <div data-am-widget="titlebar" class="am-titlebar am-titlebar-default">
+            <h2 class="am-titlebar-title ">基本信息</h2>
+        </div>
+        <div class="am-panel am-panel-default">
+            <div class="am-panel-bd">
+                <p>姓名：{{ order.name }} 手机：{{ order.phone }}</p>
+
+                <p>地址：{{ order.address }}</p>
+
+                <p ms-if="order.remark.length!=0">备注：{{ order.remark }}</p>
+
+                <p>送货时间：<span ms-repeat-item="order.delivery_time">{{ item }}</span></p>
+
+                <p>创建时间：{{ order.create_time|date("yyyy-MM-dd HH:mm:ss" }}</p>
+
+                <p>订单状态：{{ order.order_status }}</p>
+            </div>
+        </div>
+        <div data-am-widget="titlebar" class="am-titlebar am-titlebar-default">
+            <h2 class="am-titlebar-title ">支付信息</h2>
+        </div>
+
+        <div class="am-panel am-panel-default">
+            <div class="am-panel-bd">
+                <p>支付方式：{{ order.pay_method }} 状态：{{ order.payment_status }}</p>
+
+                <p>总价：{{ order.total_price }}元</p>
+            </div>
+        </div>
+        <div data-am-widget="titlebar" class="am-titlebar am-titlebar-default">
+            <h2 class="am-titlebar-title ">商品信息</h2>
+        </div>
+
+        <table class="am-table">
+            <thead>
+            <tr>
+                <th>商品名称</th>
+                <th>单价</th>
+                <th>数量</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ms-repeat="order.order_products">
+                <td>{{ el.name }}</td>
+                <td>{{ el.price }}元</td>
+                <td>{{ el.number }} {{ el.unit }}</td>
+            </tr>
+
+            </tbody>
+        </table>
+
+        <div data-am-widget="titlebar" class="am-titlebar am-titlebar-default">
+            <h2 class="am-titlebar-title ">订单动态</h2>
+        </div>
+
+        <ul class="am-list am-list-static am-list-border am-list-striped">
+            <li ms-repeat="order.order_logs">{{ el.create_time|date("yyyy-MM-dd HH:mm:ss" }}  {{ el.content }}</li>
+        </ul>
+        <script>
+            var vm = avalon.define({
+                $id: "order_obj",
+                order: {}
+            });
+
+            var pay_method_dict = {"alipay": "支付宝", "COD": "货到付款"};
+            var payment_status_dict = {"0": "没有付款", "-1": "已经退款", "1": "支付成功"};
+            var order_status_dict = {"-1": "等待处理", "0": "订单已经确认", "1": "正在配送", "2": "订单完成", "3": "订单取消"};
+
+            $.ajax({
+                url: "/api/v1/order/?order_id=" + order_id.toString(),
+                method: "get",
+                dataType: "json",
+                success: function (json) {
+                    vm.order = json;
+
+                    vm.order.pay_method = pay_method_dict[vm.order.pay_method];
+                    vm.order.payment_status = payment_status_dict[vm.order.payment_status];
+                    vm.order.order_status = order_status_dict[vm.order.order_status];
+                }
+            })
+
+        </script>
+    </div>
+    {% endverbatim %}
+    {% include 'foot.html' %}
+
+{% endblock %}

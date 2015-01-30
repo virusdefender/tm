@@ -37,15 +37,21 @@
             window.location.href="/shop/" + shop.id.toString() + "/";
         }
     });
+    var default_shop_id = get_cookie("default_shop_id");
+    if(default_shop_id == "") {
 
-    $.ajax({
-        url: "/api/v1/shop/?format=json",
-        method: "get",
-        dataType: "json",
-        success: function (json) {
-            vm.shop_list = json;
-        }
-    });
+        $.ajax({
+            url: "/api/v1/shop/?format=json",
+            method: "get",
+            dataType: "json",
+            success: function (json) {
+                vm.shop_list = json;
+            }
+        });
+    }
+    else{
+        window.location.href="/shop/" + default_shop_id + "/";
+    }
 </script>
 {% endverbatim %}
 {% include 'foot.html' %}

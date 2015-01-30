@@ -9,7 +9,7 @@ from account.views import UserLoginView, UserRegisterView, CaptchaView, UserView
 from log.views import LogView
 from shop.views import (CategoryAPIView, ShopAPIView, ProductAPIView, ShoppingCartAPIView,
                         ShopIndexPageView, ShoppingCartPageView, SubmitOrderPageView,
-                        PayResultPageView, OrderAPIView)
+                        PayResultPageView, OrderAPIView, OrderListPageView)
 
 admin.autodiscover()
 
@@ -20,6 +20,8 @@ urlpatterns = patterns('',
                        url(r"^shop/(?P<shop_id>\d+)/$", ShopIndexPageView.as_view()),
                        url(r"^shopping_cart/$", ShoppingCartPageView.as_view()),
                        url(r"^order/$", SubmitOrderPageView.as_view()),
+
+                       url(r"^my_order/$", OrderListPageView.as_view()),
 
                        url(r"^pay/(?P<result>\w+)/", PayResultPageView.as_view()),
 
