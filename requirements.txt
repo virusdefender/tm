@@ -1,0 +1,9 @@
+Django==1.6.9
+django-redis-sessions==0.4.0
+django-xadmin==0.5.0
+djangorestframework==2.4.4
+Fabric==1.10.1
+PIL==1.1.7
+pytz==2013.7
+redis==2.10.3
+requests==2.5.1
