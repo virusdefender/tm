@@ -301,6 +301,8 @@ class OrderAPIView(APIView):
                 order.create_order_log(u"这里显示订单处理进度1")
                 order.create_order_log(u"这里显示订单处理进度2")
 
+                shopping_cart.empty()
+
                 if data["pay_method"] == "alipay":
                     return Response(data=pay(request, order), status=201)
                 else:
