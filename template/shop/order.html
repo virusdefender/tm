@@ -86,7 +86,7 @@
                 order: {},
 
                 need_repay: function(){
-                    if (vm.order.pay_method == "alipay" && vm.order.payment_status == 0){
+                    if (vm.order.pay_method == "alipay" && vm.order.payment_status == "没有付款"){
                         return true;
                     }
                     return false;
