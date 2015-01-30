@@ -86,13 +86,13 @@
                 order: {},
 
                 need_repay: function(){
-                    if (vm.order.pay_method == "alipay" && vm.order.payment_status == "没有付款"){
+                    if (vm.order.pay_method == "支付宝" && vm.order.payment_status == "没有付款"){
                         return true;
                     }
                     return false;
                 },
 
-                repay: function repay(){
+                repay: function (){
                     $.ajax({
                         beforeSend: function (xhr) {
                             xhr.setRequestHeader("X-CSRFToken", csrf_token());
