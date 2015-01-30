@@ -18,11 +18,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from utils.decorators import login_required
-from utils.shortcuts import http_400_response, decimal_round
+from utils.shortcuts import http_400_response, decimal_round, paginate
 from .models import Shop, Category, Product, Order, AddressCategory
 from .serializers import (CategorySerializer, ShopSerializer, ProductSerializer,
                           ShoppingCartOperationSerializer, CreateOrderSerializer,
-                          ShoppingCartDeleteSerializer)
+                          ShoppingCartDeleteSerializer, OrderSerializer)
 from .shopping_cart import ShoppingCart
 
 
@@ -242,22 +242,31 @@ class OrderAPIView(APIView):
                                                  address=data["address"], remark=data["remark"],
                                                  alipay_order_id=hashlib.md5(str(time.time()) + str(uuid.uuid1())).hexdigest(),
                                                  delivery_time=delivery_time, shop=shop,
-                                                 pay_method=data["pay_method"], is_first=is_first, user=user,
+                                                 pay_method="alipay", is_first=is_first, user=user,
                                                  address_category=address_category,
-                                                 alipay_amount=shopping_cart_data["total_price"],
                                                  total_price=shopping_cart_data["total_price"],
-                                                 freight=shopping_cart_data["freight"])
+                                                 freight=shopping_cart_data["freight"],
+                                                 origin_price=shopping_cart_data["origin_price"],
+                                                 vip_discount_amount=shopping_cart_data["vip_discount_amount"],
+                                                 activity_discount_amount=shopping_cart_data["activity_discount_amount"]
+                                                 )
                 else:
                     order = Order.objects.create(name=data["name"], phone=data["phone"],
                                                  address=data["address"], remark=data["remark"],
                                                  delivery_time=delivery_time, shop=shop,
-                                                 pay_method=data["pay_method"], is_first=is_first, user=user,
+                                                 pay_method="COD", is_first=is_first, user=user,
                                                  address_category=address_category,
                                                  total_price=shopping_cart_data["total_price"],
-                                                 freight=shopping_cart_data["freight"])
-
+                                                 freight=shopping_cart_data["freight"],
+                                                 origin_price=shopping_cart_data["origin_price"],
+                                                 vip_discount_amount=shopping_cart_data["vip_discount_amount"],
+                                                 activity_discount_amount=shopping_cart_data["activity_discount_amount"]
+                                                 )
                 for item in shopping_cart_data["products"]:
                     item["product"].create_order_product(order, item["number"])
+
+                order.create_order_log(u"这里显示订单处理进度1")
+                order.create_order_log(u"这里显示订单处理进度2")
 
                 if data["pay_method"] == "alipay":
                     # sk_live_efHSmHz9G0iLGqPmPS5OynXD
@@ -288,6 +297,16 @@ class OrderAPIView(APIView):
     def get(self, request):
         if request.GET.get("data", None) == "history_info":
             return Response(data={"name": "name", "phone": "11111111111", "address": "address"})
+        order_id = request.GET.get("order_id", None)
+        if order_id:
+            try:
+                order = Order.objects.get(pk=order_id, user=request.user)
+            except Order.DoesNotExist:
+                return http_400_response("Order does not exist")
+            return Response(data=OrderSerializer(order).data)
+        else:
+            orders = Order.objects.filter(user=request.user)
+            return paginate(request, orders, OrderSerializer)
 
 
 class PayResultPageView(APIView):
@@ -299,8 +318,8 @@ class PayResultPageView(APIView):
         if not alipay_order_id:
             return render(request, "error.html")
         try:
-            order = Order.objects.get(alipay_order_id=alipay_order_id)
-            return HttpResponseRedirect("/my_order/?order_id=" + str(order.id))
+            order = Order.objects.get(alipay_order_id=alipay_order_id, user=request.user)
+            return HttpResponseRedirect("/api/v1/order/?order_id=" + str(order.id))
         except Order.DoesNotExist:
             return HttpResponseRedirect("/my_order/")
 

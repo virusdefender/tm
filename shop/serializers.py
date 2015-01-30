@@ -3,7 +3,8 @@ import json
 
 from rest_framework import serializers
 
-from .models import Shop, Category, Product, Order
+from account.models import User
+from .models import Shop, Category, Product, Order, OrderLog, OrderProduct
 
 
 class ShopSerializer(serializers.ModelSerializer):
@@ -65,3 +66,48 @@ class CreateOrderSerializer(serializers.Serializer):
     remark = serializers.CharField(max_length=40, required=False)
     shop_id = serializers.IntegerField()
     delivery_time = serializers.WritableField()
+
+
+class OrderShopSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ["id", "name"]
+        model = Shop
+
+
+class OrderUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ["id", "username"]
+        model = User
+
+
+class OrderLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderLog
+        exclude = ["order"]
+
+
+class OrderProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderProduct
+        exclude = ["order", "origin_price"]
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    shop = OrderShopSerializer()
+    user = OrderUserSerializer()
+    delivery_time = serializers.SerializerMethodField("_covert_delivery_time")
+    order_logs = serializers.SerializerMethodField("_get_order_logs")
+    order_products = serializers.SerializerMethodField("_get_order_products")
+
+    class Meta:
+        model = Order
+        exclude = ["address_category", "source", "is_first"]
+
+    def _covert_delivery_time(self, obj):
+        return json.loads(obj.delivery_time)
+
+    def _get_order_logs(self, obj):
+        return OrderLogSerializer(OrderLog.objects.filter(order=obj), many=True).data
+
+    def _get_order_products(self, obj):
+        return OrderProductSerializer(OrderProduct.objects.filter(order=obj), many=True).data

@@ -108,17 +108,21 @@ class ShoppingCart(object):
                   "need_freight": False, "freight": Decimal("0"),
                   "products": self._products(shop.id)}
 
+        # 计算原始总价
         for item in result["products"]:
             result["total_number"] += item["number"]
             result["origin_price"] += Decimal(item["product"].price) * Decimal(item["number"])
 
+        # 如果原价就是0，那就不会去计算运费等信息了，直接返回
         if result["origin_price"] == Decimal("0"):
             return result
 
+        # 会员用户打折 更新标志位和折扣了的价格
         if user.is_authenticated() and user.is_vip:
             result["vip_discount"] = True
             result["vip_discount_amount"] = decimal_round(result["origin_price"] * (Decimal("1") - shop.vip_discount))
 
+        # 查看会员优惠后价格是否达到了满x 元减y 元的标准
         if result["origin_price"] - result["vip_discount_amount"] >= shop.x:
             result["activity_discount"] = True
             result["activity_discount_amount"] = shop.y

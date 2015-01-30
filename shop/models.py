@@ -153,10 +153,16 @@ class Order(models.Model):
     alipay_order_id = models.CharField(max_length=50, blank=True, null=True)
     # 支付状态 0 没有付款 -1 已经退款 1 支付成功
     payment_status = models.IntegerField(default=0, choices=((0, u"没有付款"), (-1, u"已经退款"), (1, u" 支付成功")))
-    alipay_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0"))
-    balance_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0"))
-    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0"))
-    freight = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0"))
+    # 原价
+    origin_price = models.DecimalField(max_digits=10, decimal_places=2)
+    # 实际总价
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    # 运费
+    freight = models.DecimalField(max_digits=10, decimal_places=2)
+    # 会员优惠价格
+    vip_discount_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    # 活动优惠价格
+    activity_discount_amount = models.DecimalField(max_digits=10, decimal_places=2)
     # 订单配送状态：等待处理-1  已经确认0  正在配送1  订单完成 2  订单取消 3
     order_status = models.IntegerField(default=-1, choices=((-1, u"等待处理"), (0, u"已经确认"),
                                                             (1, u"正在配送"), (2, u" 订单完成"),
@@ -177,6 +183,9 @@ class Order(models.Model):
     def __unicode__(self):
         return "%s %s" % (self.name, self.phone)
 
+    def create_order_log(self, content):
+        OrderLog.objects.create(order=self, content=content)
+
 
 class OrderProduct(models.Model):
     """类似商品快照 有一个字段和商品关联 还保存了关键信息
@@ -194,14 +203,6 @@ class OrderProduct(models.Model):
 
     def __unicode__(self):
         return "%s %s %s" % (self.name, self.price, self.origin_price)
-
-    @property
-    def total_money(self):
-        pass
-
-    @property
-    def profit(self):
-        pass
 
 
 class OrderLog(models.Model):

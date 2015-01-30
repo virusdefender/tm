@@ -178,13 +178,8 @@
                     dataType: "json",
                     success: function(json){
                         if(json.pay_method == "alipay"){
-                        pingpp.createPayment(json.charge, function(result, err) {})
+                            pingpp.createPayment(json.charge, function(result, err) {})
                         }
-                    },
-                    error: function(json){
-                        console.log(json);
-                        alert("提交订单失败，请重新选购");
-                        window.location.href="/help/";
                     }
                 })
 
