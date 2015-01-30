@@ -86,6 +86,8 @@
                 order: {},
 
                 need_repay: function(){
+                    console.log(vm.order.pay_method);
+                    console.log(vm.order.payment_status);
                     if (vm.order.pay_method == "支付宝" && vm.order.payment_status == "没有付款"){
                         return true;
                     }
