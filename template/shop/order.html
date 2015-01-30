@@ -4,7 +4,7 @@
 {% endblock %}
 
 {% block javascriptblock %}
-
+<script src="{{ STATIC_URL }}js/pingpp_pay.js"></script>
 {% endblock %}
 
 {% block body %}
@@ -18,6 +18,7 @@
         </div>
         <div class="am-panel am-panel-default">
             <div class="am-panel-bd">
+                <p>商店：{{ order.shop.name }}</p>
                 <p>姓名：{{ order.name }} 手机：{{ order.phone }}</p>
 
                 <p>地址：{{ order.address }}</p>
@@ -40,6 +41,14 @@
                 <p>支付方式：{{ order.pay_method }} 状态：{{ order.payment_status }}</p>
 
                 <p>总价：{{ order.total_price }}元</p>
+
+                <p ms-if="order.freight!=0">运费：{{ order.freight }}元</p>
+
+                <p ms-if="order.vip_discount_amount!=0">会员优惠：{{ order.vip_discount_amount }}元</p>
+
+                <p ms-if="order.activity_discount_amount!=0">活动优惠：{{ order.activity_discount_amount }}元</p>
+
+                <button type="button" class="am-btn am-btn-success" ms-if="need_repay" ms-click=repay>支付</button>
             </div>
         </div>
         <div data-am-widget="titlebar" class="am-titlebar am-titlebar-default">
@@ -74,7 +83,29 @@
         <script>
             var vm = avalon.define({
                 $id: "order_obj",
-                order: {}
+                order: {},
+
+                need_repay: function(){
+                    if (vm.order.pay_method == "alipay" && vm.order.payment_status == 0){
+                        return true;
+                    }
+                    return false;
+                },
+
+                repay: function repay(){
+                    $.ajax({
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader("X-CSRFToken", csrf_token());
+                        },
+                        url: "/api/v1/order/repay/",
+                        method: "post",
+                        data: {order_id: vm.order.id},
+                        dataType: "json",
+                        success: function (json){
+                            pingpp.createPayment(json.charge, function(result, err) {});
+                        }
+                    });
+                }
             });
 
             var pay_method_dict = {"alipay": "支付宝", "COD": "货到付款"};
