@@ -48,7 +48,7 @@
 
                 <p ms-if="order.activity_discount_amount!=0">活动优惠：{{ order.activity_discount_amount }}元</p>
 
-                <button type="button" class="am-btn am-btn-success" ms-if="need_repay" ms-click=repay>支付</button>
+                <button type="button" class="am-btn am-btn-success" ms-if="need_repay()" ms-click="repay">支付</button>
             </div>
         </div>
         <div data-am-widget="titlebar" class="am-titlebar am-titlebar-default">
