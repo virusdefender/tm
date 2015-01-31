@@ -159,7 +159,11 @@
                     shake_cart();
                 },
                 del_from_cart: function (product) {
+                    if(product.cart_num == 0){
+                        return;
+                    }
                     shake_cart();
+
                     product.cart_num -= 1;
                     $.ajax({
                         beforeSend: function (xhr) {
