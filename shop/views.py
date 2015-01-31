@@ -13,11 +13,13 @@ import pingpp
 from django.shortcuts import render
 from django.db import transaction
 from django.http import HttpResponseRedirect
+from django.views.decorators.cache import never_cache
+from django.utils.decorators import method_decorator
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from utils.decorators import login_required
+from utils.decorators import login_required, never_ever_cache
 from utils.shortcuts import http_400_response, decimal_round, paginate
 from .models import Shop, Category, Product, Order, AddressCategory
 from .serializers import (CategorySerializer, ShopSerializer, ProductSerializer,
@@ -68,6 +70,7 @@ class ProductAPIView(APIView):
 
 
 class ShoppingCartAPIView(APIView):
+    @method_decorator(never_ever_cache)
     def get(self, request):
         shopping_cart_id = request.session.get("shopping_cart_id", None)
         if not shopping_cart_id:
@@ -103,6 +106,7 @@ class ShoppingCartAPIView(APIView):
 
             return Response(data=shopping_cart.get_product_cart_number(product_list, shop_id))
 
+    @method_decorator(never_ever_cache)
     def post(self, request):
         # 添加或减少商品数量
         shopping_cart_id = request.session.get("shopping_cart_id", None)
@@ -142,6 +146,7 @@ class ShoppingCartAPIView(APIView):
         else:
             return http_400_response(serializer.errors)
 
+    @method_decorator(never_ever_cache)
     def delete(self, request):
         serializer = ShoppingCartDeleteSerializer(data=request.DATA)
         if serializer.is_valid():
@@ -192,6 +197,7 @@ def get_address_category(address, shop_id):
 
 
 class SubmitOrderPageView(APIView):
+    @method_decorator(never_ever_cache)
     def get(self, request):
         if not request.user.is_authenticated():
             return HttpResponseRedirect("/login/")
@@ -221,6 +227,7 @@ def pay(request, order):
 
 
 class OrderRepayAPIView(APIView):
+    @method_decorator(never_ever_cache)
     @login_required
     def post(self, request):
         data = request.DATA
@@ -234,6 +241,7 @@ class OrderRepayAPIView(APIView):
 
 
 class OrderAPIView(APIView):
+    @method_decorator(never_ever_cache)
     @login_required
     def post(self, request):
         # 创建订单
@@ -310,6 +318,7 @@ class OrderAPIView(APIView):
             else:
                 return http_400_response(serializer.errors)
 
+    @method_decorator(never_ever_cache)
     @login_required
     def get(self, request):
         if request.GET.get("data", None) == "history_info":
