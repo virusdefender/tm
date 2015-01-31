@@ -205,6 +205,11 @@
                 vm.activity_discount_amount = json.activity_discount_amount;
                 vm.vip_discount = json.vip_discount;
                 vm.vip_discount_amount = json.vip_discount_amount;
+
+
+                if(vm.total_price == 0){
+                    alert("购物车为空，不能提交");
+                }
             }
         });
 

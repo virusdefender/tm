@@ -33,6 +33,7 @@ def rand_key():
 
 
 class ShopAPIView(APIView):
+    @never_cache
     def get(self, request):
         shop_id = request.GET.get("shop_id", None)
         if shop_id:
