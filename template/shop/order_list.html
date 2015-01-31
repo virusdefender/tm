@@ -44,26 +44,12 @@
                 order_list: [],
                 previous_url: "",
                 next_url: "",
-
-                order_icon: function (order) {
-                    if (order.pay_method == "alipay") {
-                        return '<span class="am-icon-credit-card"></span>'
-                    }
-                    return '<span class="am-icon-cny"></span>'
-                },
                 order_title: function (order) {
-                    var title = "";
-                    if (order.pay_method == "alipay") {
-                        title = '<span class="am-icon-credit-card"></span>'
-                    }
-                    else {
-                        title = '<span class="am-icon-cny"></span>';
-                    }
                     if (order.order_products.length > 1) {
-                        return title + order.order_products[0].name + "等" + order.order_products.length.toString() + "件商品";
+                        return order.order_products[0].name + "等" + order.order_products.length.toString() + "件商品";
                     }
                     else {
-                        return title + order.order_products[0].name;
+                        return order.order_products[0].name;
                     }
                 },
 
@@ -73,10 +59,6 @@
 
             });
 
-            var pay_method_dict = {"alipay": "支付宝", "COD": "货到付款"};
-            var payment_status_dict = {"0": "没有付款", "-1": "已经退款", "1": "支付成功"};
-            var order_status_dict = {"-1": "订单等待处理", "0": "订单已经确认", "1": "订单正在配送", "2": "订单完成", "3": "订单取消"};
-
             function init_info(url) {
                 $.ajax({
                     url: url,
@@ -84,11 +66,6 @@
                     dataType: "json",
                     success: function (json) {
                         vm.order_list = json.results;
-                        for (var i in json.results) {
-                            vm.order_list[i].pay_method = pay_method_dict[vm.order_list[i].pay_method];
-                            vm.order_list[i].payment_status = payment_status_dict[vm.order_list[i].payment_status];
-                            vm.order_list[i].order_status = order_status_dict[vm.order_list[i].order_status];
-                        }
 
                         if(json.previous != null) {
 

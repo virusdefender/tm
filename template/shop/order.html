@@ -110,10 +110,6 @@
                 }
             });
 
-            var pay_method_dict = {"alipay": "支付宝", "COD": "货到付款"};
-            var payment_status_dict = {"0": "没有付款", "-1": "已经退款", "1": "支付成功"};
-            var order_status_dict = {"-1": "等待处理", "0": "订单已经确认", "1": "正在配送", "2": "订单完成", "3": "订单取消"};
-
             $.ajax({
                 url: "/api/v1/order/?order_id=" + order_id.toString(),
                 method: "get",
@@ -121,9 +117,6 @@
                 success: function (json) {
                     vm.order = json;
 
-                    vm.order.pay_method = pay_method_dict[vm.order.pay_method];
-                    vm.order.payment_status = payment_status_dict[vm.order.payment_status];
-                    vm.order.order_status = order_status_dict[vm.order.order_status];
                 }
             })
 

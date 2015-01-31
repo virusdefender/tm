@@ -37,10 +37,11 @@
     <div class="am-g">
         <div class="am-panel am-panel-default">
             <div class="am-panel-bd">
-                <p>共{{total_number}}件商品，合计{{total_price}}元</p>
+                <p>原价:{{ origin_price }}元</p>
                 <p ms-if="vip_discount">会员优惠:{{ vip_discount_amount }}</p>
-                <p ms-if="need_freight">运费:{{ freight }}元</p>
                 <p ms-if="activity_discount"> 活动优惠:{{ activity_discount_amount }}元</p>
+                <p ms-if="need_freight">运费:{{ freight }}元</p>
+                <p>共{{total_number}}件商品，合计{{total_price}}元</p>
             </div>
         </div>
         <form class="am-form">
@@ -125,6 +126,7 @@
             delivery_time: [],
             order_delivery_time: [],
             pay_method: "",
+            origin_price: 0,
             total_price: 0,
             total_number: 0,
             need_freight: false,
@@ -180,6 +182,9 @@
                         if(json.pay_method == "alipay"){
                             pingpp.createPayment(json.charge, function(result, err) {})
                         }
+                        else{
+                            window.location.href="/my_order/?order_id=" + json.order_id;
+                        }
                     }
                 })
 
@@ -197,9 +202,10 @@
             method: "get",
             dataType: "json",
             success: function (json) {
+                vm.origin_price = json.origin_price;
                 vm.total_price = json.total_price;
                 vm.total_number = json.total_number;
-                vm.need_frieght = json.need_freight;
+                vm.need_freight = json.need_freight;
                 vm.freight = json.freight;
                 vm.activity_discount = json.activity_discount;
                 vm.activity_discount_amount = json.activity_discount_amount;
@@ -208,7 +214,8 @@
 
 
                 if(vm.total_price == 0){
-                    alert("购物车为空，不能提交");
+                    show_alert("购物车为空，稍后跳转到首页");
+                    setTimeout(function(){window.location.href="/"}, 1000);
                 }
             }
         });

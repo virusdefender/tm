@@ -33,7 +33,6 @@ def rand_key():
 
 
 class ShopAPIView(APIView):
-    @never_cache
     def get(self, request):
         shop_id = request.GET.get("shop_id", None)
         if shop_id:
@@ -62,12 +61,18 @@ class CategoryAPIView(APIView):
 class ProductAPIView(APIView):
     def get(self, request):
         # 获取这个分类下的所有的商品
-        category_id = request.GET.get("category_id", -1)
-        try:
-            category = Category.objects.get(pk=category_id)
-        except Category.DoesNotExist:
-            return http_400_response("Category does not exist")
-        return Response(data=ProductSerializer(category.get_category_product(), many=True).data)
+        category_id = request.GET.get("category_id", None)
+        if category_id:
+            try:
+                category = Category.objects.get(pk=category_id)
+            except Category.DoesNotExist:
+                return http_400_response("Category does not exist")
+            return Response(data=ProductSerializer(category.get_category_product(), many=True).data)
+        keyword = request.GET.get("keyword", None)
+        shop_id = request.GET.get("shop_id", -1)
+        if keyword:
+            return Response(data=ProductSerializer(Product.objects.filter(name__icontains=keyword, shop=shop_id), many=True).data)
+        return []
 
 
 class ShoppingCartAPIView(APIView):
@@ -201,7 +206,7 @@ class SubmitOrderPageView(APIView):
     @method_decorator(never_ever_cache)
     def get(self, request):
         if not request.user.is_authenticated():
-            return HttpResponseRedirect("/login/")
+            return HttpResponseRedirect("/login/?from=/order/")
         return render(request, "shop/submit_order.html")
 
 

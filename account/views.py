@@ -1,4 +1,5 @@
 # coding=utf-8
+import random
 from django.shortcuts import render
 from django.contrib import auth
 from django.template.response import TemplateResponse
@@ -29,12 +30,13 @@ class UserLoginPageView(APIView):
         return TemplateResponse(request, "account/login.html")
 
 
-class UserLoginView(APIView):
-    def post(self, request):
+class UserRegisterPageView(APIView):
+    def get(self, request):
+        return render(request, "account/register.html")
 
-        import logging
-        logger = logging.getLogger('pay_log')
-        logger.debug(request.META)
+
+class UserLoginAPIView(APIView):
+    def post(self, request):
         serializer = UserLoginSerializer(data=request.DATA)
         if serializer.is_valid():
             data = serializer.data
@@ -68,9 +70,10 @@ class UserLoginView(APIView):
             return Response(data={"status": "error", "show": 1, "content": u"用户名或密码错误"})
 
 
-class UserRegisterView(APIView):
+class UserRegisterAPIView(APIView):
     def get(self, request):
-        return render(request, "account/register.html")
+        return Response(data=random.choice([True, False]))
+        #return render(request, "account/register.html")
 
     def post(self, request):
         serializer = UserRegisterSerializer(data=request.DATA)
@@ -86,7 +89,16 @@ class UserRegisterView(APIView):
             user = User.objects.create(username=data["username"])
             user.set_password(data["password"])
             user.save()
-            return Response(data={"status": "success"})
+
+            shopping_cart_id = request.session.get("shopping_cart_id", None)
+
+            auth.logout(request)
+
+            auth_user = auth.authenticate(username=data["username"], password=data["password"])
+            auth.login(request, auth_user)
+            if shopping_cart_id:
+                request.session["shopping_cart_id"] = shopping_cart_id
+            return Response(data=UserInfoSerializer(user).data, status=201)
         return Response(data={"status": "error", "show": 1, "content": u"注册失败"})
 
 

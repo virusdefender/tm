@@ -8,6 +8,7 @@
 {% endblock %}
 
 {% block body %}
+
 <div ms-controller="login">
     <div class="am-g">
         <div class="am-u-lg-6 am-u-md-8 am-u-sm-centered">
@@ -34,7 +35,7 @@
                 <div class="am-cf">
                     <button class="am-btn am-btn-primary am-btn-sm am-fl" ms-click="submit">登录</button>
                     <a class="am-btn am-btn-default am-btn-sm am-fr" href="/register/">忘记密码</a>
-                    <a class="am-btn am-btn-success am-btn-sm am-fr" href="/register/">注册</a>
+                    <a class="am-btn am-btn-success am-btn-sm am-fr" ms-href="register_url">注册</a>
                 </div>
             </div>
         </div>
@@ -43,7 +44,7 @@
         <div class="am-modal-dialog">
             <div class="am-modal-hd"></div>
             <div class="am-modal-bd">
-                { alert_content }
+                {{  alert_content }}
             </div>
             <div class="am-modal-footer">
                 <span class="am-modal-btn">确定</span>
@@ -59,6 +60,8 @@
         });
         var vm = avalon.define({
             $id: "login",
+
+            register_url: "/register/",
 
             username: "",
             password: "",
@@ -103,7 +106,13 @@
                         success: function (data) {
 
                             if (data.status == "success") {
-                                window.location.href = document.referrer;
+                                var from_url = getUrlParam("from");
+                                if(from_url != null){
+                                    window.location.href=from_url;
+                                }
+                                else{
+                                    window.location.href="/";
+                                }
                             }
                             else {
                                 vm.alert_content = data.content;
@@ -120,6 +129,9 @@
         });
 
         avalon.scan();
+
+        vm.register_url = "/register/?from=" + getUrlParam("from");
     });
+
 </script>
 {% endblock %}

@@ -94,8 +94,10 @@
             $id: "shopping_cart",
             product_list: [],
             modal_content: "",
-            total_price: "",
+            total_price: 0,
+            freight: 0,
             shopping_cart_head: "",
+            submit_button_disabled: "disabled",
 
             add_to_cart: function (product) {
                 $.ajax({
@@ -119,6 +121,7 @@
                         }
                         */
                         vm.total_price = json.total_price;
+                        vm.freight = json.freight;
                     }
                 });
                 shake_cart();
@@ -151,6 +154,7 @@
                             }
                             */
                             vm.total_price = json.total_price;
+                            vm.freight = json.freight;
                             shake_cart();
                         }
                     });
@@ -161,6 +165,15 @@
                 return accMul(product.price, product.cart_num);
             }
         });
+
+        vm.$watch("total_price", function(new_value, old_value){
+           if(new_value > 0){
+               vm.submit_button_disabled = "";
+           }
+           else{
+               vm.submit_button_disabled = "disabled";
+           }
+       });
 
         var default_shop_id = get_cookie("default_shop_id");
         if(default_shop_id == ""){
@@ -179,6 +192,7 @@
                     vm.product_list.push(json["products"][i]["product"]);
                 }
                 vm.total_price = json.total_price;
+                vm.freight = json.freight;
                 if(json["products"].length == 0){
                     vm.shopping_cart_head = '<div class="am-alert am-alert-success am-text-center"">购物车还是空空如也啊～</div>';
                 }
@@ -227,11 +241,11 @@
     </script>
     <div class="am-g price-bar-foot">
         <div class="am-u-sm-7" style="margin-top: 13px;margin-bottom: 5px">
-            <span style="color:#ffffff">总价:{{total_price}}元</span>
+            <span style="color:#ffffff"><span ms-if="freight!=0">运费:{{ freight }}元 </span>总价:{{total_price}}元</span>
         </div>
         <div class="am-u-sm-3" style="margin-top: 5px;margin-bottom: 5px">
-            <a type="button" class="am-btn am-btn-success"
-               onclick="window.location.href='/order/?source=shopping_cart'">提交订单</a>
+            <button class="am-btn am-btn-success" ms-attr-disabled="submit_button_disabled"
+               onclick="window.location.href='/order/?source=shopping_cart'">提交订单</button>
         </div>
         <div class="am-u-sm-1"></div>
     </div>

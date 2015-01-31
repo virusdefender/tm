@@ -65,12 +65,21 @@
                             xhr.setRequestHeader("X-CSRFToken", csrf_token());
                         },
                         data: {username: vm.username, password: vm.password},
-                        url: "/register/",
+                        url: "/api/v1/register/",
                         method: "post",
                         success: function(data){
 
-                            if (data.status == "success"){
-                                alert("success");
+                            if (data.username == vm.username){
+                                vm.alert_content = "注册成功";
+                                $('#login_alert').modal();
+                                setTimeout(function (){window.location.href="/";}, 1000);
+                                from_url = getUrlParam("from");
+                                if(from_url != null){
+                                    window.location.href=from_url;
+                                }
+                                else{
+                                    window.location.href="/";
+                                }
                             }
                             else{
                                 vm.alert_content = data.content;

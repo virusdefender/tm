@@ -100,11 +100,11 @@
             </div>
         </div>
         <div class="am-g price-bar">
-            <div class="am-u-sm-7" style="margin-top: 13px;margin-bottom: 5px">
-                <span style="color:white">数量:{{total_number}} 总价:{{total_price}}元</span>
+            <div class="am-u-sm-8" style="margin-top: 13px;margin-bottom: 5px">
+                <span style="color:white"><span ms-if="freight!=0">运费:{{ freight }}元 </span>合计:{{total_price}}元</span>
             </div>
             <div class="am-u-sm-3" style="margin-top: 5px;margin-bottom: 5px">
-                <button type="button" class="am-btn am-btn-success"
+                <button type="button" class="am-btn am-btn-success" ms-attr-disabled="submit_button_disabled"
                         onclick="window.location.href='/order/?source=index'">快速提交
                 </button>
             </div>
@@ -123,6 +123,10 @@
                 shop_info: {},
                 total_price: 0,
                 total_number: 0,
+
+                freight: "0",
+
+                submit_button_disabled: "disabled",
 
                 show_product_detail: function (product) {
                     show_modal(product.introduction);
@@ -149,6 +153,7 @@
                         success: function (json) {
                             vm.total_price = json.total_price;
                             vm.total_number = json.total_number;
+                            vm.freight = json.freight;
                         }
                     });
                     shake_cart();
@@ -167,10 +172,20 @@
                         success: function (json) {
                             vm.total_price = json.total_price;
                             vm.total_number = json.total_number;
+                            vm.freight = json.freight;
                         }
                     });
                 }
             });
+
+            vm.$watch("total_price", function(new_value, old_value){
+               if(new_value > 0){
+                   vm.submit_button_disabled = "";
+               }
+               else{
+                   vm.submit_button_disabled = "disabled";
+               }
+           });
 
             function get_cart_num(product_list) {
                 var list = [];
@@ -237,6 +252,7 @@
                     success: function (json) {
                         vm.total_price = json.total_price;
                         vm.total_number = json.total_number;
+                        vm.freight = json.freight;
                     }
                 });
             }
