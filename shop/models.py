@@ -165,8 +165,8 @@ class Order(models.Model):
     activity_discount_amount = models.DecimalField(max_digits=10, decimal_places=2)
     # 订单配送状态：等待处理-1  已经确认0  正在配送1  订单完成 2  订单取消 3
     order_status = models.IntegerField(default=-1, choices=((-1, u"等待处理"), (0, u"已经确认"),
-                                                            (1, u"正在配送"), (2, u" 订单完成"),
-                                                            (3, u"订单取消")))
+                                                            (1, u"正在配送"), (2, u" 完成"),
+                                                            (3, u"取消")))
     name = models.CharField(max_length=50)
     phone = models.CharField(max_length=15, blank=True)
     address = models.CharField(max_length=100)

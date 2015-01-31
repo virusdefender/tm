@@ -13,8 +13,7 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 import socket
 import os
-
-if socket.gethostname() == "Macbook-Pro.local":
+if socket.gethostname() == "MacBook-Pro.local":
     from .local_settings import *
 else:
     from .server_settings import *

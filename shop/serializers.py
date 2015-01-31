@@ -93,6 +93,9 @@ class OrderProductSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    pay_method = serializers.SerializerMethodField("_convert_pay_method")
+    payment_status = serializers.SerializerMethodField("_convert_payment_status")
+    order_status = serializers.SerializerMethodField("_convert_order_status")
     shop = OrderShopSerializer()
     user = OrderUserSerializer()
     delivery_time = serializers.SerializerMethodField("_covert_delivery_time")
@@ -102,6 +105,22 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         exclude = ["address_category", "source", "is_first"]
+
+    def _convert_pay_method(self, obj):
+        if obj.pay_method == "alipay":
+            return u"支付宝"
+        else:
+            return u"货到付款"
+
+    def _convert_payment_status(self, obj):
+        for item in ((0, u"没有付款"), (-1, u"已经退款"), (1, u" 支付成功")):
+            if obj.payment_status == item[0]:
+                return item[1]
+
+    def _convert_order_status(self, obj):
+        for item in ((-1, u"等待处理"), (0, u"已经确认"), (1, u"正在配送"), (2, u" 订单完成"), (3, u"订单取消")):
+            if obj.order_status == item[0]:
+                return item[1]
 
     def _covert_delivery_time(self, obj):
         return json.loads(obj.delivery_time)
