@@ -10,7 +10,7 @@ from account.views import (UserLoginAPIView, UserRegisterAPIView, CaptchaView,
 from log.views import LogView
 from shop.views import (CategoryAPIView, ShopAPIView, ProductAPIView, ShoppingCartAPIView,
                         ShopIndexPageView, ShoppingCartPageView, SubmitOrderPageView,
-                        PayResultPageView, OrderAPIView, OrderListPageView, OrderRepayAPIView)
+                        PayResultPageView, OrderAPIView, OrderListPageView, OrderRepayAPIView, PayNotifyAPIView)
 
 admin.autodiscover()
 
@@ -25,6 +25,8 @@ urlpatterns = patterns('',
                        url(r"^my_order/$", OrderListPageView.as_view()),
 
                        url(r"^pay/(?P<result>\w+)/", PayResultPageView.as_view()),
+
+                       url(r"^pay/notify/$", PayNotifyAPIView.as_view()),
 
                        url(r'xadmin/', include(xadmin.site.urls)),
 

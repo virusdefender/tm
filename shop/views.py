@@ -217,18 +217,34 @@ def pay(request, order):
 
     real_ip = request.META.get("HTTP_X_REAL_IP", "127.0.0.1")
 
-    ch = pingpp.Charge.create(
-        order_no=order.alipay_order_id,
-        amount=1, #int(order.alipay_amount * Decimal("100")),
-        app=dict(id='app_HGqP44OW5un1Gyzz'),
-        channel='alipay_wap',
-        currency='cny',
-        client_ip=real_ip,
-        subject=u'天目订单',
-        body='test-body',
-        extra={"success_url": "https://tmqdu.com/pay/success/",
-               "cancel_url": "https://tmqdu.com/pay/failed/"}
-    )
+    user_agent = request.META.get("HTTP_USER_AGENT")
+
+    if "Mac" in user_agent:
+
+        ch = pingpp.Charge.create(
+            order_no=order.alipay_order_id,
+            amount=1, #int(order.alipay_amount * Decimal("100")),
+            app=dict(id='app_HGqP44OW5un1Gyzz'),
+            channel='alipay_wap',
+            currency='cny',
+            client_ip=real_ip,
+            subject=u'天目订单',
+            body='test-body',
+            extra={"success_url": "https://tmqdu.com/pay/success/",
+                   "cancel_url": "https://tmqdu.com/pay/failed/"}
+        )
+    else:
+        ch = pingpp.Charge.create(
+            order_no=order.alipay_order_id,
+            amount=1, #int(order.alipay_amount * Decimal("100")),
+            app=dict(id='app_HGqP44OW5un1Gyzz'),
+            channel='alipay',
+            currency='cny',
+            client_ip=real_ip,
+            subject=u'天目订单',
+            body='test-body',
+            )
+
     return {"pay_method": "alipay", "order_id": order.id, "charge": ch}
 
 
@@ -355,7 +371,9 @@ class PayResultPageView(APIView):
         except Order.DoesNotExist:
             return HttpResponseRedirect("/my_order/")
 
-    def post(self, request, result):
+
+class PayNotifyAPIView(APIView):
+    def post(self, request):
         order_no = request.DATA["order_no"]
         try:
             order = Order.objects.get(alipay_order_id=order_no)
