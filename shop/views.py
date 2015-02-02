@@ -217,9 +217,9 @@ def pay(request, order):
 
     real_ip = request.META.get("HTTP_X_REAL_IP", "127.0.0.1")
 
-    user_agent = request.META.get("HTTP_USER_AGENT")
+    is_app = request.META.get("HTTP_AppVersion", None)
 
-    if "Mac" in user_agent:
+    if not is_app:
 
         ch = pingpp.Charge.create(
             order_no=order.alipay_order_id,
