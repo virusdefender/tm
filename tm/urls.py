@@ -24,9 +24,9 @@ urlpatterns = patterns('',
 
                        url(r"^my_order/$", OrderListPageView.as_view()),
 
-                       url(r"^pay/(?P<result>\w+)/", PayResultPageView.as_view()),
-
                        url(r"^pay/notify/$", PayNotifyAPIView.as_view()),
+
+                       url(r"^pay/(?P<result>\w+)/", PayResultPageView.as_view()),
 
                        url(r'xadmin/', include(xadmin.site.urls)),
 
