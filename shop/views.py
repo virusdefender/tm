@@ -217,9 +217,7 @@ def pay(request, order):
 
     real_ip = request.META.get("HTTP_X_REAL_IP", "127.0.0.1")
 
-    is_app = request.META.get("HTTP_AppVersion", None)
-
-    return http_400_response(request.META)
+    is_app = request.META.get("HTTP_APPVERSION", None)
 
     if not is_app:
 
