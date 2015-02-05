@@ -36,7 +36,21 @@ class CategorySerializer(serializers.ModelSerializer):
         return CategorySerializer(obj.child_category.all().order_by("-sort_index"), many=True).data
 
 
+class ProductCategorySerializer(serializers.ModelSerializer):
+    parent_category = serializers.SerializerMethodField("_get_parent_category")
+
+    class Meta:
+        model = Category
+        fields = ["id", "name", "parent_category"]
+
+    def _get_parent_category(self, obj):
+        if not obj.parent_category:
+            return None
+        return ProductCategorySerializer(obj.parent_category).data
+
+
 class ProductSerializer(serializers.ModelSerializer):
+    category = ProductCategorySerializer()
     # cart_num = serializers.SerializerMethodField("_cart_num")
 
     def _cart_num(self, obj):
