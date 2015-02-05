@@ -219,6 +219,8 @@ def pay(request, order):
 
     is_app = request.META.get("HTTP_AppVersion", None)
 
+    return http_400_response(request.META)
+
     if not is_app:
 
         ch = pingpp.Charge.create(
