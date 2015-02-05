@@ -289,6 +289,9 @@ class OrderAPIView(APIView):
                 if shopping_cart_data["total_price"] <= Decimal("0"):
                     return http_400_response(u"购物车为空。请重新添加", 1)
 
+                if not isinstance(data["delivery_time"], list):
+                    return http_400_response("Delivery time must be a list")
+
                 try:
                     delivery_time = json.dumps(data["delivery_time"])
                 except Exception as e:
