@@ -137,7 +137,7 @@ class OrderSerializer(serializers.ModelSerializer):
                 return item[1]
 
     def _covert_delivery_time(self, obj):
-        return json.loads(obj.delivery_time)
+        return obj.delivery_time.split(";")
 
     def _get_order_logs(self, obj):
         return OrderLogSerializer(OrderLog.objects.filter(order=obj), many=True).data
