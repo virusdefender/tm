@@ -174,7 +174,7 @@
                         phone: vm.phone,
                         address: vm.address,
                         remark: vm.remark,
-                        delivery_time: vm.order_delivery_time,
+                        delivery_time: JSON.stringify(vm.order_delivery_time),
                         shop_id: default_shop_id
                     }),
                     dataType: "json",

@@ -289,13 +289,12 @@ class OrderAPIView(APIView):
                 if shopping_cart_data["total_price"] <= Decimal("0"):
                     return http_400_response(u"购物车为空。请重新添加", 1)
 
-                if not isinstance(data["delivery_time"], list):
-                    return http_400_response("Delivery time must be a list")
-
                 try:
-                    delivery_time = json.dumps(data["delivery_time"])
-                except Exception as e:
-                    return http_400_response(e)
+                    l = json.loads(data["delivery_time"])
+                    if not isinstance(l, list):
+                        return http_400_response("Delivery time must be a list")
+                except Exception:
+                    return http_400_response("Delivery time must be a list")
 
                 user = request.user
 
@@ -307,7 +306,7 @@ class OrderAPIView(APIView):
                     order = Order.objects.create(name=data["name"], phone=data["phone"],
                                                  address=data["address"], remark=data["remark"],
                                                  alipay_order_id=hashlib.md5(str(time.time()) + str(uuid.uuid1())).hexdigest(),
-                                                 delivery_time=delivery_time, shop=shop,
+                                                 delivery_time=data["delivery_time"], shop=shop,
                                                  pay_method="alipay", is_first=is_first, user=user,
                                                  address_category=address_category,
                                                  total_price=shopping_cart_data["total_price"],
@@ -319,7 +318,7 @@ class OrderAPIView(APIView):
                 else:
                     order = Order.objects.create(name=data["name"], phone=data["phone"],
                                                  address=data["address"], remark=data["remark"],
-                                                 delivery_time=delivery_time, shop=shop,
+                                                 delivery_time=data["delivery_time"], shop=shop,
                                                  pay_method="COD", is_first=is_first, user=user,
                                                  address_category=address_category,
                                                  total_price=shopping_cart_data["total_price"],

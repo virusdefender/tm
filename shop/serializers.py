@@ -79,7 +79,7 @@ class CreateOrderSerializer(serializers.Serializer):
     address = serializers.CharField(max_length=40)
     remark = serializers.CharField(max_length=40, required=False)
     shop_id = serializers.IntegerField()
-    delivery_time = serializers.WritableField()
+    delivery_time = serializers.CharField(max_length=200)
 
 
 class OrderShopSerializer(serializers.ModelSerializer):
