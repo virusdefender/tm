@@ -49,6 +49,6 @@ urlpatterns = patterns('',
                        url(r"^api/v1/order/$", OrderAPIView.as_view()),
                        url(r"^api/v1/order/repay/$", OrderRepayAPIView.as_view()),
 
-                       url(r"^api/v1/app/update/$", AppUpdateView.as_view()),
+                       url(r"^api/v1/app/update/$", AppUpdateAPIView.as_view()),
 
 )
