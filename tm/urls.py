@@ -11,6 +11,8 @@ from log.views import LogView
 from shop.views import (CategoryAPIView, ShopAPIView, ProductAPIView, ShoppingCartAPIView,
                         ShopIndexPageView, ShoppingCartPageView, SubmitOrderPageView,
                         PayResultPageView, OrderAPIView, OrderListPageView, OrderRepayAPIView, PayNotifyAPIView)
+from app.views import AppUpdateAPIView
+
 
 admin.autodiscover()
 
@@ -46,5 +48,7 @@ urlpatterns = patterns('',
                        url(r"^api/v1/shopping_cart/$", ShoppingCartAPIView.as_view()),
                        url(r"^api/v1/order/$", OrderAPIView.as_view()),
                        url(r"^api/v1/order/repay/$", OrderRepayAPIView.as_view()),
+
+                       url(r"^api/v1/app/update/$", AppUpdateView.as_view()),
 
 )
