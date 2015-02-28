@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from utils.shortcuts import http_400_response
 
 from account.models import User, LoginLog, PasswordRecoveryLog
-from .serializers import UserLoginSerializer, UserRegisterSerializer, UserInfoSerializer
+from .serializers import UserLoginSerializer, UserRegisterSerializer, UserInfoSerializer, UserChangePasswordSerializer
 
 
 def check_is_need_captcha(username):
@@ -98,8 +98,25 @@ class UserRegisterAPIView(APIView):
             auth.login(request, auth_user)
             if shopping_cart_id:
                 request.session["shopping_cart_id"] = shopping_cart_id
-            return Response(data=UserInfoSerializer(user).data, status=201)
+            return Response(data={"status": "success", "user_info": UserInfoSerializer(user).data}, status=201)
         return Response(data={"status": "error", "show": 1, "content": u"注册失败"})
+
+
+class UserChangePasswordAPIView(APIView):
+    def post(self, request):
+        if not request.user.is_authenticated():
+            return http_400_response("Login required", 1)
+        serializer = UserChangePasswordSerializer(request.DATA)
+        if serializer.is_valid():
+            pass
+        else:
+            return http_400_response(serializer.errors)
+
+
+
+class UserResetPasswordAPIView(APIView):
+    def post(self, request):
+        pass
 
 
 class CaptchaView(APIView):
