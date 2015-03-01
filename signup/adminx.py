@@ -4,4 +4,8 @@ import xadmin
 from .models import SignUpLog
 
 
-xadmin.site.register(SignUpLog)
+class SignUpLogAdmin(object):
+    list_display = ["user", "create_time"]
+
+
+xadmin.site.register(SignUpLog, SignUpLogAdmin)
