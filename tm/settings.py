@@ -54,6 +54,7 @@ INSTALLED_APPS = (
     'shop',
     'log',
     'utils',
+    'signup',
 )
 
 MIDDLEWARE_CLASSES = (
