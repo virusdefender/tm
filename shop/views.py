@@ -213,7 +213,7 @@ class SubmitOrderPageView(APIView):
 def pay(request, order):
     # sk_live_efHSmHz9G0iLGqPmPS5OynXD
     # sk_test_P4aDSG8CeHG0P0W1iPCKKun1
-    pingpp.api_key = 'sk_test_P4aDSG8CeHG0P0W1iPCKKun1'
+    pingpp.api_key = 'sk_live_efHSmHz9G0iLGqPmPS5OynXD'
 
     real_ip = request.META.get("HTTP_X_REAL_IP", "127.0.0.1")
 
