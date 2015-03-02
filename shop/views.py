@@ -394,7 +394,8 @@ class PayNotifyAPIView(APIView):
         try:
             order = Order.objects.get(alipay_order_id=order_no)
         except Order.DoesNotExist:
-            return ""
+            logger.debug("order does not exist")
+            return Response(data="error")
         order.payment_status = 1
         order.save()
         return Response(data="success")
