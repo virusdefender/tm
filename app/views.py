@@ -1,5 +1,7 @@
 # coding=utf-8
 from django.shortcuts import render
+from django.http import HttpResponse
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -24,3 +26,10 @@ class AppUpdateAPIView(APIView):
                                   "download_url": "http://files.cdn.kechenggezi.com/app/kecheng.apk"})
         else:
             return Response(data={"status": 0})
+
+
+class CSRFTokenAPIView(APIView):
+    def get(self, request):
+        r = HttpResponse("success")
+        r.set_cookie("csrftoken", "1234567890")
+        return r

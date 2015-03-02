@@ -11,7 +11,7 @@ from log.views import LogView
 from shop.views import (CategoryAPIView, ShopAPIView, ProductAPIView, ShoppingCartAPIView,
                         ShopIndexPageView, ShoppingCartPageView, SubmitOrderPageView,
                         PayResultPageView, OrderAPIView, OrderListPageView, OrderRepayAPIView, PayNotifyAPIView)
-from app.views import AppUpdateAPIView
+from app.views import AppUpdateAPIView, CSRFTokenAPIView
 from signup.views import SignUpAPIView
 
 
@@ -51,6 +51,7 @@ urlpatterns = patterns('',
                        url(r"^api/v1/order/repay/$", OrderRepayAPIView.as_view()),
 
                        url(r"^api/v1/app/update/$", AppUpdateAPIView.as_view()),
+                       url(r"^api/v1/app/token/$", CSRFTokenAPIView.as_view()),
 
                        url(r"^api/v1/signup/$", SignUpAPIView.as_view()),
 
