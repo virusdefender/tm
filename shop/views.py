@@ -213,9 +213,8 @@ class SubmitOrderPageView(APIView):
 def pay(request, order):
     # sk_live_efHSmHz9G0iLGqPmPS5OynXD
     # sk_test_P4aDSG8CeHG0P0W1iPCKKun1
-    logger= logging.getLogger("logger1")
 
-    pingpp.api_key = 'sk_live_efHSmHz9G0iLGqPmPS5OynXD'
+    pingpp.api_key = 'sk_test_P4aDSG8CeHG0P0W1iPCKKun1'
 
     real_ip = request.META.get("HTTP_X_REAL_IP", "127.0.0.1")
 
@@ -246,8 +245,6 @@ def pay(request, order):
             subject=u'天目订单',
             body='test-body',
             )
-
-    logger.debug(ch)
 
     return {"pay_method": "alipay", "order_id": order.id, "charge": ch}
 
@@ -304,7 +301,7 @@ class OrderAPIView(APIView):
 
                 user = request.user
 
-                is_first = Order.objects.filter(user=user, shop=shop).exists()
+                is_first = not Order.objects.filter(user=user, shop=shop).exists()
 
                 address_category = get_address_category(data["address"], shop.id)
 
@@ -345,7 +342,7 @@ class OrderAPIView(APIView):
                 for item in shopping_cart_data["products"]:
                     item["product"].create_order_product(order, item["number"])
 
-                order.create_order_log(u"这里显示订单处理进度1")
+                order.create_order_log(u"您提交了订单，请等待处理")
                 order.create_order_log(u"这里显示订单处理进度2")
 
                 shopping_cart.empty()
