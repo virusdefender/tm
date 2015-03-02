@@ -213,6 +213,8 @@ class SubmitOrderPageView(APIView):
 def pay(request, order):
     # sk_live_efHSmHz9G0iLGqPmPS5OynXD
     # sk_test_P4aDSG8CeHG0P0W1iPCKKun1
+    logger= logging.getLogger("logger1")
+
     pingpp.api_key = 'sk_live_efHSmHz9G0iLGqPmPS5OynXD'
 
     real_ip = request.META.get("HTTP_X_REAL_IP", "127.0.0.1")
@@ -244,6 +246,8 @@ def pay(request, order):
             subject=u'天目订单',
             body='test-body',
             )
+
+    logger.debug(ch)
 
     return {"pay_method": "alipay", "order_id": order.id, "charge": ch}
 
@@ -378,6 +382,8 @@ class PayResultPageView(APIView):
 
 class PayNotifyAPIView(APIView):
     def post(self, request):
+        logger = logging.getLogger("logger1")
+        logger.debug(request.DATA)
         order_no = request.DATA["order_no"]
         try:
             order = Order.objects.get(alipay_order_id=order_no)

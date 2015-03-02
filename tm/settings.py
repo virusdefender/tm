@@ -155,10 +155,17 @@ LOGGING = {
         }
     },
     'loggers': {
-        'pay_log': {
+        'logger1': {
             'handlers': ['info', "console"],
             'level': 'DEBUG',
             'propagate': True
-        }
-    }
+        },
+
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
+
 }
