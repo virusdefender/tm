@@ -1,5 +1,7 @@
 # coding=utf-8
 import random
+import logging
+
 from django.shortcuts import render
 from django.contrib import auth
 from django.template.response import TemplateResponse
@@ -111,7 +113,6 @@ class UserChangePasswordAPIView(APIView):
             pass
         else:
             return http_400_response(serializer.errors)
-
 
 
 class UserResetPasswordAPIView(APIView):

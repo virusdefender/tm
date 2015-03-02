@@ -308,6 +308,13 @@ class OrderAPIView(APIView):
 
                 address_category = get_address_category(data["address"], shop.id)
 
+                is_app = request.META.get("HTTP_APPVERSION", None)
+
+                if is_app:
+                    source = "app"
+                else:
+                    source = "web"
+
                 if data["pay_method"] == "alipay":
                     order = Order.objects.create(name=data["name"], phone=data["phone"],
                                                  address=data["address"], remark=data["remark"],
@@ -319,7 +326,8 @@ class OrderAPIView(APIView):
                                                  freight=shopping_cart_data["freight"],
                                                  origin_price=shopping_cart_data["origin_price"],
                                                  vip_discount_amount=shopping_cart_data["vip_discount_amount"],
-                                                 activity_discount_amount=shopping_cart_data["activity_discount_amount"]
+                                                 activity_discount_amount=shopping_cart_data["activity_discount_amount"],
+                                                 source=source
                                                  )
                 else:
                     order = Order.objects.create(name=data["name"], phone=data["phone"],
@@ -331,7 +339,8 @@ class OrderAPIView(APIView):
                                                  freight=shopping_cart_data["freight"],
                                                  origin_price=shopping_cart_data["origin_price"],
                                                  vip_discount_amount=shopping_cart_data["vip_discount_amount"],
-                                                 activity_discount_amount=shopping_cart_data["activity_discount_amount"]
+                                                 activity_discount_amount=shopping_cart_data["activity_discount_amount"],
+                                                 source=source
                                                  )
                 for item in shopping_cart_data["products"]:
                     item["product"].create_order_product(order, item["number"])
