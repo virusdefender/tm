@@ -246,7 +246,9 @@ def pay(request, order):
             body='test-body',
             )
 
-    return {"pay_method": "alipay", "order_id": order.id, "charge": ch}
+    data = {"pay_method": "alipay", "order_id": order.id, "charge": ch}
+    logging.getLogger("pay_logger").debug("Create charge object:" + json.dumps(data))
+    return data
 
 
 class OrderRepayAPIView(APIView):
@@ -388,16 +390,16 @@ class PayResultPageView(APIView):
 
 class PayNotifyAPIView(APIView):
     def post(self, request):
-        logger = logging.getLogger("logger1")
-        logger.debug(request.DATA)
+        logger = logging.getLogger("pay_logger")
         order_no = request.DATA["order_no"]
         try:
             order = Order.objects.get(alipay_order_id=order_no)
         except Order.DoesNotExist:
-            logger.debug("order does not exist")
+            logger.debug("Notify order does not exist" + json.dumps(request.DATA))
             return Response(data="error")
         order.payment_status = 1
         order.save()
+        logger.debug("Order notify success" + json.dumps(request.DATA))
         return Response(data="success")
 
 

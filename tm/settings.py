@@ -124,14 +124,6 @@ LOGGING = {
         # 日志格式
     },
     'handlers': {
-        'default': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': LOG_PATH + 'all.log',  # 日志输出文件
-            'maxBytes': 1024 * 1024 * 5,  #文件大小
-            'backupCount': 5,  #备份份数
-            'formatter': 'standard',  #使用哪种formatters日志格式
-        },
         'error': {
             'level': 'ERROR',
             'class': 'logging.handlers.RotatingFileHandler',
@@ -140,10 +132,26 @@ LOGGING = {
             'backupCount': 2,
             'formatter': 'standard',
         },
-        'info': {
+        'debug': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': LOG_PATH + 'info.log',
+            'maxBytes': 1024 * 1024 * 5,
+            'backupCount': 2,
+            'formatter': 'standard',
+        },
+        'sms': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOG_PATH + 'sms.log',
+            'maxBytes': 1024 * 1024 * 5,
+            'backupCount': 2,
+            'formatter': 'standard',
+        },
+        'pay': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOG_PATH + 'pay.log',
             'maxBytes': 1024 * 1024 * 5,
             'backupCount': 2,
             'formatter': 'standard',
@@ -155,14 +163,23 @@ LOGGING = {
         }
     },
     'loggers': {
-        'logger1': {
-            'handlers': ['info', "console"],
+        'info_logger': {
+            'handlers': ['debug', "console"],
             'level': 'DEBUG',
             'propagate': True
         },
-
+        'sms_logger': {
+            'handlers': ['sms', "console"],
+            'level': 'DEBUG',
+            'propagate': True
+        },
+        'pay_logger': {
+            'handlers': ['pay', "console"],
+            'level': 'DEBUG',
+            'propagate': True
+        },
         'django.request': {
-            'handlers': ['console', 'info'],
+            'handlers': ['console', 'debug'],
             'level': 'ERROR',
             'propagate': True,
         },
