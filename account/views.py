@@ -13,7 +13,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from utils.shortcuts import http_400_response
-
+from utils.sms import send_sms
 from shop.models import Order
 from .models import User, LoginLog, PasswordRecoverySMSLog
 from .serializers import (UserLoginSerializer, UserRegisterSerializer, UserInfoSerializer,
@@ -137,10 +137,13 @@ class UserResetPasswordSMSAPIView(APIView):
             # 判断用户和手机号是否存在 是否超过频率限制等等  假如没问题
             if Order.objects.filter(user__username=data["username"], phone=data["phone"]).exists():
                 verify_code = random.randint(100000, 999999)
-                # todo 发送短信
+                # 异步队列
+                sms_content = u"亲爱的%s，您正在申请重置密码，验证码是%s，请勿泄露！【天目】" % (data["username"], verify_code)
+                send_sms.delay(data["phone"], sms_content)
+
                 PasswordRecoverySMSLog.objects.create(code=verify_code, username=data["username"],
                                                       phone=data["phone"], expires_at=int(time.time()) + 1200)
-                return Response(data={"status": "success", "code": verify_code})
+                return Response(data={"status": "success"})
             else:
                 return http_400_response(u"用户名或手机不存在，请联系客服")
 
