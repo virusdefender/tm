@@ -15,4 +15,4 @@ class CourierOrderListApiView(APIView):
             return http_400_response("Login required")
         order_list = Order.objects.filter(courier__user=request.user, order_status__in=[-1, 0, 1]).\
             filter(Q(Q(pay_method="alipay") & Q(payment_status=1)) | Q(Q(pay_method="COD") | Q(payment_status__in=[0, 1]))).order_by("address_category__index")
-        return Response(data=OrderSerializer(order_list, many=True))
+        return Response(data=OrderSerializer(order_list, many=True).data)
