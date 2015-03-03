@@ -11,7 +11,9 @@ def deploy():
     with cd("/mnt/source/tm"):
         print green("将在远程仓库下载代码")
         run("git pull origin master")
-        run("sh tools/restore.sh")
+        r = raw_input("Rebuild db?")
+        if r == "y":
+            run("sh tools/restore.sh")
         # del pyc
         # run('find /mnt/source/tm/ -name "*.pyc" | xargs rm -rf')
 
