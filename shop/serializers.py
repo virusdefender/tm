@@ -118,7 +118,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        exclude = ["address_category", "source", "is_first"]
+        exclude = ["address_category", "source", "is_first", "courier"]
 
     def _convert_pay_method(self, obj):
         if obj.pay_method == "alipay":

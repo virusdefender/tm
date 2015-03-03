@@ -12,7 +12,7 @@ import pingpp
 
 from django.shortcuts import render
 from django.db import transaction
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 
@@ -21,7 +21,7 @@ from rest_framework.views import APIView
 
 from utils.decorators import login_required, never_ever_cache
 from utils.shortcuts import http_400_response, decimal_round, paginate
-from .models import Shop, Category, Product, Order, AddressCategory
+from .models import Shop, Category, Product, Order, AddressCategory, Courier
 from .serializers import (CategorySerializer, ShopSerializer, ProductSerializer,
                           ShoppingCartOperationSerializer, CreateOrderSerializer,
                           ShoppingCartDeleteSerializer, OrderSerializer)
@@ -409,3 +409,25 @@ class OrderListPageView(APIView):
         if order_id:
             return render(request, "shop/order.html", {"order_id": order_id})
         return render(request, "shop/order_list.html")
+
+
+class AllocateOrderCourierView(APIView):
+    def get(self, request):
+        if not(request.user.is_authenticated() and request.user.is_staff):
+            return HttpResponseRedirect("/xadmin/")
+        l = request.GET.get("l", None)
+        order_list = json.loads(l)
+        if l:
+            courier = Courier.objects.filter(shop=Order.objects.get(id=order_list[0]).shop)
+            return render(request, "yadmin/allocate.html", {"courier": courier})
+        else:
+            return HttpResponseRedirect("/xadmin/")
+
+    def post(self, request):
+        if not(request.user.is_authenticated() and request.user.is_staff):
+            return HttpResponseRedirect("/xadmin/")
+        l = request.GET.get("l", None)
+        order_list = json.loads(l)
+        courier = Courier.objects.get(id=request.POST.get("courier"))
+        Order.objects.filter(id__in=order_list).update(courier=courier)
+        return HttpResponse("success")

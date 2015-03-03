@@ -2,7 +2,7 @@
 import json
 import random
 from decimal import Decimal
-from shop.models import Category, Shop, Product
+from shop.models import Category, Shop, Product, Courier, AddressCategory
 from account.models import User
 
 
@@ -62,80 +62,8 @@ def create_fake_data():
         for i in range(10):
             create_product(shop=s1, category=item, price=Decimal(str(random.randint(100, 500) / 100.0)),
                            name=u"唇动牛奶味蛋糕" + str(item.id) + str(i), sort_index=i)
-    '''
-    p1 = Product.objects.create(shop=s1, category=c6, name=u"唇动牛奶味蛋糕1", price=1.2,
-                                origin_price=1.02, unit=u"个",
-                                simple_introduction="x元/份，特惠价",
-                                preview_pic="https://tmimage.b0.upaiyun.com/1417489338%E6%97%BA%E6%9"
-                                            "7%BA%E4%BB%99%E8%B4%9D%E5%B0%8F.jpg",
-                                total_num=100, sold_num=10,
-                                introduction="<img src='http://tmimage.b0.upaiyun.com/141733908617."
-                                             "%E5%94%87%E5%8A%A8%E7%89%9B%E5%A5%B6.png'>",
-                                sort_index=1)
-    p2 = Product.objects.create(shop=s1, category=c6, name=u"唇动牛奶味蛋糕2", price=1.2,
-                                origin_price=1.02, unit=u"个",
-                                simple_introduction="x元/份，特惠价",
-                                preview_pic="https://tmimage.b0.upaiyun.com/1417489338%E6%97%BA%E6%9"
-                                            "7%BA%E4%BB%99%E8%B4%9D%E5%B0%8F.jpg",
-                                total_num=100, sold_num=10,
-                                introduction="<img src='http://tmimage.b0.upaiyun.com/141733908617."
-                                             "%E5%94%87%E5%8A%A8%E7%89%9B%E5%A5%B6.png'>",
-                                sort_index=2)
-    p3 = Product.objects.create(shop=s1, category=c6, name=u"唇动牛奶味蛋糕3", price=1.2,
-                                origin_price=1.02, unit=u"个",
-                                simple_introduction="x元/份，特惠价",
-                                preview_pic="https://tmimage.b0.upaiyun.com/1417489338%E6%97%BA%E6%9"
-                                            "7%BA%E4%BB%99%E8%B4%9D%E5%B0%8F.jpg",
-                                total_num=100, sold_num=10,
-                                introduction="<img src='http://tmimage.b0.upaiyun.com/141733908617."
-                                             "%E5%94%87%E5%8A%A8%E7%89%9B%E5%A5%B6.png'>",
-                                sort_index=3)
-    p4 = Product.objects.create(shop=s1, category=c6, name=u"唇动牛奶味蛋糕4", price=1.2,
-                                origin_price=1.02, unit=u"个",
-                                simple_introduction="x元/份，特惠价",
-                                preview_pic="https://tmimage.b0.upaiyun.com/1417489338%E6%97%BA%E6%9"
-                                            "7%BA%E4%BB%99%E8%B4%9D%E5%B0%8F.jpg",
-                                total_num=100, sold_num=10,
-                                introduction="<img src='http://tmimage.b0.upaiyun.com/141733908617."
-                                             "%E5%94%87%E5%8A%A8%E7%89%9B%E5%A5%B6.png'>",
-                                sort_index=4)
-    p5 = Product.objects.create(shop=s1, category=c7, name=u"唇动牛奶味蛋糕5", price=1.2,
-                                origin_price=1.02, unit=u"个",
-                                simple_introduction="x元/份，特惠价",
-                                preview_pic="https://tmimage.b0.upaiyun.com/1417489338%E6%97%BA%E6%9"
-                                            "7%BA%E4%BB%99%E8%B4%9D%E5%B0%8F.jpg",
-                                total_num=100, sold_num=10,
-                                introduction="<img src='http://tmimage.b0.upaiyun.com/141733908617."
-                                             "%E5%94%87%E5%8A%A8%E7%89%9B%E5%A5%B6.png'>",
-                                sort_index=1)
-    p5 = Product.objects.create(shop=s1, category=c7, name=u"唇动牛奶味蛋糕6", price=1.2,
-                                origin_price=1.02, unit=u"个",
-                                simple_introduction="x元/份，特惠价",
-                                preview_pic="https://tmimage.b0.upaiyun.com/1417489338%E6%97%BA%E6%9"
-                                            "7%BA%E4%BB%99%E8%B4%9D%E5%B0%8F.jpg",
-                                total_num=100, sold_num=10,
-                                introduction="<img src='http://tmimage.b0.upaiyun.com/141733908617."
-                                             "%E5%94%87%E5%8A%A8%E7%89%9B%E5%A5%B6.png'>",
-                                sort_index=2)
-    p7 = Product.objects.create(shop=s1, category=c7, name=u"唇动牛奶味蛋糕7", price=1.2,
-                                origin_price=1.02, unit=u"个",
-                                simple_introduction="x元/份，特惠价",
-                                preview_pic="https://tmimage.b0.upaiyun.com/1417489338%E6%97%BA%E6%9"
-                                            "7%BA%E4%BB%99%E8%B4%9D%E5%B0%8F.jpg",
-                                total_num=100, sold_num=10,
-                                introduction="<img src='http://tmimage.b0.upaiyun.com/141733908617."
-                                             "%E5%94%87%E5%8A%A8%E7%89%9B%E5%A5%B6.png'>",
-                                sort_index=3)
-    p8 = Product.objects.create(shop=s1, category=c7, name=u"唇动牛奶味蛋糕8", price=1.2,
-                                origin_price=1.02, unit=u"个",
-                                simple_introduction="x元/份，特惠价",
-                                preview_pic="https://tmimage.b0.upaiyun.com/1417489338%E6%97%BA%E6%9"
-                                            "7%BA%E4%BB%99%E8%B4%9D%E5%B0%8F.jpg",
-                                total_num=100, sold_num=10,
-                                introduction="<img src='http://tmimage.b0.upaiyun.com/141733908617."
-                                             "%E5%94%87%E5%8A%A8%E7%89%9B%E5%A5%B6.png'>",
-                                sort_index=4)
-    '''
 
+    Courier.objects.create(user=u1, shop=s1, name="111", phone="123321")
+    AddressCategory.objects.create(shop=s1, keywords="西院", name="1", index=1)
 
 create_fake_data()

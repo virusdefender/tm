@@ -186,3 +186,7 @@ LOGGING = {
     },
 
 }
+
+DATE_FORMAT = 'Y-m-d'
+DATETIME_FORMAT = 'Y-m-d H:i:s'
+TIME_FORMAT = 'H:i'

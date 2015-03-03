@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}
+
+{% endblock %}
+
+{% block javascriptblock %}
+
+{% endblock %}
+
+{% block body %}
+    <script>
+    function allocate(courier_id){
+        $.ajax({
+            beforeSend: function(xhr){
+                xhr.setRequestHeader("X-CSRFToken", csrf_token());
+            },
+            url: "",
+            type: "post",
+            data: {"courier": courier_id},
+            success: function(){
+                window.location.href = document.referrer;
+            },
+            error: function(){
+                alert("Error");
+            }
+        })
+    }
+    </script>
+
+    <div class="am-container">
+    <h2>将商品分配给谁配送？</h2>
+    <ul class="am-list">
+
+        {% for item in courier %}
+            <li onclick="allocate('{{ item.id }}')">{{ item.name }} -- {{ item.phone }}</li>
+        {% endfor %}
+    </ul>
+    </div>
+
+
+    {% include 'foot.html' %}
+
+{% endblock %}

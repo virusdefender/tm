@@ -137,12 +137,29 @@ class Product(models.Model):
 
 class AddressCategory(models.Model):
     name = models.CharField(max_length=30)
-    keywords = models.TextField(help_text=u"请务必使用英文分号分隔关键词，比如汇园;汇一，最后不要加分号")
+    keywords = models.TextField(help_text=u"请务必使用英文分号分隔关键词，比如汇园;汇一，最后不要加分号", blank=True, null=True)
     shop = models.ForeignKey(Shop)
     index = models.IntegerField(default=0, help_text=u"送货顺序")
 
     class Meta:
         db_table = "address_category"
+
+    def __unicode__(self):
+        return self.name
+
+
+class Courier(models.Model):
+    shop = models.ForeignKey(Shop)
+    user = models.ForeignKey("account.User")
+    name = models.CharField(max_length=30)
+    phone = models.CharField(max_length=11)
+
+    class Meta:
+        db_table = "courier"
+        unique_together = ["shop", "user"]
+
+    def __unicode__(self):
+        return "%s" % self.name
 
 
 class Order(models.Model):
@@ -175,6 +192,7 @@ class Order(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
     delivery_time = models.CharField(max_length=200)
     source = models.CharField(max_length=200)
+    courier = models.ForeignKey(Courier, blank=True, null=True)
     is_first = models.BooleanField(default=False)
 
     class Meta:
@@ -185,6 +203,16 @@ class Order(models.Model):
 
     def create_order_log(self, content):
         OrderLog.objects.create(order=self, content=content)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            for item in AddressCategory.objects.filter(shop=self.shop):
+                for address in item.keywords.split(";"):
+                    if address in self.address:
+                        self.address_category = item
+                        super(Order, self).save(*args, **kwargs)
+                        return
+        super(Order, self).save(*args, **kwargs)
 
 
 class OrderProduct(models.Model):

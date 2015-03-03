@@ -13,9 +13,11 @@ from account.views import (UserLoginAPIView, UserRegisterAPIView, CaptchaView,
 from log.views import LogView
 from shop.views import (CategoryAPIView, ShopAPIView, ProductAPIView, ShoppingCartAPIView,
                         ShopIndexPageView, ShoppingCartPageView, SubmitOrderPageView,
-                        PayResultPageView, OrderAPIView, OrderListPageView, OrderRepayAPIView, PayNotifyAPIView)
+                        PayResultPageView, OrderAPIView, OrderListPageView, OrderRepayAPIView,
+                        PayNotifyAPIView, AllocateOrderCourierView)
 from app.views import AppUpdateAPIView, CSRFTokenAPIView
 from signup.views import SignUpAPIView
+from yadmin.views import CourierOrderListApiView
 
 
 admin.autodiscover()
@@ -64,5 +66,9 @@ urlpatterns = patterns('',
                        url(r"^api/v1/app/token/$", CSRFTokenAPIView.as_view()),
 
                        url(r"^api/v1/signup/$", SignUpAPIView.as_view()),
+
+                       url(r"^allocate/$", AllocateOrderCourierView.as_view()),
+
+                       url(r"^api/v1/yadmin/list/$", CourierOrderListApiView.as_view()),
 
 )
