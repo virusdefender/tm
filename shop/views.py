@@ -369,7 +369,7 @@ class OrderAPIView(APIView):
                 return http_400_response("Order does not exist")
             return Response(data=OrderSerializer(order).data)
         else:
-            orders = Order.objects.filter(user=request.user)
+            orders = Order.objects.filter(user=request.user).order_by("-create_time")
             return paginate(request, orders, OrderSerializer)
 
 

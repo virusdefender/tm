@@ -35,15 +35,24 @@
                 </ul>
             </div>
         </div>
-
+        <ul data-am-widget="pagination" class="am-pagination am-pagination-default">
+            <li class="am-pagination-prev" ms-click="show_prev" ms-if="has_prev">
+                <a href="#">上一页</a>
+            </li>
+            <li class="am-pagination-next" ms-click="show_next" ms-if="has_next">
+                <a href="#" class="">下一页</a>
+            </li>
+        </ul>
 
 
         <script>
             var vm = avalon.define({
                 $id: "order_list",
                 order_list: [],
-                previous_url: "",
+                prev_url: "",
                 next_url: "",
+                has_prev: false,
+                has_next: false,
                 order_title: function (order) {
                     if (order.order_products.length > 1) {
                         return order.order_products[0].name + "等" + order.order_products.length.toString() + "件商品";
@@ -53,41 +62,44 @@
                     }
                 },
 
-                update_list: function(url){
-                    init_info(url);
+                show_prev: function(){
+                    get_info(vm.prev_url);
+                },
+                show_next: function () {
+                    get_info(vm.next_url);
                 }
 
             });
 
-            function init_info(url) {
+            function get_info(url) {
                 $.ajax({
                     url: url,
                     method: "get",
                     dataType: "json",
                     success: function (json) {
                         vm.order_list = json.results;
-
-                        if(json.previous != null) {
-
-                            vm.pervious_url = json.previous;
+                        if (json.previous != null) {
+                            vm.prev_url = json.previous;
+                            vm.has_prev = true;
                         }
-                        else{
-                            vm.previoud_url = "";
+                        else {
+                            vm.prev_url = "";
+                            vm.has_prev = false;
                         }
 
-                        if(json.next != null) {
-
-                            vm.next_url = json.previous;
+                        if (json.next != null) {
+                            vm.next_url = json.next;
+                            vm.has_next = true;
                         }
-                        else{
+                        else {
                             vm.next_url = "";
+                            vm.has_next = false;
                         }
                     }
 
                 });
             }
-
-            init_info("/api/v1/order/?paging=true&limit=2&page=1");
+            get_info("/api/v1/order/?paging=true&limit=10&page=1");
         </script>
     </div>
     {% endverbatim %}
