@@ -8,7 +8,8 @@ from django.views.generic import TemplateView
 from account.views import (UserLoginAPIView, UserRegisterAPIView, CaptchaView,
                            UserView, UserLoginPageView, UserRegisterPageView,
                            UserChangePasswordPageView, UserResetPasswordPageView,
-                           UserResetPasswordSMSAPIView, UserResetPasswordAPIView)
+                           UserResetPasswordSMSAPIView, UserResetPasswordAPIView,
+                           UserCenterPageView)
 from log.views import LogView
 from shop.views import (CategoryAPIView, ShopAPIView, ProductAPIView, ShoppingCartAPIView,
                         ShopIndexPageView, ShoppingCartPageView, SubmitOrderPageView,
@@ -36,6 +37,8 @@ urlpatterns = patterns('',
                        url(r'xadmin/', include(xadmin.site.urls)),
 
                        url(r'^ueditor/', include('DjangoUeditor.urls')),
+
+                       url(r"^user_center/$", UserCenterPageView.as_view()),
 
                        url(r"^login/$", UserLoginPageView.as_view()),
                        url(r"^register/$", UserRegisterPageView.as_view()),

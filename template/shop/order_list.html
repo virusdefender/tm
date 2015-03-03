@@ -16,6 +16,9 @@
 
     {% verbatim %}
     <div ms-controller="order_list">
+        <div class="am-alert am-alert-success" ms-if="no_order_alert">
+            你还没有购买过商品~
+        </div>
 
         <div data-am-widget="list_news" class="am-list-news am-list-news-default">
             <div class="am-list-news-bd">
@@ -53,6 +56,7 @@
                 next_url: "",
                 has_prev: false,
                 has_next: false,
+                no_order_alert: false,
                 order_title: function (order) {
                     if (order.order_products.length > 1) {
                         return order.order_products[0].name + "等" + order.order_products.length.toString() + "件商品";
@@ -62,7 +66,7 @@
                     }
                 },
 
-                show_prev: function(){
+                show_prev: function () {
                     get_info(vm.prev_url);
                 },
                 show_next: function () {
@@ -78,6 +82,9 @@
                     dataType: "json",
                     success: function (json) {
                         vm.order_list = json.results;
+                        if (vm.order_list.length == 0){
+                            vm.no_order_alert = true;
+                        }
                         if (json.previous != null) {
                             vm.prev_url = json.previous;
                             vm.has_prev = true;

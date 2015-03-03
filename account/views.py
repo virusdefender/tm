@@ -6,6 +6,7 @@ import logging
 from django.shortcuts import render
 from django.contrib import auth
 from django.template.response import TemplateResponse
+from django.http import HttpResponseRedirect
 
 from DjangoCaptcha import Captcha
 
@@ -48,6 +49,13 @@ class UserResetPasswordPageView(APIView):
 class UserChangePasswordPageView(APIView):
     def get(self, request):
         return render(request, "account/change_password.html")
+
+
+class UserCenterPageView(APIView):
+    def get(self, request):
+        if not request.user.is_authenticated():
+            return HttpResponseRedirect("/login/")
+        return render(request, "account/user_center.html")
 
 
 class UserLoginAPIView(APIView):

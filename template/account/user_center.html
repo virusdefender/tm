@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}
+个人中心
+{% endblock %}
+
+{% block javascriptblock %}
+
+{% endblock %}
+{% block cssblock %}
+<style>td
+    {
+    text-align:center;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+    <header data-am-widget="header" class="am-header am-header-default">
+        <h1 class="am-header-title">
+            <a href="#title-link" class="">个人中心</a>
+        </h1>
+    </header>
+    <br><br>
+    <div class="am-container">
+
+    <table class="am-table am-table-bordered am-table-radius">
+    <tbody>
+    <tr>
+        <td onclick="window.location.href='/my_info/'"><span class="am-icon-home"></span> 个人信息</td>
+        <td onclick="window.location.href='/my_order/'"><span class="am-icon-reorder"></span> 我的订单</td>
+    </tr>
+    <tr>
+        <td onclick="window.location.href='http://meiqia.com/chat/6548?from=web'"><span class="am-icon-comment"></span> 在线客服</td>
+        <td><span class="am-icon-paper-plane"></span> 神马</td>
+    </tr>
+    </tbody>
+</table>
+    </div>
+{% endblock %}
