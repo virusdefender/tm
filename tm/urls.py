@@ -6,7 +6,9 @@ xadmin.autodiscover()
 from django.contrib import admin
 from django.views.generic import TemplateView
 from account.views import (UserLoginAPIView, UserRegisterAPIView, CaptchaView,
-                           UserView, UserLoginPageView, UserRegisterPageView)
+                           UserView, UserLoginPageView, UserRegisterPageView,
+                           UserChangePasswordPageView, UserResetPasswordPageView,
+                           UserResetPasswordSMSAPIView, UserResetPasswordAPIView)
 from log.views import LogView
 from shop.views import (CategoryAPIView, ShopAPIView, ProductAPIView, ShoppingCartAPIView,
                         ShopIndexPageView, ShoppingCartPageView, SubmitOrderPageView,
@@ -37,10 +39,15 @@ urlpatterns = patterns('',
 
                        url(r"^login/$", UserLoginPageView.as_view()),
                        url(r"^register/$", UserRegisterPageView.as_view()),
+                       url(r"^reset_password/$", UserResetPasswordPageView.as_view()),
+                       url(r"^change_password/$", UserChangePasswordPageView.as_view()),
 
                        url(r"^api/v1/login/$", UserLoginAPIView.as_view()),
                        url(r"^api/v1/register/$", UserRegisterAPIView.as_view()),
                        url(r"^api/v1/user/$", UserView.as_view()),
+
+                       url(r"^api/v1/reset_password/sms/$", UserResetPasswordSMSAPIView.as_view()),
+                       url(r"^api/v1/reset_password/$", UserResetPasswordAPIView.as_view()),
 
                        url(r"^api/v1/captcha/$", CaptchaView.as_view()),
                        url(r"^api/v1/category/$", CategoryAPIView.as_view()),

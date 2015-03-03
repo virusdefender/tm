@@ -17,18 +17,18 @@
             <hr>
             <div class="am-form">
 
-                <label for="email">账号:</label>
-                <input type="email" name="" id="email" ms-duplex="username" ms-on-blur="check_captcha">
+                <label for="username">账号:</label>
+                <input type="text" name="" id="username" ms-duplex="username" ms-on-blur="check_captcha">
                 <br>
                 <label for="password">密码:</label>
                 <input type="password" name="" id="password" ms-duplex="password">
                 <br/>
 
                 <div ms-if="show_captcha">
-                    <label for="email">验证码:</label>
+                    <label for="captcha">验证码:</label>
                     <img ms-src="captcha_src" ms-click="refresh_captcha">
                     <span class="am-icon-refresh" ms-click="refresh_captcha"></span>
-                    <input type="email" name="" id="captcha" maxlength="4" ms-duplex="captcha">
+                    <input type="text" name="" id="captcha" maxlength="4" ms-duplex="captcha">
                     <br>
                 </div>
 

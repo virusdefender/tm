@@ -1,6 +1,6 @@
 # coding=utf-8
 from django.contrib import admin
-from .models import User, LoginLog, PasswordRecoveryLog
+from .models import User, LoginLog, PasswordRecoverySMSLog
 
 
 class UserAdmin(admin.ModelAdmin):

@@ -1,4 +1,5 @@
 # coding=utf-8
+import time
 import random
 import logging
 
@@ -13,8 +14,10 @@ from rest_framework.response import Response
 
 from utils.shortcuts import http_400_response
 
-from account.models import User, LoginLog, PasswordRecoveryLog
-from .serializers import UserLoginSerializer, UserRegisterSerializer, UserInfoSerializer, UserChangePasswordSerializer
+from shop.models import Order
+from .models import User, LoginLog, PasswordRecoverySMSLog
+from .serializers import (UserLoginSerializer, UserRegisterSerializer, UserInfoSerializer,
+                          UserChangePasswordSerializer, UserResetPasswordSerializer, UserResetPasswordSMSSerializer)
 
 
 def check_is_need_captcha(username):
@@ -35,6 +38,16 @@ class UserLoginPageView(APIView):
 class UserRegisterPageView(APIView):
     def get(self, request):
         return render(request, "account/register.html")
+
+
+class UserResetPasswordPageView(APIView):
+    def get(self, request):
+        return render(request, "account/reset_password.html")
+
+
+class UserChangePasswordPageView(APIView):
+    def get(self, request):
+        return render(request, "account/change_password.html")
 
 
 class UserLoginAPIView(APIView):
@@ -115,9 +128,46 @@ class UserChangePasswordAPIView(APIView):
             return http_400_response(serializer.errors)
 
 
+class UserResetPasswordSMSAPIView(APIView):
+    def post(self, request):
+        serializer = UserResetPasswordSMSSerializer(data=request.DATA)
+        if serializer.is_valid():
+            data = serializer.data
+
+            # 判断用户和手机号是否存在 是否超过频率限制等等  假如没问题
+            if Order.objects.filter(user__username=data["username"], phone=data["phone"]).exists():
+                verify_code = random.randint(100000, 999999)
+                # todo 发送短信
+                PasswordRecoverySMSLog.objects.create(code=verify_code, username=data["username"],
+                                                      phone=data["phone"], expires_at=int(time.time()) + 1200)
+                return Response(data={"status": "success", "code": verify_code})
+            else:
+                return http_400_response(u"用户名或手机不存在，请联系客服")
+
+        else:
+            return http_400_response(serializer.errors)
+
+
 class UserResetPasswordAPIView(APIView):
     def post(self, request):
-        pass
+        serializer = UserResetPasswordSerializer(data=request.DATA)
+        if serializer.is_valid():
+            data = serializer.data
+            l = PasswordRecoverySMSLog.objects.filter(username=data["username"],
+                                                      code=data["code"],
+                                                      status=True,
+                                                      expires_at__gte=int(time.time()))
+            if l.exists():
+                user = User.objects.get(username=data["username"])
+                user.set_password(data["password"])
+                user.save()
+                l.update(status=False)
+                return Response(data={"status": True})
+            l.update(status=False)
+            return http_400_response(u"验证码错误，请重新请求发送！")
+
+        else:
+            return http_400_response(serializer.errors)
 
 
 class CaptchaView(APIView):

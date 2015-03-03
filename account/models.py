@@ -18,11 +18,12 @@ class User(AbstractUser):
         db_table = "user"
 
 
-class PasswordRecoveryLog(models.Model):
+class PasswordRecoverySMSLog(models.Model):
     """发送密码恢复短信的记录
     """
-    user = models.ForeignKey(User)
-    send_time = models.DateTimeField(auto_now_add=True)
+    username = models.CharField(max_length=30)
+    phone = models.CharField(max_length=11)
+    expires_at = models.IntegerField()
     code = models.CharField(max_length=10)
     status = models.BooleanField(default=True)
 

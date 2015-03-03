@@ -24,3 +24,14 @@ class UserInfoSerializer(serializers.ModelSerializer):
 class UserChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(max_length=30)
     new_password = serializers.CharField(min_length=6, max_length=30)
+
+
+class UserResetPasswordSMSSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=30)
+    phone = serializers.CharField(min_length=11, max_length=11)
+
+
+class UserResetPasswordSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=30)
+    code = serializers.CharField(max_length=6)
+    password = serializers.CharField(max_length=30, min_length=6)
